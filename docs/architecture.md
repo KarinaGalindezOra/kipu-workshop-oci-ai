@@ -23,6 +23,22 @@ Pregunta de ingeniería
 | OCI Generative AI Inference | Recibe los dos prompts comparables y reporta telemetría de uso. | Se utiliza un modelo on-demand aprobado y un límite de salida fijo. |
 | Streamlit | Visualiza los JSON de evidencia local. | No guarda credenciales ni ejecuta llamadas OCI. |
 
+## Topología del workshop
+
+El workshop se ejecuta en un tenant trial centralizado. La infraestructura se prepara una vez y los participantes ejecutan el recorrido individualmente. Para una cohorte de hasta diez personas, se asigna un `TeamCode` único por participante, por ejemplo `T01/P01` hasta `T10/P01`. El término `TeamCode` conserva el modelo de scopes del SDK; no exige que dos personas compartan terminal o credenciales.
+
+```text
+Tenant trial del workshop
+  -> Autonomous Database compartida
+     -> Memory store precreado
+        -> T01 / P01: identidad OCI, usuario temporal, wallet y evidencia propios
+        -> T02 / P01: identidad OCI, usuario temporal, wallet y evidencia propios
+        -> ...
+        -> T10 / P01: identidad OCI, usuario temporal, wallet y evidencia propios
+```
+
+El repositorio se distribuye públicamente mediante el enlace de GitHub o un QR que apunte a ese enlace. Los wallets, contraseñas, usuarios temporales y archivos de sesión se entregan por un canal privado y nunca se suben al repositorio.
+
 ## Secuencia del laboratorio
 
 1. El participante ejecuta preflight para validar Python, sesión OCI, wallet y acceso de runtime.

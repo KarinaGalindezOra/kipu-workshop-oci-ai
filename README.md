@@ -31,12 +31,15 @@ No se requiere Docker ni Docker Desktop.
 
 ## Inicio rápido del participante
 
-El participante no crea recursos OCI ni usa `ADMIN`. Debe recibir del facilitador, por un canal privado y fuera de GitHub:
+El participante descarga o clona este repositorio público desde GitHub; el mismo enlace puede distribuirse mediante un QR. No crea recursos OCI ni usa `ADMIN`.
 
-- Un usuario temporal de aplicación de base de datos.
+El workshop usa un tenant trial centralizado, una Autonomous Database y un memory store precreados. Cada participante realiza su propia ejecución y recibe por un canal privado, fuera de GitHub:
+
+- Códigos de alcance únicos, por ejemplo `T01` y `P01`.
+- Un usuario temporal individual de aplicación de base de datos.
 - Un wallet privado y su contraseña.
 - Un archivo de sesión privado basado en `labs/lab01_agent_memory/config/participant-session.ps1.example`.
-- Confirmación de acceso al modelo on-demand aprobado.
+- Confirmación de acceso al modelo on-demand aprobado con su identidad OCI individual.
 
 Ejecute lo siguiente desde una copia local del repositorio:
 

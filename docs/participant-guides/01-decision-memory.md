@@ -14,22 +14,27 @@ Cada participante usa Oracle AI Agent Memory SDK desde Python para persistir, re
 4. Diferenciar aislamiento de recuperación de autorización de producción.
 5. Comparar telemetría real de OCI para un prompt repetitivo y un prompt con memoria recuperada.
 
-## Tiempo
+## Actividades del recorrido
 
-| Actividad | Duración |
-| --- | ---: |
-| Marco de Agent Memory, ADB y medición real | 25 min |
-| Preflight individual sin inferencia | 20 min |
-| Ejercicio real de memoria y aislamiento en ADB | 35 min |
-| Lectura del SDK, scopes y evidencia de memoria | 25 min |
-| Comparación OCI individual de dos solicitudes | 25 min |
-| Telemetría, evidencia visual, discusión y cierre | 55 min |
+1. Validar el entorno local, la sesión OCI, el wallet y el acceso de runtime sin llamar al modelo.
+2. Leer el SDK y ubicar los alcances, la persistencia, la recuperación y el aislamiento.
+3. Persistir y recuperar dos decisiones procedurales sintéticas en Autonomous Database.
+4. Ejecutar la comparación real de dos solicitudes on-demand a OCI Generative AI.
+5. Analizar en Streamlit la evidencia de memoria, aislamiento, telemetría y calidad de respuesta.
+6. Explicar los límites del patrón y su evolución hacia una arquitectura de producción.
 
 ## Antes de comenzar
 
-El facilitador entrega por un canal privado una copia del repositorio, un usuario temporal de aplicación, un wallet mTLS con contraseña y un archivo de sesión con valores no secretos. El usuario no es `ADMIN` ni el propietario del esquema de memoria.
+El código se obtiene desde el repositorio público del workshop: [KarinaGalindezOra/kipu-workshop-oci-ai](https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai). El facilitador puede compartir este mismo enlace mediante un QR; el QR solo dirige al repositorio público y no contiene credenciales.
 
-Cada persona ejecuta desde su propio computador Windows con PowerShell. El equipo comparte ADB y memory store, pero no una terminal, una contraseña ni un resultado.
+El workshop usa un **tenant trial centralizado**, una Autonomous Database y un memory store precreados. Cada participante trabaja individualmente desde su propio computador Windows con PowerShell y recibe por un canal privado:
+
+- Un código lógico de aislamiento, por ejemplo `T01` y `P01`. Para diez participantes se asignan pares únicos como `T01/P01`, `T02/P01` hasta `T10/P01`.
+- Un usuario temporal de aplicación de ADB, distinto de `ADMIN` y del propietario del esquema de memoria.
+- Un wallet mTLS privado, su contraseña y un archivo de sesión `.ps1` con valores no secretos.
+- Confirmación de que su identidad OCI individual tiene acceso al modelo on-demand aprobado.
+
+La ADB y el memory store son compartidos como infraestructura; la terminal, identidad OCI, usuario temporal, wallet, códigos de alcance y evidencia son individuales. En esta guía, `TeamCode` identifica un límite lógico de aislamiento y no implica que dos personas compartan una ejecución.
 
 > Solo se permiten datos sintéticos del repositorio. No ingreses contratos, clientes, credenciales, código interno ni información de Khipu.
 
@@ -57,7 +62,7 @@ La operación es real y visible: `add_memory(..., memory_type="guideline")` pers
 
 ## Paso 3: cargar la sesión privada
 
-El facilitador te dará un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el compartment aprobado, el modelo Cohere on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
+Por un canal privado recibirás un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el compartment aprobado, el modelo on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
 
 Antes del preflight, crea **tu propia** sesión OCI en una ruta privada. Usa el navegador; no
 uses `--no-browser` para una primera sesión, porque ese modo requiere previamente una API key
@@ -94,9 +99,7 @@ base de datos y wallet únicamente en la terminal local.
 
 No pases contraseñas como argumentos ni las declares en archivos `.env` compartidos.
 
-> Para el ensayo de la facilitadora, verifica que `LAB01_MEMORY_SCHEMA_OWNER` y
-> `LAB01_MEMORY_STORE_ID` sean valores distintos: el primero nombra el esquema owner de memoria;
-> el segundo nombra el store lógico creado dentro de ese esquema. No intercambies ambos valores.
+Verifica que `LAB01_MEMORY_SCHEMA_OWNER` y `LAB01_MEMORY_STORE_ID` sean valores distintos: el primero nombra el esquema owner de memoria; el segundo nombra el store lógico creado dentro de ese esquema. No intercambies ambos valores.
 
 ## Paso 4: preflight real sin inferencia
 
