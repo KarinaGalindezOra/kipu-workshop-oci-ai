@@ -71,7 +71,7 @@ valores entregados por el facilitador.
 
 ```powershell
 $participantProfile = "LAB01_P01"
-$participantRegion = "us-chicago-1"
+$participantRegion = "<tenant-home-region>"
 $participantOciConfig = "C:\KhipuPrivate\oci\p01-config"
 $env:BROWSER = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 
