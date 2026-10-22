@@ -52,6 +52,25 @@ GUIDELINE_DISPLAY_CONTENT = {
     ),
 }
 
+MEMORY_STORE_TABLES = (
+    ("<STORE>_ACTOR_PROFILE", "Perfil técnico del actor o usuario al que se asocia una memoria."),
+    ("<STORE>_DOCUMENT", "Documento lógico que agrupa contenido y metadatos persistidos."),
+    ("<STORE>_MEMORY", "Registro principal de cada memoria, incluida su clase procedural guideline."),
+    ("<STORE>_MEMORY_LINK", "Relaciones entre memorias, actores y documentos cuando el SDK las necesita."),
+    ("<STORE>_MESSAGE", "Mensajes asociados a una memoria conversacional cuando ese patrón se utiliza."),
+    ("<STORE>_RECORD_CHUNKS", "Fragmentos recuperables de los registros de memoria."),
+    ("<STORE>_THREAD", "Hilo o contexto conversacional, disponible aunque este laboratorio no lo use como foco."),
+    ("<STORE>_THREAD_SUMMARY", "Resumen de un hilo, disponible para los patrones conversacionales del SDK."),
+)
+
+SDK_READING_STEPS = (
+    ("Abrir, no crear", "El participante abre el memory store existente con `SchemaPolicy.REQUIRE_EXISTING`; no aprovisiona tablas ni modifica la configuración del owner."),
+    ("Persistir una regla", "El SDK guarda una guía sintética con tipo `guideline` dentro del alcance individual `t01:p01`."),
+    ("Recuperar por palabra clave", "La consulta `idempotency` filtra el mismo alcance y devuelve solo la regla procedural pertinente."),
+    ("Comprobar frontera", "La misma búsqueda contra el alcance de control no devuelve resultados visibles al participante."),
+    ("Comparar dos prompts", "Solo la corrida final llama dos veces a OCI Generative AI: baseline completo y prompt compacto con la regla recuperada."),
+)
+
 
 def apply_styles() -> None:
     """Apply a compact workshop-oriented visual treatment."""
@@ -318,17 +337,17 @@ def render_executed_participant_evidence() -> None:
     local_paths = _participant_evidence_paths()
     with st.sidebar:
         st.divider()
-        st.subheader("Evidencia ejecutada")
+        st.subheader("Evidencia real de ejecución")
         uploaded = st.file_uploader(
-            "Cargar evidencia del equipo",
+            "Cargar JSON seguro ya generado",
             type="json",
             key="participant_evidence_upload",
-            help="Selecciona el JSON generado por el laboratorio. No cargues wallets ni credenciales.",
+            help="El dashboard solo lee y visualiza este JSON. No ejecuta el laboratorio ni carga wallets o credenciales.",
         )
         selected_path: Path | None = None
         if uploaded is None and local_paths:
             selected_path = st.selectbox(
-                "Evidencia detectada en artifacts",
+                "Evidencia real detectada en artifacts",
                 options=local_paths,
                 format_func=_evidence_path_label,
             )
@@ -441,19 +460,21 @@ def render_executed_participant_evidence() -> None:
 
 
 def render_live_evidence() -> None:
-    """Display only a facilitator-provided, validated, credential-free OCI evidence file."""
+    """Display optional facilitator evidence without mixing it with participant evidence."""
 
-    with st.sidebar:
-        st.divider()
-        st.subheader("Evidencia OCI del facilitador")
-        uploaded = st.file_uploader(
-            "Cargar JSON de aislamiento", type="json", help="Solo archivos de evidencia sin credenciales."
-        )
-        live_evidence_available = LIVE_EVIDENCE_PATH.is_file()
-        use_example = st.toggle(
-            "Mostrar ejemplo de formato (no evidencia del trial)",
-            value=uploaded is None and not live_evidence_available,
-        )
+    st.caption("Esta prueba es opcional y complementaria. No reemplaza la evidencia individual del participante que aparece arriba.")
+    uploaded = st.file_uploader(
+        "Cargar JSON opcional de aislamiento",
+        type="json",
+        key="facilitator_isolation_upload",
+        help="Solo archivos de evidencia sin credenciales.",
+    )
+    live_evidence_available = LIVE_EVIDENCE_PATH.is_file()
+    use_example = st.toggle(
+        "Mostrar ejemplo de formato (no evidencia del trial)",
+        value=uploaded is None and not live_evidence_available,
+        key="facilitator_isolation_example",
+    )
 
     raw_json: str | None = None
     evidence_label: str | None = None
@@ -467,7 +488,7 @@ def render_live_evidence() -> None:
         raw_json = EXAMPLE_EVIDENCE_PATH.read_text(encoding="utf-8")
         evidence_label = "example evidence"
 
-    st.subheader("Prueba en OCI AI Agent Memory")
+    st.subheader("Prueba adicional del facilitador en OCI AI Agent Memory")
     if raw_json is None:
         st.info(
             "Aún no se cargó evidencia en vivo. La experiencia de participante continúa en modo local; "
@@ -500,6 +521,107 @@ def render_live_evidence() -> None:
     st.caption(f"Fuente: {evidence_label}. Generada: {evidence['generated_at_utc']}. Sin secretos.")
 
 
+def render_local_simulator() -> None:
+    """Render a deliberately local teaching simulator, separate from OCI evidence."""
+
+    st.subheader("Simulador docente local")
+    st.warning("Esta pestaña no consulta ADB, OCI Generative AI ni el SDK. Sus botones solo cambian la visualización de datos sintéticos en el navegador; no alteran la evidencia real.")
+    left, right = st.columns(2)
+    with left:
+        team_id = st.selectbox("Equipo simulado", options=tuple(TEAM_LABELS), format_func=TEAM_LABELS.get, key="simulation_team")
+    with right:
+        question = st.selectbox("Pregunta de ingeniería simulada", options=QUESTION_OPTIONS, key="simulation_question")
+    controls, explanation = st.columns((1, 2))
+    with controls:
+        run_retrieval = st.button("Mostrar recuperación simulada", type="primary", use_container_width=True, key="simulation_show_memory_button")
+        if st.button("Reiniciar demostración", use_container_width=True, key="simulation_reset_button"):
+            st.session_state["lab01_show_memory"] = False
+            st.session_state["lab01_isolation_checked"] = False
+    with explanation:
+        st.info("Cambiar la pregunta sirve para discutir el diseño de recuperación. Las cifras de «Mi evidencia real» no cambian porque provienen de un JSON generado por una corrida controlada.")
+
+    report = build_report(team_id, question)
+    if run_retrieval:
+        st.session_state["lab01_show_memory"] = True
+    retrieval_completed = st.session_state.get("lab01_show_memory", False)
+    isolation_checked = st.session_state.get("lab01_isolation_checked", False)
+    st.markdown(f'<span class="scope-chip">Alcance simulado: {TEAM_LABELS[team_id]}</span><span class="scope-chip">Datos sintéticos locales</span>', unsafe_allow_html=True)
+    st.write(f"**Pregunta simulada:** {question}")
+    render_journey(retrieval_completed, isolation_checked)
+    st.divider()
+    st.subheader("Memoria procedural simulada")
+    if retrieval_completed:
+        render_memory_cards(report["retrieved_guidelines"])
+        st.markdown('<div class="boundary-card"><strong>Frontera de contexto simulada.</strong> La búsqueda cruzada devuelve cero guías de otro equipo en el conjunto local.</div>', unsafe_allow_html=True)
+    else:
+        st.info("Selecciona «Mostrar recuperación simulada» para revelar las guías locales.")
+    with st.expander("Probar el intento de acceso entre equipos (simulado)"):
+        st.write("El segundo alcance representa deliberadamente otro equipo. Esta verificación es una ilustración local; la prueba real aparece en el JSON de evidencia ejecutada.")
+        if st.button("Comprobar aislamiento simulado", use_container_width=True, key="simulation_isolation_button"):
+            st.session_state["lab01_isolation_checked"] = True
+            isolation_checked = True
+        if isolation_checked:
+            render_scope_map(team_id)
+            if report["isolation_passed"]:
+                st.success("Acceso cruzado simulado bloqueado: no se recuperó ninguna guía de otro equipo.")
+            else:
+                st.error("El aislamiento local falló; no continúes hasta resolverlo.")
+    st.divider()
+    st.subheader("Vista previa local de contexto")
+    render_offline_token_preview(report["prompt_comparison"])
+    st.download_button("Descargar simulación local", data=json.dumps(report, indent=2), file_name=f"lab01-{team_id}-local-simulation.json", mime="application/json", help="Este archivo es didáctico; no es evidencia OCI del workshop.", key="simulation_download")
+
+
+def render_sdk_reading() -> None:
+    """Explain the code path exercised by the real participant runner."""
+
+    st.subheader("Lectura guiada del código y del SDK")
+    st.info("Esta pestaña explica la misma ruta que ejecutó el runner. No hace llamadas ni modifica la base de datos.")
+    for index, (title, description) in enumerate(SDK_READING_STEPS, start=1):
+        with st.expander(f"{index}. {title}", expanded=index == 1):
+            st.write(description)
+    st.subheader("Fragmentos esenciales")
+    left, right = st.columns(2)
+    with left:
+        st.caption("El participante requiere que el store ya exista; no crea su propio esquema.")
+        st.code("OracleAgentMemory(\n    memory_store_id=memory_store_id,\n    schema_owner=memory_schema_owner,\n    schema_policy=SchemaPolicy.REQUIRE_EXISTING,\n)", language="python")
+        st.caption("La regla se persiste como guía procedural dentro del alcance individual.")
+        st.code("memory.add_memory(\n    content=guideline_text,\n    memory_type=\"guideline\",\n    user_id=scopes.individual,\n)", language="python")
+    with right:
+        st.caption("La recuperación reutiliza exactamente el mismo alcance del participante.")
+        st.code("memory.search(\n    query=\"idempotency\",\n    user_id=scopes.individual,\n    exact_user_match=True,\n    record_types=[\"guideline\"],\n)", language="python")
+        st.caption("La comparación final conserva modelo y parámetros; cambia solo el contexto de entrada.")
+        st.code("baseline = client.chat(full_context_prompt, settings)\nmemory = client.chat(compact_prompt_with_retrieved_rule, settings)", language="python")
+    st.subheader("Preguntas para discutir durante el workshop")
+    st.markdown("- ¿Qué texto se evita reenviar cuando solo se recupera `payment-idempotency`?  \n- ¿Qué frontera comprueba `exact_user_match=True` y qué controles adicionales requeriría producción?  \n- ¿Por qué la comparación de tokens mantiene el mismo modelo y los mismos parámetros?  \n- ¿Qué diferencia hay entre probar una regla recuperada y usar memoria como historial completo de conversación?")
+    st.caption("La corrida OCI real usa una pregunta fija para que los dos prompts sean comparables. El selector de preguntas del simulador no vuelve a ejecutar inferencias ni cambia esa telemetría.")
+
+
+def render_table_model() -> None:
+    """Explain the memory-store tables installed by the owner bootstrap."""
+
+    st.subheader("Modelo de tablas del memory store")
+    st.info("Las ocho tablas fueron creadas una vez por el bootstrap del owner. Los participantes reciben privilegios de runtime sobre el store existente; no administran sus tablas.")
+    st.graphviz_chart('''digraph memory_store { rankdir=LR; graph [bgcolor="transparent"]; node [shape=box, style="rounded,filled", fillcolor="#EFF6FF", color="#2563EB"]; actor [label="ACTOR_PROFILE"]; memory [label="MEMORY\\nregla procedural"]; chunks [label="RECORD_CHUNKS\\ncontenido recuperable"]; document [label="DOCUMENT"]; links [label="MEMORY_LINK"]; thread [label="THREAD"]; summary [label="THREAD_SUMMARY"]; message [label="MESSAGE"]; actor -> memory; memory -> chunks; document -> memory; memory -> links; thread -> summary; thread -> message; }''')
+    st.caption("Diagrama conceptual: el prefijo físico depende del memory store. El laboratorio usa MEMORY y la recuperación procedural; los objetos de hilo están disponibles para otros patrones del SDK.")
+    st.dataframe(pd.DataFrame(MEMORY_STORE_TABLES, columns=["Tabla conceptual", "Propósito"]), hide_index=True, use_container_width=True)
+    st.markdown("Referencias: [Oracle AI Agent Memory](https://docs.oracle.com/en/database/oracle/oracle-database/26/aioci/ai-agent-memory.html) · [Oracle Database 26ai](https://docs.oracle.com/en/database/oracle/oracle-database/26/).")
+
+
+def render_real_evidence_tab() -> None:
+    """Keep real execution evidence as the first and unambiguous dashboard view."""
+
+    render_before_execution()
+    st.divider()
+    render_executed_participant_evidence()
+    st.divider()
+    with st.expander("Prueba adicional del facilitador (opcional)"):
+        render_live_evidence()
+    st.divider()
+    st.subheader("Cierre arquitectónico")
+    st.markdown("1. Una guía procedural no es una conversación completa.  \n2. El alcance del equipo limita qué contexto puede recuperarse.  \n3. Menos texto repetido puede reducir el contexto de entrada, sin ocultar el costo del ciclo de memoria.")
+
+
 def main() -> None:
     """Run the local, browser-based Lab 1 participant experience."""
 
@@ -515,89 +637,17 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    render_before_execution()
-    st.divider()
-    render_executed_participant_evidence()
-    st.divider()
-    st.subheader("Simulación visual local — no consulta ADB ni OCI")
-    st.warning(
-        "Los botones de esta sección solo ilustran el algoritmo en memoria local. No persisten, no "
-        "recuperan desde Autonomous Database y no generan evidencia del workshop."
+    real_tab, simulator_tab, sdk_tab, tables_tab = st.tabs(
+        ("1. Mi evidencia real", "2. Simulador docente", "3. Código y SDK", "4. Modelo de tablas")
     )
-
-    with st.sidebar:
-        st.header("Simulación local")
-        team_id = st.selectbox("Equipo", options=tuple(TEAM_LABELS), format_func=TEAM_LABELS.get)
-        question = st.selectbox("Pregunta de ingeniería", options=QUESTION_OPTIONS)
-        run_retrieval = st.button("Mostrar recuperación simulada", type="primary", use_container_width=True)
-        if st.button("Reiniciar demostración", use_container_width=True):
-            st.session_state["lab01_show_memory"] = False
-            st.session_state["lab01_isolation_checked"] = False
-        st.caption("No conectado: datos sintéticos en memoria local; no solicita credenciales.")
-
-    report = build_report(team_id, question)
-    comparison = report["prompt_comparison"]
-    selected_team = TEAM_LABELS[team_id]
-    if run_retrieval:
-        st.session_state["lab01_show_memory"] = True
-    retrieval_completed = st.session_state.get("lab01_show_memory", False)
-    isolation_checked = st.session_state.get("lab01_isolation_checked", False)
-
-    st.markdown(
-        f'<span class="scope-chip">Alcance activo: {selected_team}</span>'
-        '<span class="scope-chip">Datos sintéticos</span>',
-        unsafe_allow_html=True,
-    )
-    st.write(f"**Pregunta:** {question}")
-    render_journey(retrieval_completed, isolation_checked)
-
-    st.divider()
-    st.subheader("Memoria procedural recuperada")
-    if retrieval_completed:
-        render_memory_cards(report["retrieved_guidelines"])
-        st.markdown(
-            '<div class="boundary-card"><strong>Frontera de contexto aplicada.</strong> '
-            "La búsqueda cruzada devuelve cero guías de otro equipo.</div>",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.info("Selecciona «Mostrar recuperación simulada» para revelar las guías locales.")
-
-    with st.expander("Paso 2 · Probar el intento de acceso entre equipos"):
-        st.write(
-            "El segundo alcance se usa deliberadamente para representar otro equipo. "
-            "No contiene las guías asociadas al alcance activo."
-        )
-        if st.button("Comprobar aislamiento", use_container_width=True):
-            st.session_state["lab01_isolation_checked"] = True
-            isolation_checked = True
-        if isolation_checked:
-            render_scope_map(team_id)
-            if report["isolation_passed"]:
-                st.success("Acceso cruzado bloqueado: no se recuperó ninguna guía de otro equipo.")
-            else:
-                st.error("El aislamiento local falló; no continúes hasta resolverlo.")
-
-    st.divider()
-    st.subheader("Vista previa local de contexto")
-    render_offline_token_preview(comparison)
-
-    st.divider()
-    render_live_evidence()
-
-    st.divider()
-    st.subheader("Cierre del equipo")
-    st.markdown(
-        "1. Una guía procedural no es una conversación completa.  \n"
-        "2. El alcance del equipo limita qué contexto puede recuperarse.  \n"
-        "3. Menos texto repetido puede reducir el contexto de entrada, sin ocultar el costo del ciclo de memoria."
-    )
-    st.download_button(
-        "Descargar evidencia local del equipo",
-        data=json.dumps(report, indent=2),
-        file_name=f"lab01-{team_id}-local-evidence.json",
-        mime="application/json",
-    )
+    with real_tab:
+        render_real_evidence_tab()
+    with simulator_tab:
+        render_local_simulator()
+    with sdk_tab:
+        render_sdk_reading()
+    with tables_tab:
+        render_table_model()
 
 
 if __name__ == "__main__":
