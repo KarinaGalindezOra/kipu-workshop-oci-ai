@@ -16,17 +16,14 @@ El laboratorio usa únicamente datos sintéticos. Una reducción de tokens de en
 ## Contenido
 
 - `labs/lab01_agent_memory/`: código Python, scripts PowerShell, UI Streamlit y pruebas del laboratorio.
-- `platform/bootstrap/`: SQL de owner-only para crear el esquema, usuario temporal y permisos mínimos.
-- `terraform/`: módulos y perfil de ejemplo para aprovisionar un entorno de workshop.
 - `docs/participant-guides/`: guía de participante.
-- `docs/facilitator-guides/`: prework, guía de facilitación y roster de ejemplo.
+- `docs/architecture.md`: arquitectura y límites del patrón de memoria del laboratorio.
 
 ## Requisitos
 
 - Windows PowerShell.
 - Python 3.11.
 - OCI CLI autenticado con una identidad individual del participante.
-- SQLcl y Java para el prework del facilitador.
 - Un Autonomous Database ya aprobado para el workshop, con wallet privado por participante.
 - Un modelo de chat on-demand aprobado en OCI Generative AI.
 
@@ -59,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_p
   -Preflight
 ```
 
-Continúe con la guía de participante: `docs/participant-guides/01-decision-memory.md`.
+Continúe con la guía de participante: `docs/participant-guides/01-decision-memory.md`. Antes de ejecutar, revise también `docs/architecture.md`.
 
 ## Pruebas locales
 
@@ -73,10 +70,6 @@ Las pruebas de integración OCI están protegidas y no se ejecutan por defecto.
 ## Seguridad
 
 No publique ni haga commit de wallets, contraseñas, sesiones OCI, tokens, OCIDs reales, archivos `terraform.tfvars`, estados Terraform ni evidencia generada por participantes. Revise `.gitignore` antes de cada commit.
-
-## Uso de Terraform
-
-El perfil `terraform/environments/trial-team/terraform.tfvars.example` contiene solo marcadores. Copie ese archivo a `terraform.tfvars` fuera del control de versiones, complete valores autorizados y revise el plan antes de aplicar. Consulte `docs/facilitator-guides/01-decision-memory-prework.md`.
 
 ## Licencia
 

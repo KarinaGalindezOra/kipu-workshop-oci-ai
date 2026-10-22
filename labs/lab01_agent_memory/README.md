@@ -13,7 +13,6 @@ The participant never uses `ADMIN`, never creates Agent Memory objects, and alwa
 - `src/lab01_agent_memory/sdk_exercise.py`: credential-free core exercise behavior and evidence schema.
 - `scripts/run_participant_sdk_lab.py`: direct Oracle AI Agent Memory SDK runner.
 - `scripts/run_participant_live.ps1`: participant launcher for preflight, the real no-inference memory exercise, and the single two-call token comparison.
-- `scripts/bootstrap_team_memory.py`: one-time owner-only memory-store bootstrap.
 - `ui/app.py`: visualizes safe JSON evidence; it does not receive or display credentials.
 - `tests/test_sdk_exercise.py`: deterministic core behavior tests.
 - `../../platform/bootstrap/`: database owner and runtime-access SQL scripts.
@@ -30,7 +29,7 @@ python -m pytest labs/lab01_agent_memory/tests -q
 
 ## Direct SDK execution
 
-The facilitator must first complete the team-trial prework: provision ADB, create an owner and one application user per participant, bootstrap the empty memory store, grant runtime access, and securely hand off each participant session.
+The workshop team prepares ADB, the memory store, participant database user, wallet and individual OCI identity before the participant begins. The participant receives those private prerequisites through the approved channel.
 
 The participant starts with the generic launcher documented in the Spanish [participant guide](../../docs/participant-guides/01-decision-memory.md). Its `-Preflight` mode checks the private local configuration without invoking the model. Its `-MemoryExercise` mode persists and retrieves one approved synthetic decision from ADB without invoking the model and writes `memory-exercise-evidence.json`. The live mode explicitly confirms the exactly two on-demand calls and writes only a safe JSON evidence artifact, such as `artifacts/lab01/t01/p01/oci-inference-evidence.json`.
 
@@ -43,6 +42,4 @@ An exact `user_id` passed to Agent Memory search is a retrieval boundary. It is 
 ## Documents
 
 - [Participant guide](../../docs/participant-guides/01-decision-memory.md)
-- [Facilitator guide](../../docs/facilitator-guides/01-decision-memory.md)
-- [Facilitator prework](../../docs/facilitator-guides/01-decision-memory-prework.md)
-- [Team trial Terraform profile](../../terraform/environments/trial-team/README.md)
+- [Architecture](../../docs/architecture.md)
