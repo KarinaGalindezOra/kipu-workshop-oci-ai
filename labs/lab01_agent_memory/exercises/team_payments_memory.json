@@ -1,0 +1,20 @@
+{
+  "team_id": "team-payments",
+  "display_name": "Payments API",
+  "procedures": [
+    {
+      "id": "payment-idempotency",
+      "content": "Reject a repeated payment request when the idempotency key already exists with a different payload. Preserve the original request identifier for traceability.",
+      "tags": ["payment", "duplicate", "idempotency", "request", "contract-v2"]
+    },
+    {
+      "id": "contract-compatibility",
+      "content": "Before changing an API contract, preserve backward compatibility and add contract tests for the approved v2 behavior.",
+      "tags": ["api", "contract", "compatibility", "testing", "v2"]
+    }
+  ],
+  "primary_query": "payment idempotency contract v2",
+  "retrieval_query": "idempotency",
+  "required_response_terms": ["idempotency", "original request identifier"],
+  "cross_team_challenge": "database migration controlled phases"
+}

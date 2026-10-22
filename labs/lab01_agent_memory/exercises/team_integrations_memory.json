@@ -1,0 +1,20 @@
+{
+  "team_id": "team-integrations",
+  "display_name": "Integration Delivery",
+  "procedures": [
+    {
+      "id": "audit-traceability",
+      "content": "Every integration decision must preserve a correlation identifier, the source system, and a timestamp for audit review.",
+      "tags": ["audit", "correlation", "source", "timestamp", "integration"]
+    },
+    {
+      "id": "migration-rollout",
+      "content": "Roll out a database migration in two controlled phases and verify a rollback path before enabling the new integration behavior.",
+      "tags": ["database", "migration", "rollout", "phases", "rollback"]
+    }
+  ],
+  "primary_query": "audit correlation integration",
+  "retrieval_query": "audit",
+  "required_response_terms": ["correlation identifier", "timestamp"],
+  "cross_team_challenge": "payment idempotency contract-v2"
+}

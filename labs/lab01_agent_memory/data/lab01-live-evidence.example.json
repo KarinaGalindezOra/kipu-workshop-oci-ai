@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "evidence_type": "lab01_oci_isolation_validation",
+  "generated_at_utc": "2026-10-13T00:00:00+00:00",
+  "contains_no_secrets": true,
+  "teams": {
+    "team-a": {
+      "result_count": 1,
+      "isolation_passed": true
+    },
+    "team-b": {
+      "result_count": 1,
+      "isolation_passed": true
+    }
+  }
+}

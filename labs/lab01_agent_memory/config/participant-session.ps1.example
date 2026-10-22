@@ -1,0 +1,14 @@
+# Copy this file to a private directory outside the repository and replace placeholders.
+# Never put passwords, wallet archives, tokens, or private keys in this file.
+
+$env:OCI_CONFIG_FILE = "<absolute-path-to-private-oci-config>"
+$env:OCI_CONFIG_PROFILE = "<participant-oci-profile-name>"
+$env:OCI_COMPARTMENT_ID = "<approved-workshop-compartment-ocid>"
+$env:LAB01_CHAT_MODEL_ID = "<approved-on-demand-chat-model-id>"
+$env:LAB01_MAX_OUTPUT_TOKENS = "120"
+
+$env:LAB01_WALLET_DIR = "<absolute-path-to-private-wallet-directory>"
+$env:LAB01_DB_USER = "<temporary-application-database-user>"
+$env:LAB01_DB_DSN = "<wallet-service-name>"
+$env:LAB01_MEMORY_SCHEMA_OWNER = "<memory-owner-schema>"
+$env:LAB01_MEMORY_STORE_ID = "<precreated-memory-store-id>"

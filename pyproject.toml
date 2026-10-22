@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=65"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kipu-workshop-oci-ai"
+version = "1.0.0"
+description = "Workshop 1 for OCI Agent Memory and token economy"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "oci>=2.150.0",
+  "oracledb>=2.5.0",
+  "python-dotenv>=1.0.1",
+]
+
+[project.optional-dependencies]
+lab01 = ["oracleagentmemory==26.8.0"]
+ui = ["streamlit>=1.39.0,<2.0.0"]
+dev = ["pytest>=8.3.0", "ruff>=0.8.0"]
+
+[tool.setuptools.packages.find]
+where = ["labs/lab01_agent_memory/src"]
+include = ["lab01_agent_memory*"]
+
+[tool.pytest.ini_options]
+testpaths = ["labs/lab01_agent_memory/tests"]
+pythonpath = ["labs/lab01_agent_memory/src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "payment-idempotency",
+    "title": "Payment idempotency",
+    "content": "For payment operations, require an idempotency key, preserve the original request identifier, and reject a second request with a mismatched payload.",
+    "tags": ["payments", "idempotency", "api"]
+  },
+  {
+    "id": "contract-versioning",
+    "title": "Contract version precedence",
+    "content": "When a request references multiple API contract versions, prefer the highest approved version and return the source version used as evidence.",
+    "tags": ["contracts", "versioning", "api"]
+  },
+  {
+    "id": "audit-traceability",
+    "title": "Audit traceability",
+    "content": "Every integration decision must preserve a correlation identifier, source system, and timestamp for audit review.",
+    "tags": ["audit", "traceability", "integration"]
+  }
+]
