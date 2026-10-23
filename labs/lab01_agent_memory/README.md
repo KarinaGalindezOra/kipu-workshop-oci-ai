@@ -12,7 +12,7 @@ The participant never uses `ADMIN`, never creates Agent Memory objects, and alwa
 
 - `src/lab01_agent_memory/sdk_exercise.py`: credential-free core exercise behavior and evidence schema.
 - `scripts/run_participant_sdk_lab.py`: direct Oracle AI Agent Memory SDK runner.
-- `scripts/run_participant_live.ps1`: participant launcher for preflight, the real no-inference memory exercise, and the single two-call token comparison.
+- `scripts/run_participant_live.ps1`: participant launcher for preflight, the real no-inference memory exercise, the two-call token comparison, and the optional four-call context-economy experiment.
 - `ui/app.py`: visualizes safe JSON evidence; it does not receive or display credentials.
 - `tests/test_sdk_exercise.py`: deterministic core behavior tests.
 - `../../platform/bootstrap/`: database owner and runtime-access SQL scripts.
@@ -32,6 +32,8 @@ python -m pytest labs/lab01_agent_memory/tests -q
 The workshop team prepares ADB, the memory store, participant database user, wallet and individual OCI identity before the participant begins. The participant receives those private prerequisites through the approved channel.
 
 The participant starts with the generic launcher documented in the Spanish [participant guide](../../docs/participant-guides/01-decision-memory.md). Its `-Preflight` mode checks the private local configuration without invoking the model. Its `-MemoryExercise` mode persists and retrieves one approved synthetic decision from ADB without invoking the model and writes `memory-exercise-evidence.json`. The live mode explicitly confirms the exactly two on-demand calls and writes only a safe JSON evidence artifact, such as `artifacts/lab01/t01/p01/oci-inference-evidence.json`.
+
+After the base comparison is approved, `-ContextExperiment` runs an optional controlled experiment with four on-demand OCI inference calls. It keeps the question, model, output limit, and synthetic quality checks constant while varying only the approved procedural context. It writes `context-economy-experiment-evidence.json`, which is validated separately before the Streamlit dashboard displays it.
 
 The live comparison accepts evidence only when OCI returns complete usage statistics, both responses satisfy the bundle's required decision terms, and the memory-optimized request uses fewer provider-reported input tokens. This result is not a claim about total solution cost: memory, storage, and retrieval have separate costs.
 

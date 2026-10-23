@@ -74,6 +74,26 @@ class InferenceVariant:
         }
 
 
+@dataclass(frozen=True)
+class ContextExperimentVariant:
+    """One deliberately selected context sent to the same inference configuration."""
+
+    variant_id: str
+    label: str
+    decisions: tuple[tuple[str, str], ...]
+    required_terms: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if not self.variant_id.strip():
+            raise ValueError("variant_id is required")
+        if not self.label.strip():
+            raise ValueError("label is required")
+        if not self.decisions:
+            raise ValueError("An experiment variant requires at least one decision")
+        if not self.required_terms:
+            raise ValueError("An experiment variant requires quality terms")
+
+
 def build_prompt(question: str, decisions: list[tuple[str, str]]) -> str:
     """Build an explicit prompt whose only variable is supplied decision context."""
 
@@ -166,6 +186,69 @@ def run_token_comparison(
         "input_token_reduction": reduction,
         "input_token_reduction_percent": round(reduction * 100 / baseline.prompt_tokens),
         "both_quality_checks_passed": True,
+    }
+
+
+def run_context_experiment(
+    client: InferenceClient,
+    settings: InferenceSettings,
+    *,
+    experiment_id: str,
+    question: str,
+    variants: tuple[ContextExperimentVariant, ...],
+) -> dict[str, object]:
+    """Measure several intentional context designs through real OCI inference.
+
+    This is an opt-in extension for the workshop. It keeps model and generation
+    settings constant, changes only the supplied decisions, and captures OCI
+    usage for every variant. A bounded variant count protects participants from
+    accidentally turning a learning exercise into an unbounded request loop.
+    """
+
+    if not experiment_id.strip():
+        raise ValueError("experiment_id is required")
+    if not question.strip():
+        raise ValueError("question is required")
+    if not 2 <= len(variants) <= 8:
+        raise ValueError("An experiment must contain between 2 and 8 variants")
+    variant_ids = [variant.variant_id for variant in variants]
+    if len(set(variant_ids)) != len(variant_ids):
+        raise ValueError("Experiment variant_id values must be unique")
+
+    results: list[dict[str, object]] = []
+    for variant in variants:
+        measured = _run_variant(
+            client,
+            build_prompt(question, list(variant.decisions)),
+            settings,
+            variant.required_terms,
+        )
+        results.append(
+            {
+                "variant_id": variant.variant_id,
+                "label": variant.label,
+                "procedure_ids": [identifier for identifier, _ in variant.decisions],
+                "procedure_count": len(variant.decisions),
+                **measured.as_dict(),
+            }
+        )
+
+    baseline = results[0]
+    lowest_input = min(results, key=lambda result: int(result["prompt_tokens"]))
+    all_quality_passed = all(result["quality_passed"] for result in results)
+    return {
+        "measurement_type": "oci_context_experiment",
+        "experiment_id": experiment_id,
+        "model_id": settings.model_id,
+        "max_output_tokens": settings.max_output_tokens,
+        "question": question,
+        "variant_count": len(results),
+        "variants": results,
+        "baseline_variant_id": baseline["variant_id"],
+        "lowest_input_variant_id": lowest_input["variant_id"],
+        "lowest_input_reduction_from_baseline": int(baseline["prompt_tokens"])
+        - int(lowest_input["prompt_tokens"]),
+        "all_quality_checks_passed": all_quality_passed,
     }
 
 

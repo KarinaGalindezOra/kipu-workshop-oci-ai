@@ -7,7 +7,8 @@ param(
     [string]$SessionFile,
     [switch]$Preflight,
     [ValidateSet("payment-idempotency", "contract-compatibility")]
-    [string]$MemoryExercise
+    [string]$MemoryExercise,
+    [switch]$ContextExperiment
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,8 +64,8 @@ $runnerArguments = @(
     "--participant-code", $ParticipantCode
 )
 
-if ($Preflight -and $MemoryExercise) {
-    throw "Choose either -Preflight or -MemoryExercise, not both."
+if (($Preflight -and $MemoryExercise) -or ($Preflight -and $ContextExperiment) -or ($MemoryExercise -and $ContextExperiment)) {
+    throw "Choose exactly one of -Preflight, -MemoryExercise, or -ContextExperiment."
 }
 
 if ($Preflight) {
@@ -83,6 +84,32 @@ if ($MemoryExercise) {
     & $python @runnerArguments `
         "--memory-exercise" $MemoryExercise `
         "--output-path" $evidencePath
+    exit $LASTEXITCODE
+}
+
+if ($ContextExperiment) {
+    $safeTeamCode = $TeamCode.Trim().ToLowerInvariant()
+    $safeParticipantCode = $ParticipantCode.Trim().ToLowerInvariant()
+    $experiment = Join-Path $repositoryRoot "labs\lab01_agent_memory\exercises\context-economy-experiment.json"
+    $evidencePath = Join-Path $repositoryRoot "artifacts\lab01\$safeTeamCode\$safeParticipantCode\context-economy-experiment-evidence.json"
+
+    if (-not (Test-Path -LiteralPath $experiment -PathType Leaf)) {
+        throw "Context experiment file was not found: $experiment"
+    }
+    $ociConfigFile = Require-EnvironmentValue "OCI_CONFIG_FILE"
+    $null = Require-EnvironmentValue "OCI_CONFIG_PROFILE"
+    $null = Require-EnvironmentValue "OCI_COMPARTMENT_ID"
+    $null = Require-EnvironmentValue "LAB01_CHAT_MODEL_ID"
+    if (-not (Test-Path -LiteralPath $ociConfigFile -PathType Leaf)) {
+        throw "OCI configuration file was not found: $ociConfigFile"
+    }
+
+    Write-Host "LAB01_CONTEXT_EXPERIMENT_READY"
+    Write-Host "This run makes four on-demand OCI Generative AI calls with approved synthetic contexts."
+    & $python @runnerArguments `
+        "--context-experiment" $experiment `
+        "--output-path" $evidencePath `
+        "--confirm-context-experiment"
     exit $LASTEXITCODE
 }
 

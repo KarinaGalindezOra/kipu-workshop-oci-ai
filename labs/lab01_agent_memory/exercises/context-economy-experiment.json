@@ -1,0 +1,86 @@
+{
+  "synthetic": true,
+  "experiment_id": "payment-context-economy-v1",
+  "title": "Payment decision context experiment",
+  "question": "A repeated payment request arrives for API contract v2 with the same idempotency key but a different payload. What action and evidence are required?",
+  "retrieval_query": "idempotency",
+  "control_query": "database migration controlled phases",
+  "procedures": [
+    {
+      "synthetic": true,
+      "procedure_id": "payment-idempotency-v1",
+      "title": "Payment idempotency",
+      "version": "1.0",
+      "domain": "payments",
+      "trigger_terms": ["payment", "idempotency", "duplicate"],
+      "procedure": "Reject a repeated payment request when the idempotency key already exists with a different payload. Preserve the original request identifier for traceability.",
+      "required_evidence": ["idempotency key", "original request identifier"]
+    },
+    {
+      "synthetic": true,
+      "procedure_id": "contract-compatibility-v1",
+      "title": "API contract compatibility",
+      "version": "1.0",
+      "domain": "api",
+      "trigger_terms": ["api", "contract", "compatibility"],
+      "procedure": "Before changing an API contract, preserve backward compatibility and add contract tests for the approved v2 behavior.",
+      "required_evidence": ["approved v2 behavior", "contract tests"]
+    },
+    {
+      "synthetic": true,
+      "procedure_id": "audit-traceability-v1",
+      "title": "Integration audit traceability",
+      "version": "1.0",
+      "domain": "audit",
+      "trigger_terms": ["audit", "correlation", "traceability"],
+      "procedure": "Every integration decision must preserve a correlation identifier, source system, and timestamp for audit review.",
+      "required_evidence": ["correlation identifier", "source system", "timestamp"]
+    },
+    {
+      "synthetic": true,
+      "procedure_id": "refund-approval-v1",
+      "title": "Refund approval",
+      "version": "1.0",
+      "domain": "payments",
+      "trigger_terms": ["refund", "chargeback", "approval"],
+      "procedure": "Approve a synthetic refund only after validating the original payment reference and recording an approval reference.",
+      "required_evidence": ["original payment reference", "approval reference"]
+    },
+    {
+      "synthetic": true,
+      "procedure_id": "fraud-escalation-v1",
+      "title": "Fraud escalation",
+      "version": "1.0",
+      "domain": "risk",
+      "trigger_terms": ["fraud", "risk", "escalation"],
+      "procedure": "Escalate a synthetic fraud indicator to manual review and preserve the risk case identifier before any payment action.",
+      "required_evidence": ["risk case identifier", "manual review"]
+    }
+  ],
+  "variants": [
+    {
+      "variant_id": "all-rules-baseline",
+      "label": "All rules baseline",
+      "procedure_ids": ["payment-idempotency-v1", "contract-compatibility-v1", "audit-traceability-v1", "refund-approval-v1", "fraud-escalation-v1"],
+      "required_terms": ["idempotency", "original request identifier"]
+    },
+    {
+      "variant_id": "retrieved-top-1",
+      "label": "Retrieved top 1",
+      "procedure_ids": ["payment-idempotency-v1"],
+      "required_terms": ["idempotency", "original request identifier"]
+    },
+    {
+      "variant_id": "relevant-plus-distractors",
+      "label": "Relevant rule plus distractors",
+      "procedure_ids": ["payment-idempotency-v1", "contract-compatibility-v1", "audit-traceability-v1"],
+      "required_terms": ["idempotency", "original request identifier"]
+    },
+    {
+      "variant_id": "payment-and-risk",
+      "label": "Relevant payment and risk context",
+      "procedure_ids": ["payment-idempotency-v1", "fraud-escalation-v1"],
+      "required_terms": ["idempotency", "original request identifier"]
+    }
+  ]
+}

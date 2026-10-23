@@ -15,10 +15,14 @@ from typing import Any
 import oci
 import oracledb
 from lab01_agent_memory.inference import (
+    ContextExperimentVariant,
     InferenceSettings,
     OciCohereInferenceClient,
+    run_context_experiment,
     run_token_comparison,
 )
+from lab01_agent_memory.experiment_catalog import load_context_experiment
+from lab01_agent_memory.memory_experiments import prepare_context_experiment_memory
 from lab01_agent_memory.participant_lab import load_bundle
 from lab01_agent_memory.sdk_exercise import (
     AgentMemoryAdapter,
@@ -243,6 +247,19 @@ def parse_args() -> argparse.Namespace:
             "are made"
         ),
     )
+    parser.add_argument(
+        "--context-experiment",
+        type=Path,
+        help=(
+            "Run a bounded synthetic context experiment with real OCI inference. "
+            "Requires --confirm-context-experiment."
+        ),
+    )
+    parser.add_argument(
+        "--confirm-context-experiment",
+        action="store_true",
+        help="Required acknowledgement before the configured OCI context experiment runs",
+    )
     return parser.parse_args()
 
 
@@ -250,8 +267,15 @@ def main() -> None:
     """Run one participant's direct SDK exercise and write safe evidence."""
 
     args = parse_args()
-    if args.preflight and args.memory_exercise:
-        raise RuntimeError("Choose either --preflight or --memory-exercise, not both.")
+    selected_modes = sum(
+        (
+            bool(args.preflight),
+            bool(args.memory_exercise),
+            args.context_experiment is not None,
+        )
+    )
+    if selected_modes > 1:
+        raise RuntimeError("Choose exactly one of --preflight, --memory-exercise, or --context-experiment.")
     if args.preflight:
         run_preflight(team_code=args.team_code, participant_code=args.participant_code)
         return
@@ -291,6 +315,94 @@ def main() -> None:
         print("PERSISTENCE_CONFIRMED", execution["persistence_confirmed"])
         print("ISOLATION_PASS", result.evidence["isolation_passed"])
         print("NO_OCI_INFERENCE True")
+        print("EVIDENCE_PATH", args.output_path)
+        return
+    if args.context_experiment:
+        if args.confirm_live_inference:
+            raise RuntimeError(
+                "Use --confirm-context-experiment, not --confirm-live-inference, for this mode."
+            )
+        if not args.confirm_context_experiment:
+            raise RuntimeError(
+                "Context experiments require --confirm-context-experiment because they make the "
+                "configured number of on-demand OCI Generative AI calls."
+            )
+        if args.output_path is None:
+            raise RuntimeError("Context experiments require --output-path.")
+        plan = load_context_experiment(args.context_experiment)
+        print(
+            "LAB01_CONTEXT_EXPERIMENT_AUTHORIZED",
+            plan.experiment_id,
+            f"VARIANTS={len(plan.variants)}",
+        )
+        print_step(1, "PERSIST", "writing the synthetic experiment catalog to Autonomous Database")
+        memory, pool = create_runtime_memory()
+        try:
+            memory_result = prepare_context_experiment_memory(
+                memory,
+                plan,
+                team_code=args.team_code,
+                participant_code=args.participant_code,
+            )
+        finally:
+            pool.close()
+        print_step(2, "RETRIEVE", "recovering the lead procedure through keyword search")
+        print_step(3, "ISOLATE", "confirming that the control scope is not visible")
+        if not memory_result.isolation_passed:
+            raise RuntimeError("Context experiment isolation check failed")
+
+        contents = plan.procedure_contents()
+        measured_variants: list[ContextExperimentVariant] = []
+        for variant in plan.variants:
+            decisions = variant.decisions
+            if variant.variant_id == "retrieved-top-1":
+                decisions = tuple(
+                    (procedure_id, contents[procedure_id])
+                    for procedure_id in memory_result.retrieved_procedure_ids[:1]
+                )
+            measured_variants.append(
+                ContextExperimentVariant(
+                    variant_id=variant.variant_id,
+                    label=variant.label,
+                    decisions=decisions,
+                    required_terms=variant.required_terms,
+                )
+            )
+        print_step(
+            4,
+            "MEASURE",
+            f"making {len(measured_variants)} OCI Generative AI calls with controlled contexts",
+        )
+        inference = run_context_experiment(
+            create_inference_client(),
+            inference_settings(),
+            experiment_id=plan.experiment_id,
+            question=plan.question,
+            variants=tuple(measured_variants),
+        )
+        evidence = {
+            "evidence_type": "oci_context_experiment_validation",
+            "contains_no_secrets": True,
+            "active_team_id": args.team_code,
+            "participant_code": args.participant_code,
+            "experiment": {
+                "experiment_id": plan.experiment_id,
+                "title": plan.title,
+                "question": plan.question,
+                "retrieval_query": plan.retrieval_query,
+            },
+            "memory_execution": memory_result.as_dict(),
+            "inference_experiment": inference,
+        }
+        args.output_path.parent.mkdir(parents=True, exist_ok=True)
+        args.output_path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
+        print("PERSISTENCE_CONFIRMED", memory_result.as_dict()["persistence_confirmed"])
+        print("ISOLATION_PASS", memory_result.isolation_passed)
+        print("RETRIEVED_PROCEDURES", ",".join(memory_result.retrieved_procedure_ids))
+        print("EXPERIMENT_VARIANTS", inference["variant_count"])
+        print("LOWEST_INPUT_VARIANT", inference["lowest_input_variant_id"])
+        print("LOWEST_INPUT_REDUCTION", inference["lowest_input_reduction_from_baseline"])
+        print("QUALITY_PASS", inference["all_quality_checks_passed"])
         print("EVIDENCE_PATH", args.output_path)
         return
     if not args.confirm_live_inference:

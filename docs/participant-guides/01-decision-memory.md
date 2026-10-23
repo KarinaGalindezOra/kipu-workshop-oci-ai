@@ -231,6 +231,42 @@ TOKEN_QUALITY_PASS True
 
 El resultado confirma que se crearon o reencontraron decisiones individuales, que al menos una `guideline` fue recuperada por búsqueda de palabras clave y que una consulta por el procedimiento de control no devolvió contenido desde ese alcance. También confirma que OCI devolvió dos bloques completos de uso y que el prompt con memoria usó menos tokens de entrada sin degradar los criterios de respuesta. En una segunda ejecución, lo esperado es `INDIVIDUAL_CREATED 0` e `INDIVIDUAL_EXISTING 2`: la prueba de que las reglas permanecieron en ADB y que el comando es idempotente.
 
+## Paso 6B: experimento ampliado de economía de contexto (opcional)
+
+Completa este paso solo después de aprobar el recorrido base de dos inferencias. El experimento
+ampliado no sustituye esa comparación: convierte el mismo principio en una prueba más rigurosa.
+Persiste un catálogo de cinco decisiones sintéticas, recupera la regla principal dentro de tu
+alcance individual y compara cuatro variantes con **la misma pregunta, el mismo modelo y el mismo
+límite de salida**. Lo único que cambia es el contexto enviado al modelo.
+
+```powershell
+$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
+powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_participant_live.ps1 `
+  -TeamCode T01 `
+  -ParticipantCode P01 `
+  -SessionFile $participantSession `
+  -ContextExperiment
+```
+
+La confirmación explícita está incorporada al launcher. Esta corrida realiza exactamente **cuatro**
+llamadas on-demand a OCI Generative AI, con datos sintéticos aprobados, y produce
+`context-economy-experiment-evidence.json`. No copies contraseñas, wallet, token de sesión ni la
+salida completa de la consola al repositorio.
+
+Las variantes son:
+
+1. **All rules baseline**: reenvía el catálogo completo; es el control deliberadamente amplio.
+2. **Retrieved top 1**: usa solamente la regla recuperada de Agent Memory; es el diseño objetivo.
+3. **Relevant plus distractors**: añade decisiones válidas pero no necesarias para observar el costo
+   del contexto adicional.
+4. **Payment and risk**: compara otra combinación de contexto acotado y sintético.
+
+El resultado es válido solamente si la evidencia confirma `REQUIRE_EXISTING`, `KEYWORD`,
+persistencia, aislamiento, calidad de todas las respuestas y contabilidad de tokens consistente.
+En el dashboard, abre la pestaña **5. Experimentos reales** y carga ese JSON. Allí compara la
+telemetría por variante y discute por qué la recuperación selectiva puede reducir los tokens de
+entrada sin reemplazar los demás controles de producción.
+
 ## Simulación visual opcional después del recorrido obligatorio
 
 No repitas la ejecución real durante el workshop: cada recorrido autorizado usa exactamente dos
@@ -255,6 +291,9 @@ python -m streamlit run labs/lab01_agent_memory/ui/app.py
 Carga los dos JSON `memory-exercise-*-evidence.json` y después `oci-inference-evidence.json` en
 **Evidencia de ejecución del equipo**. La pantalla distingue claramente la memoria real en ADB
 de la comparación de tokens de entrada, salida, total y latencia reportada por OCI Generative AI.
+Si completaste el Paso 6B, abre **5. Experimentos reales** para cargar
+`context-economy-experiment-evidence.json`; este JSON se valida por separado y no altera la
+evidencia base.
 
 La reducción de tokens de entrada proviene del bloque `usage` de OCI Generative AI. No equivale por sí sola a la facturación total de la solución: no incluye costos de memoria, almacenamiento o recuperación.
 
@@ -272,5 +311,7 @@ No equivale por sí sola a seguridad de filas: un usuario que pudiera editar el 
 - [ ] Ejecuté el SDK contra ADB con mi usuario temporal.
 - [ ] Obtuve `PERSISTENCE_CONFIRMED True`, `ISOLATION_PASS True` y `TOKEN_QUALITY_PASS True`.
 - [ ] Verifiqué que `MEMORY_PROMPT_TOKENS` es menor que `BASELINE_PROMPT_TOKENS`.
+- [ ] Si ejecuté el experimento ampliado, comparé cuatro variantes con la misma pregunta y guardé
+  solo `context-economy-experiment-evidence.json`.
 - [ ] Guardé solo el JSON de evidencia; no guardé ni compartí credenciales.
 - [ ] Expliqué por qué el alcance es una frontera de recuperación y no una autorización completa.

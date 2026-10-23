@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from lab01_agent_memory.demo import build_report
+from lab01_agent_memory.experiment_evidence import load_context_experiment_evidence
 from lab01_agent_memory.live_evidence import load_live_evidence
 from lab01_agent_memory.participant_evidence import load_participant_evidence
 from lab01_agent_memory.scenario import GUIDELINES
@@ -325,6 +326,14 @@ def _participant_evidence_paths() -> list[Path]:
     return sorted(set(paths))
 
 
+def _context_experiment_evidence_paths() -> list[Path]:
+    """Return safe extended-experiment artifacts from the local artifacts tree."""
+
+    if not PARTICIPANT_EVIDENCE_DIRECTORY.is_dir():
+        return []
+    return sorted(PARTICIPANT_EVIDENCE_DIRECTORY.glob("*/*/context-economy-experiment-evidence.json"))
+
+
 def _evidence_path_label(path: Path) -> str:
     """Show a repository-relative label rather than an absolute machine path."""
 
@@ -457,6 +466,123 @@ def render_executed_participant_evidence() -> None:
             "La comparación local de diseño no sustituye la telemetría real de OCI Generative AI."
         )
     st.caption(f"Fuente: {source_label}. El archivo declara explícitamente que no contiene secretos.")
+
+
+def render_context_experiment() -> None:
+    """Render a separately validated real OCI context-economy experiment."""
+
+    st.subheader("Experimento real: economía de contexto")
+    st.info(
+        "Este ejercicio ampliado es opcional y posterior a la evidencia P01. Persiste un catálogo "
+        "sintético, recupera la regla principal dentro del alcance individual y compara cuatro "
+        "contextos con el mismo modelo y la misma pregunta. El dashboard solo interpreta el JSON; "
+        "nunca ejecuta OCI ni solicita credenciales."
+    )
+    local_paths = _context_experiment_evidence_paths()
+    uploaded = st.file_uploader(
+        "Cargar evidencia segura del experimento de contexto",
+        type="json",
+        key="context_experiment_upload",
+        help="Carga únicamente el JSON emitido por -ContextExperiment; no subas sesiones, wallets ni logs.",
+    )
+    selected_path: Path | None = None
+    if uploaded is None and local_paths:
+        selected_path = st.selectbox(
+            "Experimento detectado en artifacts",
+            options=local_paths,
+            format_func=_evidence_path_label,
+            key="context_experiment_artifact",
+        )
+
+    raw_json: str | None = None
+    source_label: str | None = None
+    if uploaded is not None:
+        raw_json = uploaded.getvalue().decode("utf-8")
+        source_label = uploaded.name
+    elif selected_path is not None:
+        raw_json = selected_path.read_text(encoding="utf-8")
+        source_label = _evidence_path_label(selected_path)
+
+    if raw_json is None:
+        st.warning(
+            "Todavía no hay evidencia del experimento ampliado. Primero completa la comparación "
+            "P01 de dos llamadas y luego ejecuta el ejercicio opcional desde PowerShell."
+        )
+        st.code(
+            ".\\labs\\lab01_agent_memory\\scripts\\run_participant_live.ps1 "
+            "-TeamCode T01 -ParticipantCode P01 -SessionFile <private-session.ps1> "
+            "-ContextExperiment",
+            language="powershell",
+        )
+        st.caption(
+            "La ejecución anterior hace exactamente cuatro llamadas on-demand con datos sintéticos. "
+            "No reemplaza la comparación base de dos llamadas."
+        )
+        return
+
+    try:
+        evidence = load_context_experiment_evidence(raw_json)
+    except (UnicodeDecodeError, ValueError) as error:
+        st.error(f"No se puede mostrar esta evidencia ampliada: {error}")
+        return
+
+    experiment = evidence["experiment"]
+    memory = evidence["memory_execution"]
+    inference = evidence["inference_experiment"]
+    variants = inference["variants"]
+    by_id = {variant["variant_id"]: variant for variant in variants}
+    baseline = by_id[inference["baseline_variant_id"]]
+    lowest = by_id[inference["lowest_input_variant_id"]]
+
+    st.success(
+        "Experimento aprobado: catálogo persistido en ADB, recuperación acotada y todas las "
+        "variantes completadas con los criterios de calidad requeridos."
+    )
+    left, middle, right, last = st.columns(4)
+    left.metric("Procedimientos en catálogo", len(memory["persisted_procedure_ids"]))
+    middle.metric("Regla recuperada", ", ".join(memory["retrieved_procedure_ids"]))
+    right.metric("Variantes OCI", len(variants))
+    last.metric(
+        "Menor contexto vs baseline",
+        f"-{inference['lowest_input_reduction_from_baseline']} tokens",
+    )
+    st.write(f"**Pregunta constante:** {experiment['question']}")
+    st.write(f"**Consulta de recuperación:** `{experiment['retrieval_query']}`")
+    st.caption(
+        f"Baseline: {baseline['label']} ({baseline['prompt_tokens']} tokens de entrada). "
+        f"Mejor variante: {lowest['label']} ({lowest['prompt_tokens']} tokens de entrada)."
+    )
+    rows = pd.DataFrame(
+        [
+            {
+                "Variante": variant["label"],
+                "Procedimientos": variant["procedure_count"],
+                "Tokens de entrada": variant["prompt_tokens"],
+                "Tokens de salida": variant["completion_tokens"],
+                "Tokens totales": variant["total_tokens"],
+                "Latencia (ms)": variant["latency_ms"],
+            }
+            for variant in variants
+        ]
+    )
+    st.dataframe(rows, hide_index=True, use_container_width=True)
+    st.bar_chart(
+        rows.set_index("Variante")[["Tokens de entrada", "Tokens de salida"]],
+        color=["#2563EB", "#93C5FD"],
+        horizontal=True,
+    )
+    st.markdown(
+        "**Cómo interpretar el resultado**  \n"
+        "- El baseline reenvía todo el catálogo; no representa el diseño recomendado.  \n"
+        "- La variante recuperada usa solo la decisión encontrada en Agent Memory.  \n"
+        "- Las variantes con distractores muestran el costo de adjuntar contexto adicional aunque "
+        "sea técnicamente válido.  \n"
+        "- Todas usan la misma pregunta, modelo y límite de salida: el cambio medido es el contexto."
+    )
+    st.caption(
+        f"Fuente: {source_label}. El validador exige JSON seguro, política REQUIRE_EXISTING, "
+        "búsqueda KEYWORD, persistencia, aislamiento y telemetría OCI consistente."
+    )
 
 
 def render_live_evidence() -> None:
@@ -637,8 +763,14 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    real_tab, simulator_tab, sdk_tab, tables_tab = st.tabs(
-        ("1. Mi evidencia real", "2. Simulador docente", "3. Código y SDK", "4. Modelo de tablas")
+    real_tab, simulator_tab, sdk_tab, tables_tab, experiment_tab = st.tabs(
+        (
+            "1. Mi evidencia real",
+            "2. Simulador docente",
+            "3. Código y SDK",
+            "4. Modelo de tablas",
+            "5. Experimentos reales",
+        )
     )
     with real_tab:
         render_real_evidence_tab()
@@ -648,6 +780,8 @@ def main() -> None:
         render_sdk_reading()
     with tables_tab:
         render_table_model()
+    with experiment_tab:
+        render_context_experiment()
 
 
 if __name__ == "__main__":
