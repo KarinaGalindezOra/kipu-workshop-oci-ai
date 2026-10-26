@@ -71,6 +71,18 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[lab01,ui,dev]"
 ```
 
+### Paso A.1: validar el código local
+
+Ejecuta las pruebas después de instalar las dependencias y antes de cargar cualquier elemento
+privado. Estas pruebas no usan OCI, ADB, wallet ni contraseñas.
+
+```powershell
+python -m pytest labs/lab01_agent_memory/tests -q
+python -m ruff check labs/lab01_agent_memory/ui/app.py
+```
+
+Las pruebas de integración con OCI están protegidas y no se ejecutan de forma predeterminada.
+
 ### Paso B: cargar la asignación privada y ejecutar preflight
 
 Ejecuta este bloque solo después de recibir los elementos privados del facilitador. La participante
@@ -104,15 +116,6 @@ par asignado. Las participantes reciben el repositorio mediante GitHub, pero rec
 de sesión, wallet, usuario de base de datos y contraseñas únicamente por el canal privado aprobado.
 
 Continúa con la guía de participante: `docs/participant-guides/01-decision-memory.md`. Antes de ejecutar, revisa también `docs/architecture.md`.
-
-## Pruebas locales
-
-```powershell
-python -m pytest labs/lab01_agent_memory/tests -q
-python -m ruff check labs/lab01_agent_memory/ui/app.py
-```
-
-Las pruebas de integración con OCI están protegidas y no se ejecutan de forma predeterminada.
 
 ## Seguridad
 
