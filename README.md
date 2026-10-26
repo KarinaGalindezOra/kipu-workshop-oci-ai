@@ -49,15 +49,25 @@ python -m venv .venv
 python -m pip install --upgrade pip
 python -m pip install -e ".[lab01,ui,dev]"
 
-# The facilitator provides this private path. Do not save it in the repository.
-$participantSession = "<absolute-path-to-private-participant-session.ps1>"
+# The facilitator assigns all three values privately. Do not save them in the repository.
+# Example only: T01/P01 maps to C:\KhipuPrivate\sessions\T01-P01-session.ps1.
+# Do not use the example values unless the facilitator assigned them to you.
+$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
+$teamCode = "T01"
+$participantCode = "P01"
 
 powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_participant_live.ps1 `
-  -TeamCode <team-code> `
-  -ParticipantCode <participant-code> `
+  -TeamCode $teamCode `
+  -ParticipantCode $participantCode `
   -SessionFile $participantSession `
   -Preflight
 ```
+
+`TeamCode` and `ParticipantCode` are logical retrieval scopes, not values chosen by the
+participant. For individual participants, the facilitator assigns one unique pair per person, for
+example `T01/P01`, `T02/P01`, and `T03/P01`. The private session filename must match the assigned
+pair. Participants receive the repository through GitHub but receive their session file, wallet,
+database user, and passwords only through the approved private channel.
 
 Continúe con la guía de participante: `docs/participant-guides/01-decision-memory.md`. Antes de ejecutar, revise también `docs/architecture.md`.
 
