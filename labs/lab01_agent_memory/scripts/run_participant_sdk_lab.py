@@ -170,9 +170,10 @@ def validate_model_access() -> None:
         if error.status in (401, 403, 404):
             raise RuntimeError(
                 "OCI Generative AI model access was denied. Verify that the signed-in OCI "
-                "identity belongs to the approved participant group and that the group has "
-                "'inspect generative-ai-model in tenancy' plus 'use generative-ai-chat' in "
-                "the workshop compartment."
+                "identity is signed in to the correct workshop tenancy, belongs to the "
+                "approved participant group, and that the group has 'inspect "
+                "generative-ai-model in tenancy' plus 'use generative-ai-chat' in the "
+                "workshop compartment."
             ) from error
         raise
 

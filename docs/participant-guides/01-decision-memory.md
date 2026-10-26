@@ -135,9 +135,9 @@ LAB01_PREFLIGHT_COMPLETE
 
 Si no aparece `LAB01_PREFLIGHT_MODEL_ACCESS True`, no continúes al paso de inferencia. Comunica
 a la facilitadora el mensaje completo sin adjuntar tokens, contenido del archivo de sesión ni
-contraseñas. La facilitadora debe verificar que tu identidad OCI pertenece al grupo aprobado y
-que dicho grupo tiene `inspect generative-ai-model in tenancy` y `use generative-ai-chat` en el
-compartment del workshop.
+contraseñas. La facilitadora debe verificar que iniciaste sesión en el tenant correcto del
+workshop, que tu identidad OCI pertenece al grupo aprobado y que dicho grupo tiene `inspect
+generative-ai-model in tenancy` y `use generative-ai-chat` en el compartment del workshop.
 
 ## Paso 5: dos ejercicios reales de memoria sin inferencia
 
