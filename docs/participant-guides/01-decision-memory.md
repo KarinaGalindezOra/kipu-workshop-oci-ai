@@ -63,7 +63,7 @@ La operación es real y visible: `add_memory(..., memory_type="guideline")` pers
 
 ## Paso 3: cargar la sesión privada
 
-Por un canal privado recibirás un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el compartment aprobado, el modelo on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
+Por un canal privado recibirás un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el identificador del tenancy del workshop, el compartment aprobado, el modelo on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
 
 Antes del preflight, crea **tu propia** sesión OCI en una ruta privada. Usa el navegador; no
 uses `--no-browser` para una primera sesión, porque ese modo requiere previamente una API key
@@ -125,6 +125,7 @@ permiso de la identidad y la disponibilidad del modelo configurado; esa comproba
 prompt ni consume tokens. Debe terminar con:
 
 ```text
+LAB01_OCI_TENANCY_MATCH True
 LAB01_OCI_IDENTITY_CHECK True
 LAB01_PREFLIGHT_DATABASE_ACCESS True
 LAB01_PREFLIGHT_MEMORY_STORE_ACCESS True
@@ -133,10 +134,11 @@ LAB01_PREFLIGHT_INFERENCE_CLIENT_READY True
 LAB01_PREFLIGHT_COMPLETE
 ```
 
-Si no aparece `LAB01_PREFLIGHT_MODEL_ACCESS True`, no continúes al paso de inferencia. Comunica
+Si no aparece `LAB01_OCI_TENANCY_MATCH True` o `LAB01_PREFLIGHT_MODEL_ACCESS True`, no continúes al paso de inferencia. Comunica
 a la facilitadora el mensaje completo sin adjuntar tokens, contenido del archivo de sesión ni
-contraseñas. La facilitadora debe verificar que iniciaste sesión en el tenant correcto del
-workshop, que tu identidad OCI pertenece al grupo aprobado y que dicho grupo tiene `inspect
+contraseñas. Si falla la coincidencia de tenancy, vuelve a autenticar tu perfil asignado en el
+tenancy indicado por el facilitador; no reutilices una sesión de otro tenant. La facilitadora debe
+verificar que tu identidad OCI pertenece al grupo aprobado y que dicho grupo tiene `inspect
 generative-ai-model in tenancy` y `use generative-ai-chat` en el compartment del workshop.
 
 ## Paso 5: dos ejercicios reales de memoria sin inferencia

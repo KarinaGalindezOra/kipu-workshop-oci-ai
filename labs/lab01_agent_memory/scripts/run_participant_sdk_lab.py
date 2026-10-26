@@ -154,6 +154,21 @@ def load_oci_profile() -> tuple[dict[str, str], Any | None]:
     return config, signer
 
 
+def validate_tenancy_binding() -> None:
+    """Fail fast when the private session belongs to a different OCI tenancy."""
+
+    expected_tenancy = required_environment("LAB01_TENANCY_ID")
+    config, _ = load_oci_profile()
+    configured_tenancy = config.get("tenancy")
+    if configured_tenancy != expected_tenancy:
+        raise RuntimeError(
+            "The OCI session profile belongs to a different tenancy than the workshop "
+            "assignment. Reauthenticate the assigned participant profile in the workshop "
+            "tenancy, then rerun the preflight."
+        )
+    print("LAB01_OCI_TENANCY_MATCH True")
+
+
 def validate_model_access() -> None:
     """Verify OCI IAM model-discovery access without sending an inference request."""
 
@@ -233,6 +248,7 @@ def run_preflight(*, team_code: str, participant_code: str) -> None:
     """Validate local database and inference-client setup without model inference."""
 
     print("LAB01_PREFLIGHT_START")
+    validate_tenancy_binding()
     memory, pool = create_runtime_memory()
     try:
         scopes = build_team_scopes(team_code, participant_code)
@@ -413,6 +429,7 @@ def main() -> None:
             )
         if args.output_path is None:
             raise RuntimeError("Context experiments require --output-path.")
+        validate_tenancy_binding()
         plan = load_context_experiment(args.context_experiment)
         print(
             "LAB01_CONTEXT_EXPERIMENT_AUTHORIZED",
@@ -496,6 +513,7 @@ def main() -> None:
         )
     if args.output_path is None:
         raise RuntimeError("Live token evidence requires --output-path.")
+    validate_tenancy_binding()
     bundle = load_bundle(args.bundle)
     print_step(1, "PERSIST", "writing synthetic procedural decisions to Autonomous Database")
     memory, pool = create_runtime_memory()

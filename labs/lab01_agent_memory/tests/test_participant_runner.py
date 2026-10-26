@@ -106,12 +106,16 @@ def test_preflight_checks_model_access_before_reporting_success(monkeypatch, cap
             events.append("pool:closed")
 
     monkeypatch.setattr(runner, "create_runtime_memory", lambda: (FakeMemory(), FakePool()))
+    monkeypatch.setattr(
+        runner, "validate_tenancy_binding", lambda: events.append("tenancy:checked")
+    )
     monkeypatch.setattr(runner, "validate_model_access", lambda: events.append("model:checked"))
 
     runner.run_preflight(team_code="T01", participant_code="P01")
 
-    assert events == ["memory:t01:p01:1", "pool:closed", "model:checked"]
+    assert events == ["tenancy:checked", "memory:t01:p01:1", "pool:closed", "model:checked"]
     output = capsys.readouterr().out
+    assert "LAB01_OCI_TENANCY_MATCH True" not in output
     assert "LAB01_PREFLIGHT_MODEL_ACCESS True" in output
     assert "LAB01_PREFLIGHT_COMPLETE" in output
 
@@ -145,6 +149,7 @@ def test_private_session_template_exposes_only_configuration_references() -> Non
     for variable in (
         "OCI_CONFIG_FILE",
         "OCI_CONFIG_PROFILE",
+        "LAB01_TENANCY_ID",
         "OCI_COMPARTMENT_ID",
         "LAB01_CHAT_MODEL_ID",
         "LAB01_WALLET_DIR",
