@@ -41,13 +41,25 @@ El workshop usa un tenant trial centralizado, una Autonomous Database y un memor
 - Un archivo de sesión privado basado en `labs/lab01_agent_memory/config/participant-session.ps1.example`.
 - Confirmación de acceso al modelo on-demand aprobado con su identidad OCI individual.
 
-Ejecute lo siguiente desde una copia local del repositorio:
+### Paso A: preparar el computador local
+
+Ejecute este bloque desde una copia local del repositorio. Solo crea un entorno Python local e
+instala dependencias; no requiere wallet, sesión OCI ni contraseñas, y no accede a OCI o ADB.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[lab01,ui,dev]"
+```
+
+### Paso B: cargar la asignación privada y ejecutar preflight
+
+Ejecute este bloque solo después de recibir los elementos privados del facilitador. La participante
+no crea usuarios, wallets ni contraseñas: recibe un usuario temporal de ADB, wallet, contraseña de
+wallet y contraseña de usuario de base de datos por el canal privado aprobado.
+
+```powershell
 
 # The facilitator assigns all three values privately. Do not save them in the repository.
 # Example only: T01/P01 maps to C:\KhipuPrivate\sessions\T01-P01-session.ps1.
@@ -62,6 +74,10 @@ powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_p
   -SessionFile $participantSession `
   -Preflight
 ```
+
+Durante el preflight, el programa solicita las contraseñas localmente sin mostrarlas. El preflight
+valida identidad OCI, wallet, conectividad a ADB y acceso al memory store existente; no crea
+memorias ni realiza inferencias OCI Generative AI.
 
 `TeamCode` and `ParticipantCode` are logical retrieval scopes, not values chosen by the
 participant. For individual participants, the facilitator assigns one unique pair per person, for
