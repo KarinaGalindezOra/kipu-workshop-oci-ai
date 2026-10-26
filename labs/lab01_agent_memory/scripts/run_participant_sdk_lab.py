@@ -22,8 +22,10 @@ from lab01_agent_memory.inference import (
     run_token_comparison,
 )
 from lab01_agent_memory.experiment_catalog import load_context_experiment
+from lab01_agent_memory.custom_procedure_lab import run_custom_procedure_exercise
 from lab01_agent_memory.memory_experiments import prepare_context_experiment_memory
 from lab01_agent_memory.participant_lab import load_bundle
+from lab01_agent_memory.procedure_builder import load_procedure_definition
 from lab01_agent_memory.sdk_exercise import (
     AgentMemoryAdapter,
     build_team_scopes,
@@ -260,6 +262,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Required acknowledgement before the configured OCI context experiment runs",
     )
+    parser.add_argument(
+        "--custom-procedure",
+        type=Path,
+        help="Persist and assess one participant-authored synthetic procedure without OCI Generative AI inference.",
+    )
     return parser.parse_args()
 
 
@@ -272,10 +279,11 @@ def main() -> None:
             bool(args.preflight),
             bool(args.memory_exercise),
             args.context_experiment is not None,
+            args.custom_procedure is not None,
         )
     )
     if selected_modes > 1:
-        raise RuntimeError("Choose exactly one of --preflight, --memory-exercise, or --context-experiment.")
+        raise RuntimeError("Choose exactly one of --preflight, --memory-exercise, --context-experiment, or --custom-procedure.")
     if args.preflight:
         run_preflight(team_code=args.team_code, participant_code=args.participant_code)
         return
@@ -314,6 +322,36 @@ def main() -> None:
         print("RETRIEVED_PROCEDURES", ",".join(result.evidence["retrieved_procedure_ids"]))
         print("PERSISTENCE_CONFIRMED", execution["persistence_confirmed"])
         print("ISOLATION_PASS", result.evidence["isolation_passed"])
+        print("NO_OCI_INFERENCE True")
+        print("EVIDENCE_PATH", args.output_path)
+        return
+    if args.custom_procedure:
+        if args.confirm_live_inference or args.confirm_context_experiment:
+            raise RuntimeError("The custom procedure exercise does not make OCI Generative AI calls.")
+        if args.output_path is None:
+            raise RuntimeError("The custom procedure exercise requires --output-path.")
+        procedure = load_procedure_definition(args.custom_procedure)
+        print("LAB01_CUSTOM_PROCEDURE_READY", procedure.procedure_id)
+        print_step(1, "VALIDATE", "checking the structured synthetic procedure definition")
+        print_step(2, "PERSIST", "writing the participant procedure to the individual ADB scope")
+        memory, pool = create_runtime_memory()
+        try:
+            result = run_custom_procedure_exercise(
+                memory,
+                procedure,
+                team_code=args.team_code,
+                participant_code=args.participant_code,
+            )
+        finally:
+            pool.close()
+        print_step(3, "RETRIEVE", "comparing targeted, broad, and negative-control queries")
+        print_step(4, "ASSESS", "recording retrieval evidence without OCI Generative AI inference")
+        args.output_path.parent.mkdir(parents=True, exist_ok=True)
+        args.output_path.write_text(json.dumps(result.evidence, indent=2) + "\n", encoding="utf-8")
+        execution = result.evidence["sdk_execution"]
+        print("PERSISTENCE_CONFIRMED", execution["persistence_confirmed"])
+        print("TARGETED_RETRIEVAL_CONFIRMED", execution["targeted_retrieval_confirmed"])
+        print("NEGATIVE_CONTROL_PASS", execution["negative_control_passed"])
         print("NO_OCI_INFERENCE True")
         print("EVIDENCE_PATH", args.output_path)
         return

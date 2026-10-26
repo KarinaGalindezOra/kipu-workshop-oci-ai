@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "procedure_id": "refund-traceability-v1",
+  "title": "Synthetic refund traceability",
+  "version": "1.0",
+  "domain": "payments",
+  "trigger_terms": ["refund", "approval", "traceability"],
+  "procedure": "For a synthetic refund, validate the original payment reference, record an approval reference, and preserve the correlation identifier before releasing the outcome.",
+  "required_evidence": ["original payment reference", "approval reference", "correlation identifier"]
+}

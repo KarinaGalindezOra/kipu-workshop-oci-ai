@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from lab01_agent_memory.demo import build_report
+from lab01_agent_memory.custom_procedure_evidence import load_custom_procedure_evidence
 from lab01_agent_memory.experiment_evidence import load_context_experiment_evidence
 from lab01_agent_memory.live_evidence import load_live_evidence
 from lab01_agent_memory.participant_evidence import load_participant_evidence
@@ -334,6 +335,14 @@ def _context_experiment_evidence_paths() -> list[Path]:
     return sorted(PARTICIPANT_EVIDENCE_DIRECTORY.glob("*/*/context-economy-experiment-evidence.json"))
 
 
+def _custom_procedure_evidence_paths() -> list[Path]:
+    """Return safe participant-authored procedure evidence artifacts."""
+
+    if not PARTICIPANT_EVIDENCE_DIRECTORY.is_dir():
+        return []
+    return sorted(PARTICIPANT_EVIDENCE_DIRECTORY.glob("*/*/custom-procedure-evidence.json"))
+
+
 def _evidence_path_label(path: Path) -> str:
     """Show a repository-relative label rather than an absolute machine path."""
 
@@ -585,6 +594,83 @@ def render_context_experiment() -> None:
     )
 
 
+def render_custom_procedure() -> None:
+    """Render the participant-authored procedure and its retrieval study."""
+
+    st.subheader("Diseño y evaluación de una regla propia")
+    st.info(
+        "Este ejercicio no invoca OCI Generative AI. Persiste una regla sintética en ADB y "
+        "compara recuperación dirigida, amplia y de control para discutir precisión antes de optimizar prompts."
+    )
+    local_paths = _custom_procedure_evidence_paths()
+    uploaded = st.file_uploader(
+        "Cargar evidencia segura de procedimiento propio",
+        type="json",
+        key="custom_procedure_upload",
+        help="Carga únicamente custom-procedure-evidence.json; no cargues wallets, sesiones ni logs.",
+    )
+    selected_path: Path | None = None
+    if uploaded is None and local_paths:
+        selected_path = st.selectbox(
+            "Procedimiento detectado en artifacts",
+            options=local_paths,
+            format_func=_evidence_path_label,
+            key="custom_procedure_artifact",
+        )
+    raw_json: str | None = None
+    source_label: str | None = None
+    if uploaded is not None:
+        raw_json = uploaded.getvalue().decode("utf-8")
+        source_label = uploaded.name
+    elif selected_path is not None:
+        raw_json = selected_path.read_text(encoding="utf-8")
+        source_label = _evidence_path_label(selected_path)
+    if raw_json is None:
+        st.warning("Aún no hay evidencia de una regla propia. Copia el template, edítalo y ejecuta el ejercicio sin inferencia.")
+        st.code(
+            ".\\labs\\lab01_agent_memory\\scripts\\run_participant_live.ps1 "
+            "-TeamCode T01 -ParticipantCode P01 -SessionFile <private-session.ps1> "
+            "-CustomProcedure <synthetic-procedure.json>",
+            language="powershell",
+        )
+        return
+    try:
+        evidence = load_custom_procedure_evidence(raw_json)
+    except (UnicodeDecodeError, ValueError) as error:
+        st.error(f"No se puede mostrar esta evidencia: {error}")
+        return
+    procedure = evidence["procedure"]
+    execution = evidence["sdk_execution"]
+    st.success("Regla propia aprobada: persistencia, recuperación dirigida y control negativo confirmados.")
+    first, second, third = st.columns(3)
+    first.metric("Procedimiento", procedure["procedure_id"])
+    second.metric("Dominio", procedure["domain"])
+    third.metric("Registro", "Nuevo" if execution["created"] else "Ya existente")
+    st.write("**Términos de activación:** " + ", ".join(procedure["trigger_terms"]))
+    st.write("**Evidencia requerida:** " + ", ".join(procedure["required_evidence"]))
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Caso": case["label"],
+                    "Consulta": case["query"],
+                    "Resultados": case["result_count"],
+                    "Regla propia recuperada": "Sí" if case["custom_procedure_retrieved"] else "No",
+                }
+                for case in evidence["retrieval_study"]
+            ]
+        ),
+        hide_index=True,
+        use_container_width=True,
+    )
+    st.markdown(
+        "**Discusión:** la consulta dirigida debe recuperar la regla propia; la amplia puede traer "
+        "más contexto del necesario; el control negativo debe evitar recuperar esa regla. Esto es "
+        "evaluación de retrieval, no una garantía de autorización de producción."
+    )
+    st.caption(f"Fuente: {source_label}. La evidencia contiene identificadores y métricas seguras, no secretos.")
+
+
 def render_live_evidence() -> None:
     """Display optional facilitator evidence without mixing it with participant evidence."""
 
@@ -763,13 +849,14 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    real_tab, simulator_tab, sdk_tab, tables_tab, experiment_tab = st.tabs(
+    real_tab, simulator_tab, sdk_tab, tables_tab, experiment_tab, design_tab = st.tabs(
         (
             "1. Mi evidencia real",
             "2. Simulador docente",
             "3. Código y SDK",
             "4. Modelo de tablas",
             "5. Experimentos reales",
+            "6. Diseño y evaluación",
         )
     )
     with real_tab:
@@ -782,6 +869,8 @@ def main() -> None:
         render_table_model()
     with experiment_tab:
         render_context_experiment()
+    with design_tab:
+        render_custom_procedure()
 
 
 if __name__ == "__main__":

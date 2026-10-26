@@ -70,6 +70,18 @@ def test_memory_exercise_arguments_select_a_safe_procedure(monkeypatch) -> None:
     assert args.confirm_live_inference is False
 
 
+def test_custom_procedure_arguments_do_not_acknowledge_live_inference(monkeypatch) -> None:
+    runner = _load_runner_module()
+    monkeypatch.setattr(sys, "argv", [
+        "run_participant_sdk_lab.py", "--bundle", "bundle.json", "--team-code", "T01",
+        "--participant-code", "P01", "--custom-procedure", "procedure.json",
+        "--output-path", "custom-evidence.json",
+    ])
+    args = runner.parse_args()
+    assert args.custom_procedure.name == "procedure.json"
+    assert args.confirm_live_inference is False
+
+
 def test_progress_marker_is_clear_for_participants(capsys) -> None:
     runner = _load_runner_module()
 
@@ -87,6 +99,7 @@ def test_participant_launcher_uses_private_environment_and_preflight() -> None:
     assert "LAB01_PREFLIGHT_NO_INFERENCE" in launcher
     assert "--confirm-live-inference" in launcher
     assert "-MemoryExercise" in launcher
+    assert "-CustomProcedure" in launcher
     assert "zero OCI Generative AI requests" in launcher
     memory_branch = launcher.index("if ($MemoryExercise)")
     profile_ready = launcher.index("LAB01_OCI_PROFILE_READY True")

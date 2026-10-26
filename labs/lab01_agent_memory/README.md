@@ -12,7 +12,8 @@ The participant never uses `ADMIN`, never creates Agent Memory objects, and alwa
 
 - `src/lab01_agent_memory/sdk_exercise.py`: credential-free core exercise behavior and evidence schema.
 - `scripts/run_participant_sdk_lab.py`: direct Oracle AI Agent Memory SDK runner.
-- `scripts/run_participant_live.ps1`: participant launcher for preflight, the real no-inference memory exercise, the two-call token comparison, and the optional four-call context-economy experiment.
+- `scripts/run_participant_live.ps1`: participant launcher for preflight, no-inference memory exercises, the custom-procedure study, and bounded inference experiments.
+- `scripts/validate_procedure.py`: local-only validation for a participant-authored synthetic procedure.
 - `ui/app.py`: visualizes safe JSON evidence; it does not receive or display credentials.
 - `tests/test_sdk_exercise.py`: deterministic core behavior tests.
 - `../../platform/bootstrap/`: database owner and runtime-access SQL scripts.
@@ -35,6 +36,8 @@ The participant starts with the generic launcher documented in the Spanish [part
 
 After the base comparison is approved, `-ContextExperiment` runs an optional controlled experiment with four on-demand OCI inference calls. It keeps the question, model, output limit, and synthetic quality checks constant while varying only the approved procedural context. It writes `context-economy-experiment-evidence.json`, which is validated separately before the Streamlit dashboard displays it.
 
+The memory engineering extension lets a participant author a versioned synthetic procedure, validate it locally, and use `-CustomProcedure` to persist and retrieve it through the existing store. It writes `custom-procedure-evidence.json` and evaluates targeted retrieval, a broader single-term query, and a negative control. It makes zero OCI Generative AI calls.
+
 The live comparison accepts evidence only when OCI returns complete usage statistics, both responses satisfy the bundle's required decision terms, and the memory-optimized request uses fewer provider-reported input tokens. This result is not a claim about total solution cost: memory, storage, and retrieval have separate costs.
 
 ## Scope and security boundary
@@ -44,4 +47,5 @@ An exact `user_id` passed to Agent Memory search is a retrieval boundary. It is 
 ## Documents
 
 - [Participant guide](../../docs/participant-guides/01-decision-memory.md)
+- [Memory engineering extension](../../docs/participant-guides/02-memory-engineering-lab.md)
 - [Architecture](../../docs/architecture.md)

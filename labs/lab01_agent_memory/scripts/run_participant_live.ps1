@@ -8,7 +8,8 @@ param(
     [switch]$Preflight,
     [ValidateSet("payment-idempotency", "contract-compatibility")]
     [string]$MemoryExercise,
-    [switch]$ContextExperiment
+    [switch]$ContextExperiment,
+    [string]$CustomProcedure
 )
 
 $ErrorActionPreference = "Stop"
@@ -64,8 +65,12 @@ $runnerArguments = @(
     "--participant-code", $ParticipantCode
 )
 
-if (($Preflight -and $MemoryExercise) -or ($Preflight -and $ContextExperiment) -or ($MemoryExercise -and $ContextExperiment)) {
-    throw "Choose exactly one of -Preflight, -MemoryExercise, or -ContextExperiment."
+$selectedModes = [int]$Preflight + `
+    [int](-not [string]::IsNullOrWhiteSpace($MemoryExercise)) + `
+    [int]$ContextExperiment + `
+    [int](-not [string]::IsNullOrWhiteSpace($CustomProcedure))
+if ($selectedModes -gt 1) {
+    throw "Choose exactly one of -Preflight, -MemoryExercise, -ContextExperiment, or -CustomProcedure."
 }
 
 if ($Preflight) {
@@ -83,6 +88,20 @@ if ($MemoryExercise) {
     Write-Host "This run persists and retrieves synthetic ADB memory only. It makes zero OCI Generative AI requests."
     & $python @runnerArguments `
         "--memory-exercise" $MemoryExercise `
+        "--output-path" $evidencePath
+    exit $LASTEXITCODE
+}
+
+if ($CustomProcedure) {
+    $safeTeamCode = $TeamCode.Trim().ToLowerInvariant()
+    $safeParticipantCode = $ParticipantCode.Trim().ToLowerInvariant()
+    $procedurePath = Resolve-Path -LiteralPath $CustomProcedure -ErrorAction Stop
+    $evidencePath = Join-Path $repositoryRoot "artifacts\lab01\$safeTeamCode\$safeParticipantCode\custom-procedure-evidence.json"
+
+    Write-Host "LAB01_CUSTOM_PROCEDURE_EXERCISE_READY"
+    Write-Host "This run persists and evaluates one synthetic procedure in ADB. It makes zero OCI Generative AI requests."
+    & $python @runnerArguments `
+        "--custom-procedure" $procedurePath `
         "--output-path" $evidencePath
     exit $LASTEXITCODE
 }

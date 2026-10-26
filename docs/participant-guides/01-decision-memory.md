@@ -22,6 +22,7 @@ Cada participante usa Oracle AI Agent Memory SDK desde Python para persistir, re
 4. Ejecutar la comparación real de dos solicitudes on-demand a OCI Generative AI.
 5. Analizar en Streamlit la evidencia de memoria, aislamiento, telemetría y calidad de respuesta.
 6. Explicar los límites del patrón y su evolución hacia una arquitectura de producción.
+7. Diseñar y evaluar una regla procedural propia mediante la [extensión de ingeniería de memoria](02-memory-engineering-lab.md).
 
 ## Antes de comenzar
 
