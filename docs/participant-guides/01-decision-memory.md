@@ -73,13 +73,15 @@ valores entregados por el facilitador.
 ```powershell
 $participantProfile = "LAB01_P01"
 $participantRegion = "<tenant-home-region>"
+$participantTenancyName = "<workshop-tenancy-name>"
 $participantOciConfig = "C:\KhipuPrivate\oci\p01-config"
 $env:BROWSER = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 
 oci session authenticate `
   --config-location $participantOciConfig `
   --profile-name $participantProfile `
-  --region $participantRegion
+  --region $participantRegion `
+  --tenancy-name $participantTenancyName
 
 oci session validate `
   --config-file $participantOciConfig `
@@ -87,8 +89,10 @@ oci session validate `
   --auth security_token
 ```
 
-Completa el inicio de sesión en Chrome con tu identidad OCI individual y espera que PowerShell
-confirme la sesión válida. Durante este prework privado, verifica que `OCI_CONFIG_FILE` en tu
+Completa el inicio de sesión en Chrome con tu identidad OCI individual en el tenancy indicado por
+`$participantTenancyName` y espera que PowerShell confirme la sesión válida. El parámetro
+`--tenancy-name` es obligatorio cuando una persona puede acceder a más de un tenant: evita que
+Chrome reutilice una sesión de otro tenant. Durante este prework privado, verifica que `OCI_CONFIG_FILE` en tu
 archivo de sesión apunte a `$participantOciConfig` y que `OCI_CONFIG_PROFILE` sea
 `$participantProfile`; no cambies los demás valores entregados por el facilitador. La sesión,
 su token y las claves locales son privados: no se copian entre laptops ni se suben al repositorio.
@@ -137,7 +141,8 @@ LAB01_PREFLIGHT_COMPLETE
 Si no aparece `LAB01_OCI_TENANCY_MATCH True` o `LAB01_PREFLIGHT_MODEL_ACCESS True`, no continúes al paso de inferencia. Comunica
 a la facilitadora el mensaje completo sin adjuntar tokens, contenido del archivo de sesión ni
 contraseñas. Si falla la coincidencia de tenancy, vuelve a autenticar tu perfil asignado en el
-tenancy indicado por el facilitador; no reutilices una sesión de otro tenant. La facilitadora debe
+tenancy indicado por el facilitador; vuelve a ejecutar `oci session authenticate` incluyendo
+`--tenancy-name $participantTenancyName`. No reutilices una sesión de otro tenant. La facilitadora debe
 verificar que tu identidad OCI pertenece al grupo aprobado y que dicho grupo tiene `inspect
 generative-ai-model in tenancy` y `use generative-ai-chat` en el compartment del workshop.
 
