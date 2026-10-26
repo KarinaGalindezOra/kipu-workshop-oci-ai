@@ -41,6 +41,24 @@ El workshop usa un tenant trial centralizado, una Autonomous Database y un memor
 - Un archivo de sesión privado basado en `labs/lab01_agent_memory/config/participant-session.ps1.example`.
 - Confirmación de acceso al modelo on-demand aprobado con su identidad OCI individual.
 
+### Paso 0: clonar el repositorio público
+
+Abre PowerShell y ejecuta este bloque una sola vez. Descarga código y documentación públicos; no
+descarga wallets, sesiones, contraseñas ni evidencia de otro participante. El comando se detiene
+si la ruta de destino ya existe para evitar sobrescribir archivos.
+
+```powershell
+$workshopDirectory = "C:\KhipuPrivate\participant-workshop"
+
+if (Test-Path -LiteralPath $workshopDirectory) {
+  throw "The participant workshop directory already exists. Stop before replacing it."
+}
+
+git clone https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai.git $workshopDirectory
+Set-Location $workshopDirectory
+git log -1 --oneline
+```
+
 ### Paso A: preparar el computador local
 
 Ejecute este bloque desde una copia local del repositorio. Solo crea un entorno Python local e
