@@ -100,6 +100,8 @@ def test_participant_launcher_uses_private_environment_and_preflight() -> None:
     assert "--confirm-live-inference" in launcher
     assert "-MemoryExercise" in launcher
     assert "-CustomProcedure" in launcher
+    assert "$Preflight.IsPresent" in launcher
+    assert "$ContextExperiment.IsPresent" in launcher
     assert "zero OCI Generative AI requests" in launcher
     memory_branch = launcher.index("if ($MemoryExercise)")
     profile_ready = launcher.index("LAB01_OCI_PROFILE_READY True")

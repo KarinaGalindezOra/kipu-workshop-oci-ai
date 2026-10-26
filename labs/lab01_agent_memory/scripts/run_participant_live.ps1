@@ -65,9 +65,9 @@ $runnerArguments = @(
     "--participant-code", $ParticipantCode
 )
 
-$selectedModes = [int]$Preflight + `
+$selectedModes = [int]$Preflight.IsPresent + `
     [int](-not [string]::IsNullOrWhiteSpace($MemoryExercise)) + `
-    [int]$ContextExperiment + `
+    [int]$ContextExperiment.IsPresent + `
     [int](-not [string]::IsNullOrWhiteSpace($CustomProcedure))
 if ($selectedModes -gt 1) {
     throw "Choose exactly one of -Preflight, -MemoryExercise, -ContextExperiment, or -CustomProcedure."
