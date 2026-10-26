@@ -14,6 +14,8 @@ from typing import Any
 
 import oci
 import oracledb
+from lab01_agent_memory.custom_procedure_lab import run_custom_procedure_exercise
+from lab01_agent_memory.experiment_catalog import load_context_experiment
 from lab01_agent_memory.inference import (
     ContextExperimentVariant,
     InferenceSettings,
@@ -21,8 +23,6 @@ from lab01_agent_memory.inference import (
     run_context_experiment,
     run_token_comparison,
 )
-from lab01_agent_memory.experiment_catalog import load_context_experiment
-from lab01_agent_memory.custom_procedure_lab import run_custom_procedure_exercise
 from lab01_agent_memory.memory_experiments import prepare_context_experiment_memory
 from lab01_agent_memory.participant_lab import load_bundle
 from lab01_agent_memory.procedure_builder import load_procedure_definition
@@ -124,12 +124,21 @@ def create_runtime_memory() -> tuple[OracleSdkAdapter, Any]:
 def create_inference_client() -> OciCohereInferenceClient:
     """Create the native OCI Inference client from the participant's OCI profile."""
 
+    config, signer = load_oci_profile()
+    if signer is None:
+        client = oci.generative_ai_inference.GenerativeAiInferenceClient(config)
+    else:
+        client = oci.generative_ai_inference.GenerativeAiInferenceClient(config, signer=signer)
+    return OciCohereInferenceClient(client)
+
+
+def load_oci_profile() -> tuple[dict[str, str], Any | None]:
+    """Load the participant OCI profile and its optional session-token signer."""
+
     config_file = os.getenv("OCI_CONFIG_FILE")
     profile = os.getenv("OCI_CONFIG_PROFILE", "DEFAULT")
     if not config_file:
-        config = oci.config.from_file(profile_name=profile)
-        client = oci.generative_ai_inference.GenerativeAiInferenceClient(config)
-        return OciCohereInferenceClient(client)
+        return oci.config.from_file(profile_name=profile), None
 
     try:
         config = oci.config.from_file(file_location=config_file, profile_name=profile)
@@ -137,15 +146,42 @@ def create_inference_client() -> OciCohereInferenceClient:
         config = load_session_token_config(config_file, profile)
 
     if "security_token_file" not in config:
-        client = oci.generative_ai_inference.GenerativeAiInferenceClient(config)
-        return OciCohereInferenceClient(client)
+        return config, None
 
     token = Path(config["security_token_file"]).read_text(encoding="utf-8").strip()
     private_key = oci.signer.load_private_key_from_file(config["key_file"])
     signer = oci.auth.signers.SecurityTokenSigner(token, private_key)
-    return OciCohereInferenceClient(
-        oci.generative_ai_inference.GenerativeAiInferenceClient(config, signer=signer)
-    )
+    return config, signer
+
+
+def validate_model_access() -> None:
+    """Verify OCI IAM model-discovery access without sending an inference request."""
+
+    config, signer = load_oci_profile()
+    settings = inference_settings()
+    if signer is None:
+        client = oci.generative_ai.GenerativeAiClient(config)
+    else:
+        client = oci.generative_ai.GenerativeAiClient(config, signer=signer)
+
+    try:
+        response = client.list_models(compartment_id=settings.compartment_id, limit=1000)
+    except oci.exceptions.ServiceError as error:
+        if error.status in (401, 403, 404):
+            raise RuntimeError(
+                "OCI Generative AI model access was denied. Verify that the signed-in OCI "
+                "identity belongs to the approved participant group and that the group has "
+                "'inspect generative-ai-model in tenancy' plus 'use generative-ai-chat' in "
+                "the workshop compartment."
+            ) from error
+        raise
+
+    models = getattr(response.data, "items", [])
+    if not any(getattr(model, "id", None) == settings.model_id for model in models):
+        raise RuntimeError(
+            "The configured LAB01_CHAT_MODEL_ID is not discoverable in the selected region. "
+            "Confirm the approved on-demand chat model and the participant session file."
+        )
 
 
 def load_session_token_config(config_file: str, profile: str) -> dict[str, str]:
@@ -202,9 +238,10 @@ def run_preflight(*, team_code: str, participant_code: str) -> None:
         memory.list_memories(user_id=scopes.individual, limit=1)
     finally:
         pool.close()
-    create_inference_client()
+    validate_model_access()
     print("LAB01_PREFLIGHT_DATABASE_ACCESS True")
     print("LAB01_PREFLIGHT_MEMORY_STORE_ACCESS True")
+    print("LAB01_PREFLIGHT_MODEL_ACCESS True")
     print("LAB01_PREFLIGHT_INFERENCE_CLIENT_READY True")
     print("LAB01_PREFLIGHT_COMPLETE")
 
@@ -265,7 +302,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--custom-procedure",
         type=Path,
-        help="Persist and assess one participant-authored synthetic procedure without OCI Generative AI inference.",
+        help=(
+            "Persist and assess one participant-authored synthetic procedure without OCI "
+            "Generative AI inference."
+        ),
     )
     return parser.parse_args()
 
@@ -283,7 +323,10 @@ def main() -> None:
         )
     )
     if selected_modes > 1:
-        raise RuntimeError("Choose exactly one of --preflight, --memory-exercise, --context-experiment, or --custom-procedure.")
+        raise RuntimeError(
+            "Choose exactly one of --preflight, --memory-exercise, --context-experiment, "
+            "or --custom-procedure."
+        )
     if args.preflight:
         run_preflight(team_code=args.team_code, participant_code=args.participant_code)
         return
@@ -327,7 +370,9 @@ def main() -> None:
         return
     if args.custom_procedure:
         if args.confirm_live_inference or args.confirm_context_experiment:
-            raise RuntimeError("The custom procedure exercise does not make OCI Generative AI calls.")
+            raise RuntimeError(
+                "The custom procedure exercise does not make OCI Generative AI calls."
+            )
         if args.output_path is None:
             raise RuntimeError("The custom procedure exercise requires --output-path.")
         procedure = load_procedure_definition(args.custom_procedure)

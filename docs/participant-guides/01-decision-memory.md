@@ -120,15 +120,24 @@ powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_p
 Usa la ruta real privada entregada por el facilitador. No copies la notación de marcador de posición de ejemplos anteriores: PowerShell interpreta `<` como un operador.
 
 El programa solicitará las contraseñas de base de datos y wallet localmente. No llama al modelo
-ni consume inferencias. Debe terminar con:
+ni consume inferencias. Además consulta el catálogo de modelos de OCI solo para comprobar el
+permiso de la identidad y la disponibilidad del modelo configurado; esa comprobación no envía un
+prompt ni consume tokens. Debe terminar con:
 
 ```text
 LAB01_OCI_IDENTITY_CHECK True
 LAB01_PREFLIGHT_DATABASE_ACCESS True
 LAB01_PREFLIGHT_MEMORY_STORE_ACCESS True
+LAB01_PREFLIGHT_MODEL_ACCESS True
 LAB01_PREFLIGHT_INFERENCE_CLIENT_READY True
 LAB01_PREFLIGHT_COMPLETE
 ```
+
+Si no aparece `LAB01_PREFLIGHT_MODEL_ACCESS True`, no continúes al paso de inferencia. Comunica
+a la facilitadora el mensaje completo sin adjuntar tokens, contenido del archivo de sesión ni
+contraseñas. La facilitadora debe verificar que tu identidad OCI pertenece al grupo aprobado y
+que dicho grupo tiene `inspect generative-ai-model in tenancy` y `use generative-ai-chat` en el
+compartment del workshop.
 
 ## Paso 5: dos ejercicios reales de memoria sin inferencia
 

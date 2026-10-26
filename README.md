@@ -107,7 +107,9 @@ powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_p
 
 Durante la validación previa (`preflight`), el programa solicita las contraseñas localmente sin
 mostrarlas. Valida la identidad OCI, el wallet, la conectividad a ADB y el acceso al almacén de
-memoria existente (`memory store`); no crea memorias ni realiza inferencias de OCI Generative AI.
+memoria existente (`memory store`). También consulta el catálogo de modelos para comprobar que la
+identidad tiene acceso efectivo al modelo configurado. No crea memorias ni realiza inferencias de
+OCI Generative AI.
 
 `TeamCode` y `ParticipantCode` son alcances lógicos de recuperación; la participante no los elige.
 Para participantes individuales, la facilitadora asigna un par único por persona, por ejemplo

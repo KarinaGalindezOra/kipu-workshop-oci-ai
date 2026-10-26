@@ -92,6 +92,30 @@ def test_progress_marker_is_clear_for_participants(capsys) -> None:
     )
 
 
+def test_preflight_checks_model_access_before_reporting_success(monkeypatch, capsys) -> None:
+    runner = _load_runner_module()
+    events: list[str] = []
+
+    class FakeMemory:
+        def list_memories(self, *, user_id: str, limit: int) -> list[object]:
+            events.append(f"memory:{user_id}:{limit}")
+            return []
+
+    class FakePool:
+        def close(self) -> None:
+            events.append("pool:closed")
+
+    monkeypatch.setattr(runner, "create_runtime_memory", lambda: (FakeMemory(), FakePool()))
+    monkeypatch.setattr(runner, "validate_model_access", lambda: events.append("model:checked"))
+
+    runner.run_preflight(team_code="T01", participant_code="P01")
+
+    assert events == ["memory:t01:p01:1", "pool:closed", "model:checked"]
+    output = capsys.readouterr().out
+    assert "LAB01_PREFLIGHT_MODEL_ACCESS True" in output
+    assert "LAB01_PREFLIGHT_COMPLETE" in output
+
+
 def test_participant_launcher_uses_private_environment_and_preflight() -> None:
     launcher = LAUNCHER_PATH.read_text(encoding="utf-8")
 
