@@ -9,7 +9,7 @@ description = "Workshop 1 for OCI Agent Memory and token economy"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
-  "oci>=2.150.0",
+  "oci>=2.150.0,<2.189.0",
   "oracledb>=2.5.0",
   "python-dotenv>=1.0.1",
 ]
