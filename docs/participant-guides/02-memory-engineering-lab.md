@@ -102,19 +102,27 @@ telemetría permite comparar las variantes `all-rules-baseline`, `retrieved-top-
 
 ## Actividad 6: Inspección SQL opcional y de solo lectura
 
-Con SQLcl, el usuario temporal y el wallet configurado:
+Con SQLcl, el usuario temporal y el wallet configurado, desde la raíz del repositorio:
 
 ```powershell
+$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
 . $participantSession
 $env:TNS_ADMIN = $env:LAB01_WALLET_DIR
 sql "$env:LAB01_DB_USER@$env:LAB01_DB_DSN"
 ```
 
-En SQLcl ejecuta, con el owner y prefijo lógico entregados por el facilitador:
+Cuando SQLcl solicite la contraseña, escribe la contraseña del usuario temporal de ADB. El wallet
+usa el archivo de auto-login local, por lo que no debes escribir su contraseña en SQLcl.
+
+En el prompt `SQL>` ejecuta el script **sin parámetros**:
 
 ```sql
-@labs/lab01_agent_memory/sql/inspect_memory_store.sql <memory-owner-schema> <memory-store-prefix>
+@labs/lab01_agent_memory/sql/inspect_memory_store.sql
 ```
+
+SQLcl solicitará dos valores. Para el equipo de ensayo `T01`, escribe primero `OAM_T01_OWNER` y
+luego `OAMT01`. El primer valor es el schema owner; el segundo es el prefijo físico de las tablas
+del store. Escribe `exit` al terminar.
 
 El script solo lee metadata. `*_MEMORY` guarda registros principales; `*_RECORD_CHUNKS` apoya contenido recuperable; las demás tablas modelan documentos, enlaces, perfiles de actor e hilos para otros patrones del SDK.
 
