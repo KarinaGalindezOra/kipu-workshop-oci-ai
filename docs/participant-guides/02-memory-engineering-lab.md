@@ -102,9 +102,21 @@ telemetría permite comparar las variantes `all-rules-baseline`, `retrieved-top-
 
 ## Actividad 6: Inspección SQL opcional y de solo lectura
 
-Con SQLcl, el usuario temporal y el wallet configurado, desde la raíz del repositorio:
+Con SQLcl, el usuario temporal y el wallet configurado, desde la raíz del repositorio. En una
+nueva terminal PowerShell, primero verifica que SQLcl esté disponible. Si tu instalación está en
+otra ubicación, ajusta el valor de `$sqlclBin`; este cambio aplica solo a la terminal actual.
 
 ```powershell
+$sqlclBin = "C:\Tools\sqlcl\bin"
+if (-not (Get-Command sql -ErrorAction SilentlyContinue)) {
+  if (-not (Test-Path -LiteralPath $sqlclBin -PathType Container)) {
+    throw "SQLcl was not found. Install SQLcl or update `$sqlclBin to its bin directory."
+  }
+  $env:Path = "$sqlclBin;$env:Path"
+}
+
+sql -V
+
 $participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
 . $participantSession
 $env:TNS_ADMIN = $env:LAB01_WALLET_DIR

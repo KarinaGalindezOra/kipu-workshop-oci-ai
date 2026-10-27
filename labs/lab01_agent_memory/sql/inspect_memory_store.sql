@@ -15,7 +15,7 @@ prompt Agent Memory tables visible through granted runtime access
 select table_name
 from all_tables
 where owner = upper('&memory_owner')
-  and table_name like upper('&memory_prefix') || '\\_%' escape '\\'
+  and table_name like upper('&memory_prefix') || '\_%' escape '\'
 order by table_name;
 
 prompt Columns of the primary memory table
