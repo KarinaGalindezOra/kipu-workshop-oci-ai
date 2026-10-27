@@ -72,6 +72,34 @@ Esto evalúa retrieval; no sustituye controles de IAM, ADB, red ni un scope deri
 
 Después de aprobar la regla propia, ejecuta el experimento de cuatro variantes de la guía principal. Mantiene pregunta, modelo, parámetros y criterios de calidad; cambia solo el contexto procedimental. Discute calidad, distractores, fallas de retrieval y costos de memoria, ADB, retrieval y operación además de input tokens.
 
+Este comando realiza exactamente **cuatro** llamadas on-demand a OCI Generative AI con datos
+sintéticos. No ejecutes otra modalidad (`-Preflight`, `-MemoryExercise` o `-CustomProcedure`) en
+la misma invocación.
+
+```powershell
+$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
+
+powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_participant_live.ps1 `
+  -TeamCode T01 `
+  -ParticipantCode P01 `
+  -SessionFile $participantSession `
+  -ContextExperiment
+```
+
+El resultado aprobado incluye:
+
+```text
+PERSISTENCE_CONFIRMED True
+ISOLATION_PASS True
+EXPERIMENT_VARIANTS 4
+QUALITY_PASS True
+```
+
+La evidencia segura queda en `artifacts/lab01/<team>/<participant>/context-economy-experiment-evidence.json`.
+En Streamlit, abre **5. Experimentos reales** y selecciónala desde `artifacts` o súbela. La
+telemetría permite comparar las variantes `all-rules-baseline`, `retrieved-top-1`,
+`relevant-plus-distractors` y `payment-and-risk` con el mismo modelo y la misma pregunta.
+
 ## Actividad 6: Inspección SQL opcional y de solo lectura
 
 Con SQLcl, el usuario temporal y el wallet configurado:
