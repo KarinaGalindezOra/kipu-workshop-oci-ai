@@ -70,6 +70,11 @@ uses `--no-browser` para una primera sesión, porque ese modo requiere previamen
 o un token de sesión vigente. El ejemplo usa los códigos de ensayo `P01`; sustituye solo los
 valores entregados por el facilitador.
 
+> **Importante:** ejecuta el bloque completo, incluidas las cuatro variables iniciales. Si OCI
+> informa que `~\\.oci\\config` no tiene `user`, el comando no recibió `--config-location`
+> correctamente o se usó `--no-browser` sin una sesión previa. No recrees el repositorio, el
+> wallet ni la base de datos: vuelve a ejecutar el bloque completo **sin** `--no-browser`.
+
 ```powershell
 $participantProfile = "LAB01_P01"
 $participantRegion = "<tenant-home-region>"
