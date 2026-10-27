@@ -292,9 +292,12 @@ entrada sin reemplazar los demás controles de producción.
 ## Simulación visual opcional después del recorrido obligatorio
 
 No repitas la ejecución real durante el workshop: cada recorrido autorizado usa exactamente dos
-llamadas on-demand. El dashboard tiene una sección rotulada **“Simulación visual local — no
-consulta ADB ni OCI”**. Sus botones no ejecutan el SDK, no persisten ni recuperan memoria real y
-no generan evidencia. Úsala exclusivamente para explicar el algoritmo de forma visual.
+llamadas on-demand. En el dashboard, abre la pestaña **`2. Simulador docente`**. Allí se muestra
+la sección **“Simulación visual local — no consulta ADB ni OCI”** con los botones **`Mostrar
+recuperación simulada`** y **`Reiniciar demostración`**. Ambos botones solo cambian el estado
+visual local: no ejecutan el SDK, no consultan ADB ni OCI Generative AI, no persisten ni recuperan
+memoria real y no generan evidencia. Úsalos exclusivamente para explicar el algoritmo de forma
+visual.
 
 - La ejecución real es idempotente: las mismas reglas ya persistidas aparecen como existentes.
 - En `KEYWORD`, una palabra de recuperación elegida deliberadamente hace visible el vínculo entre
