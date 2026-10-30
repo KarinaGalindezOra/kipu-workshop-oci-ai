@@ -89,6 +89,11 @@ Ejecuta este bloque solo después de recibir los elementos privados del facilita
 no crea usuarios, wallets ni contraseñas: recibe un usuario temporal de ADB, un wallet, la contraseña
 del wallet y la contraseña del usuario de base de datos por el canal privado aprobado.
 
+Antes del preflight, completa el **Paso 3: cargar y renovar la sesión OCI privada** de
+[`docs/participant-guides/01-decision-memory.md`](docs/participant-guides/01-decision-memory.md).
+Ese paso es necesario en cada laptop: la identidad OCI de la participante genera su propio token
+local y nunca recibe ni reutiliza el token de la facilitadora.
+
 ```powershell
 
 # La facilitadora asigna los tres valores por un canal privado. No los guardes en el repositorio.
@@ -117,7 +122,9 @@ Para participantes individuales, la facilitadora asigna un par único por person
 par asignado. Las participantes reciben el repositorio mediante GitHub, pero reciben su archivo
 de sesión, wallet, usuario de base de datos y contraseñas únicamente por el canal privado aprobado.
 
-Continúa con la guía de participante: `docs/participant-guides/01-decision-memory.md`. Antes de ejecutar, revisa también `docs/architecture.md`.
+Continúa con la guía de participante:
+`docs/participant-guides/01-decision-memory.md`. Antes de ejecutar, revisa también
+`docs/architecture.md`.
 
 ## Seguridad
 

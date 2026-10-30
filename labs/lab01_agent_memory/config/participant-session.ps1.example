@@ -3,6 +3,7 @@
 
 $env:OCI_CONFIG_FILE = "<absolute-path-to-private-oci-config>"
 $env:OCI_CONFIG_PROFILE = "<participant-oci-profile-name>"
+$env:OCI_CLI_CONFIG_FILE = $env:OCI_CONFIG_FILE
 $env:LAB01_TENANCY_NAME = "<workshop-tenancy-name>"
 $env:LAB01_TENANCY_ID = "<workshop-tenancy-ocid>"
 $env:OCI_COMPARTMENT_ID = "<approved-workshop-compartment-ocid>"

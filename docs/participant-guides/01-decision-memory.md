@@ -61,51 +61,55 @@ El primer archivo construye los alcances `tNN:pNN`, `tNN:shared` y `tNN:control`
 
 La operación es real y visible: `add_memory(..., memory_type="guideline")` persiste una regla procedural y `search(..., user_id=..., exact_user_match=True, record_types=["guideline"])` la recupera desde Agent Memory. El filtro explícito evita presentar mensajes, hechos o preferencias como si fueran un procedimiento. Como Lab 1 usa `KEYWORD`, el bundle separa la pregunta de negocio de la consulta de recuperación: para Payments, `idempotency` recupera de manera determinista la regla de pagos. El propietario creó el store una única vez; el participante no puede recrearlo.
 
-## Paso 3: cargar la sesión privada
+## Paso 3: cargar y renovar la sesión OCI privada
 
 Por un canal privado recibirás un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el identificador del tenancy del workshop, el compartment aprobado, el modelo on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
 
-Antes del preflight, crea **tu propia** sesión OCI en una ruta privada. Usa el navegador; no
-uses `--no-browser` para una primera sesión, porque ese modo requiere previamente una API key
-o un token de sesión vigente. El ejemplo usa los códigos de ensayo `P01`; sustituye solo los
-valores entregados por el facilitador.
+Antes del preflight, renueva **tu propia** sesión OCI dentro del perfil privado que entregó la
+facilitadora. La sesión se crea localmente en tu laptop; no recibes ni reutilizas el token de otra
+persona. Usa navegador, no `--no-browser`.
 
-> **Importante:** ejecuta el bloque completo, incluidas las cuatro variables iniciales. Si OCI
-> informa que `~\\.oci\\config` no tiene `user`, el comando no recibió `--config-location`
-> correctamente o se usó `--no-browser` sin una sesión previa. No recrees el repositorio, el
-> wallet ni la base de datos: vuelve a ejecutar el bloque completo **sin** `--no-browser`.
+El siguiente bloque no imprime secretos ni modifica el archivo de sesión `.ps1`. Solo lo carga en
+la consola actual para localizar el perfil privado, repara de forma local la clave `user` si una
+versión de OCI CLI la omitió y abre la autenticación web para tu identidad OCI.
 
 ```powershell
-$participantProfile = "LAB01_P01"
-$participantRegion = "<tenant-home-region>"
-$participantTenancyName = "<workshop-tenancy-name>"
-$participantOciConfig = "C:\KhipuPrivate\oci\p01-config"
-$env:BROWSER = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
+. $participantSession
+
+# The delivered session file sets OCI_CLI_CONFIG_FILE to the assigned private config.
+
+powershell -NoProfile -ExecutionPolicy Bypass -File `
+  .\labs\lab01_agent_memory\scripts\repair_oci_session_profile.ps1 `
+  -ConfigFile $env:OCI_CONFIG_FILE `
+  -ProfileName $env:OCI_CONFIG_PROFILE
 
 oci session authenticate `
-  --config-location $participantOciConfig `
-  --profile-name $participantProfile `
-  --region $participantRegion `
-  --tenancy-name $participantTenancyName
+  --profile-name $env:OCI_CONFIG_PROFILE `
+  --region us-chicago-1 `
+  --tenancy-name $env:LAB01_TENANCY_NAME
 
 oci session validate `
-  --config-file $participantOciConfig `
-  --profile $participantProfile `
+  --config-file $env:OCI_CONFIG_FILE `
+  --profile $env:OCI_CONFIG_PROFILE `
   --auth security_token
 ```
 
-Completa el inicio de sesión en Chrome con tu identidad OCI individual en el tenancy indicado por
-`$participantTenancyName` y espera que PowerShell confirme la sesión válida. El parámetro
-`--tenancy-name` es obligatorio cuando una persona puede acceder a más de un tenant: evita que
-Chrome reutilice una sesión de otro tenant. Durante este prework privado, verifica que `OCI_CONFIG_FILE` en tu
-archivo de sesión apunte a `$participantOciConfig` y que `OCI_CONFIG_PROFILE` sea
-`$participantProfile`; no cambies los demás valores entregados por el facilitador. La sesión,
-su token y las claves locales son privados: no se copian entre laptops ni se suben al repositorio.
+Completa el inicio de sesión en el navegador con tu identidad OCI individual en el tenancy indicado
+por la facilitadora y espera que PowerShell confirme la sesión válida. El parámetro
+`--tenancy-name` evita que el navegador reutilice una sesión de otro tenant. Si compartes laptop
+con otra identidad OCI, usa una ventana privada o un perfil de navegador separado.
 
-No cargues el archivo de sesión directamente ni modifiques sus valores después del prework.
-Entrégalo al launcher mediante `-SessionFile` en el paso siguiente. El launcher lo cargará solo
-dentro de ese proceso, validará la identidad OCI y el wallet, y solicitará las contraseñas de
-base de datos y wallet únicamente en la terminal local.
+> **Si OCI informa que `~\\.oci\\config` no tiene `user`:** detente. Eso significa que OCI CLI
+> intentó leer su configuración predeterminada, no tu perfil asignado. Confirma que ejecutaste
+> `. $participantSession`, que `$env:OCI_CLI_CONFIG_FILE` se asignó como se muestra arriba y que
+> el script `repair_oci_session_profile.ps1` terminó con
+> `OCI_SESSION_PROFILE_USER_READY True`. No recrees el repositorio, el wallet ni la base de datos.
+
+No edites el archivo de sesión ni cambies sus valores. Cargarlo temporalmente con
+`. $participantSession` es necesario solo para renovar tu token local. En el siguiente paso,
+entrégalo al launcher mediante `-SessionFile`; el launcher validará identidad OCI y wallet, y
+solicitará contraseñas de base de datos y wallet únicamente en la terminal local.
 
 No pases contraseñas como argumentos ni las declares en archivos `.env` compartidos.
 

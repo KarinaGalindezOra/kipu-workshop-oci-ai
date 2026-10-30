@@ -187,6 +187,7 @@ def test_private_session_template_exposes_only_configuration_references() -> Non
     for variable in (
         "OCI_CONFIG_FILE",
         "OCI_CONFIG_PROFILE",
+        "OCI_CLI_CONFIG_FILE",
         "LAB01_TENANCY_NAME",
         "LAB01_TENANCY_ID",
         "OCI_COMPARTMENT_ID",
