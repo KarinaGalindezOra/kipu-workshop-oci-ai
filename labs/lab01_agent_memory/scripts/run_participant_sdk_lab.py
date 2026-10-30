@@ -193,7 +193,17 @@ def validate_model_access() -> None:
         raise
 
     models = getattr(response.data, "items", [])
-    if not any(getattr(model, "id", None) == settings.model_id for model in models):
+    discoverable_identifiers = {
+        identifier
+        for model in models
+        for identifier in (
+            getattr(model, "id", None),
+            getattr(model, "display_name", None),
+            getattr(model, "base_model_id", None),
+        )
+        if identifier
+    }
+    if settings.model_id not in discoverable_identifiers:
         raise RuntimeError(
             "The configured LAB01_CHAT_MODEL_ID is not discoverable in the selected region. "
             "Confirm the approved on-demand chat model and the participant session file."

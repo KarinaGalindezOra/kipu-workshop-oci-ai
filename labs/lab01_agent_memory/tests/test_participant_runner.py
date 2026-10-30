@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS_DIRECTORY = REPOSITORY_ROOT / "labs" / "lab01_agent_memory" / "scripts"
@@ -118,6 +119,43 @@ def test_preflight_checks_model_access_before_reporting_success(monkeypatch, cap
     assert "LAB01_OCI_TENANCY_MATCH True" not in output
     assert "LAB01_PREFLIGHT_MODEL_ACCESS True" in output
     assert "LAB01_PREFLIGHT_COMPLETE" in output
+
+
+def test_model_access_accepts_the_on_demand_model_display_name(monkeypatch) -> None:
+    runner = _load_runner_module()
+
+    class FakeClient:
+        def list_models(self, *, compartment_id: str, limit: int) -> SimpleNamespace:
+            assert compartment_id == "workshop-compartment"
+            assert limit == 1000
+            return SimpleNamespace(
+                data=SimpleNamespace(
+                    items=[
+                        SimpleNamespace(
+                            id="ocid1.generativeaimodel.oc1..example",
+                            display_name="cohere.command-a-03-2025",
+                            base_model_id=None,
+                        )
+                    ]
+                )
+            )
+
+    monkeypatch.setattr(runner, "load_oci_profile", lambda: ({}, object()))
+    monkeypatch.setattr(
+        runner,
+        "inference_settings",
+        lambda: SimpleNamespace(
+            compartment_id="workshop-compartment",
+            model_id="cohere.command-a-03-2025",
+        ),
+    )
+    monkeypatch.setattr(
+        runner.oci.generative_ai,
+        "GenerativeAiClient",
+        lambda config, signer: FakeClient(),
+    )
+
+    runner.validate_model_access()
 
 
 def test_participant_launcher_uses_private_environment_and_preflight() -> None:
