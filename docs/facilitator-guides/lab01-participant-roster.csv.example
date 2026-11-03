@@ -1,0 +1,2 @@
+TeamCode,ParticipantCode,OCIIdentity,DatabaseUser,PrivateSessionFile,WalletDirectory,PreflightComplete,LiveRunComplete,EvidenceVerified
+T01,P01,<participant-oci-identity>,<temporary-db-user>,<private-path-not-in-repository>,<private-path-not-in-repository>,No,No,No

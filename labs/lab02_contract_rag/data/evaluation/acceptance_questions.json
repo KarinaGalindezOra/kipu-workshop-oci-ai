@@ -1,0 +1,269 @@
+[
+  {
+    "id": "T01",
+    "question": "In v1, what method and endpoint update a disbursement?",
+    "expected_status": "answered",
+    "versions": [
+      "v1"
+    ],
+    "sections": [
+      "Status update endpoint"
+    ],
+    "required_terms": [
+      "PATCH /v1/disbursements/"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T02",
+    "question": "In v1, what request body field and allowed states are used?",
+    "expected_status": "answered",
+    "versions": [
+      "v1"
+    ],
+    "sections": [
+      "Status update endpoint"
+    ],
+    "required_terms": [
+      "payment_status",
+      "PENDING",
+      "PAID",
+      "FAILED"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T03",
+    "question": "In v2, what method and endpoint update settlement status?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Settlement status endpoint"
+    ],
+    "required_terms": [
+      "PUT /v2/disbursements/"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T04",
+    "question": "In v2, what idempotency header is required?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Idempotency"
+    ],
+    "required_terms": [
+      "Idempotency-Key"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T05",
+    "question": "How do I update the status?",
+    "expected_status": "needs_clarification",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "fixture": null
+  },
+  {
+    "id": "T06",
+    "question": "When migrating from v1 to v2, how do the endpoint, field and states change?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Settlement status endpoint",
+      "Migration from v1"
+    ],
+    "required_terms": [
+      "PUT",
+      "payment_status",
+      "PROCESSING",
+      "SETTLED",
+      "REJECTED"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T07",
+    "question": "In v2, what timestamp does a successful response return?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Response"
+    ],
+    "required_terms": [
+      "status_changed_at"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T08",
+    "question": "Compare the idempotency headers between v1 and v2.",
+    "expected_status": "answered",
+    "versions": [
+      "v1",
+      "v2"
+    ],
+    "sections": [
+      "Idempotency"
+    ],
+    "required_terms": [
+      "X-Idempotency-Key",
+      "Idempotency-Key"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T09",
+    "question": "In v2, is payment_status=PAID accepted at the v1 endpoint?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Migration from v1",
+      "Settlement status endpoint"
+    ],
+    "required_terms": [
+      "not accepted by v2"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T10",
+    "question": "In v2, what SLA availability is guaranteed?",
+    "expected_status": "insufficient_evidence",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "fixture": null
+  },
+  {
+    "id": "T11",
+    "question": "In v2, how is TLS certificate rotation configured?",
+    "expected_status": "insufficient_evidence",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "fixture": null
+  },
+  {
+    "id": "T12",
+    "question": "How many transactions were SETTLED yesterday?",
+    "expected_status": "structured_data_required",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "fixture": null
+  },
+  {
+    "id": "T13",
+    "question": "In v2, what error is returned for an invalid status?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Error handling"
+    ],
+    "required_terms": [
+      "422 INVALID_STATUS"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T14",
+    "question": "In v2, explain the migration mapping for PAID with evidence.",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Migration from v1",
+      "Settlement status endpoint"
+    ],
+    "required_terms": [
+      "PAID",
+      "SETTLED"
+    ],
+    "fixture": null
+  },
+  {
+    "id": "T15",
+    "question": "Which contract describes the contract_version field?",
+    "expected_status": "needs_clarification",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "fixture": null
+  },
+  {
+    "id": "T16",
+    "question": "In v2, what idempotency header is required?",
+    "expected_status": "conflicting_evidence",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Idempotency"
+    ],
+    "required_terms": [],
+    "fixture": "T16"
+  },
+  {
+    "id": "T17",
+    "question": "In v2, what idempotency header is required?",
+    "expected_status": "error",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "fixture": "T17"
+  },
+  {
+    "id": "T18",
+    "question": "In v2, what idempotency header is required?",
+    "expected_status": "error",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "fixture": "T18"
+  },
+  {
+    "id": "T19",
+    "question": "In v3, what endpoint updates status?",
+    "expected_status": "insufficient_evidence",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "fixture": null
+  },
+  {
+    "id": "T20",
+    "question": "In v2, what endpoint updates status?",
+    "expected_status": "error",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "fixture": "T20"
+  }
+]

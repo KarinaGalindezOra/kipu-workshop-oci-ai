@@ -1,0 +1,18 @@
+{
+  "corpus_id": "contracts-baseline-01",
+  "api_name": "disbursement",
+  "documents": [
+    {
+      "file": "contract_v1.md",
+      "contract_version": "v1",
+      "chunk_count": 4,
+      "sha256": "4d9f8aff560a8b4354656b1145f0ae11d63b7c2e2a6f174ad6abb9720a88cc8d"
+    },
+    {
+      "file": "contract_v2.md",
+      "contract_version": "v2",
+      "chunk_count": 5,
+      "sha256": "60bc4d3925678e1fe6b8165b06ee896dd4ab02f7af9c3e9ad7d786e6c66ae4df"
+    }
+  ]
+}

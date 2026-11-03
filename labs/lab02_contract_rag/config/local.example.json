@@ -1,0 +1,7 @@
+{
+  "corpus_id": "contracts-baseline-01",
+  "api_name": "disbursement",
+  "top_k": 3,
+  "question_language": "en",
+  "response_mode": "verbatim_extraction"
+}

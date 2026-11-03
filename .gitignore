@@ -27,11 +27,12 @@ output/
 artifacts/
 .codex-build/
 .codex-finalizer/
-release/
-*.zip
-labs/lab01_agent_memory/config/private/
+
+labs/lab02_contract_rag/config/private/
+labs/lab02_contract_rag/wallet/
+scripts/private/
 *.session.ps1
 *.session.json
+*.session.env
 *.token
-oci-*-evidence.json
-memory-exercise-*-evidence.json
+~$*.pptx

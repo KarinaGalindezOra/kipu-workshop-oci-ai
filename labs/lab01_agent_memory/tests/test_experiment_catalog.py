@@ -1,10 +1,8 @@
 from pathlib import Path
 
 import pytest
-
 from lab01_agent_memory.experiment_catalog import load_context_experiment
 from lab01_agent_memory.procedure_builder import ProcedureDefinition
-
 
 EXERCISES_DIR = Path(__file__).resolve().parents[1] / "exercises"
 
@@ -16,6 +14,7 @@ def test_context_experiment_resolves_only_declared_synthetic_procedures() -> Non
     assert len(plan.procedures) == 5
     assert len(plan.variants) == 4
     assert plan.variants[1].variant_id == "retrieved-top-1"
+    assert plan.variants[1].decisions[0][0] == "payment-idempotency-v1"
 
 
 def test_procedure_definition_rejects_non_synthetic_or_invalid_identifier() -> None:

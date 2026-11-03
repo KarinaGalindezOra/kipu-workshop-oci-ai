@@ -75,10 +75,15 @@ def run_custom_procedure_exercise(
             }
         )
 
-    persisted_contents = {_content(record) for record in memory.list_memories(user_id=scopes.individual, limit=100)}
+    persisted_contents = {
+        _content(record)
+        for record in memory.list_memories(user_id=scopes.individual, limit=100)
+    }
+    targeted = study[0]
+    negative = study[2]
     persistence_confirmed = procedure_content in persisted_contents
-    retrieval_confirmed = study[0]["custom_procedure_retrieved"] is True
-    isolation_passed = study[2]["custom_procedure_retrieved"] is False
+    retrieval_confirmed = targeted["custom_procedure_retrieved"] is True
+    isolation_passed = negative["custom_procedure_retrieved"] is False
     if not persistence_confirmed or not retrieval_confirmed or not isolation_passed:
         raise RuntimeError("Custom procedure validation did not satisfy persistence, retrieval, and isolation")
 

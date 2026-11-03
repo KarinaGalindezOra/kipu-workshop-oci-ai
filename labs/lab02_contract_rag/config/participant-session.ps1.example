@@ -1,0 +1,17 @@
+# Example only. Keep each completed session file private; never share OCI credentials.
+# Assign a roster code before using this template. Dot-source in a dedicated PowerShell session.
+$env:LAB02_PARTICIPANT_ID = "p001"
+$env:ADB_USERNAME = "KHIPU_L2_P001"
+$env:OCI_REGION = "us-chicago-1"
+$env:OCI_CONFIG_PROFILE = "<individual_approved_profile>"
+$env:OCI_COMPARTMENT_ID = "<approved_project_compartment>"
+$env:OCI_EMBEDDING_MODEL_ID = "cohere.embed-v4.0"
+$env:OCI_CHAT_MODEL_ID = "xai.grok-4.7"
+$env:ADB_CONNECT_STRING = "<shared_adb_service_alias>"
+$env:ADB_WALLET_DIR = "<private_local_wallet_directory>"
+$env:LAB02_VECTOR_DIMENSION = "1536"
+$env:LAB02_CONTRACT_TABLE = "LAB02_CONTRACT_CHUNKS"
+$env:LAB02_CALIBRATION_FILE = "<approved_private_calibration_json>"
+$env:LAB02_TOP_K = "3"
+$env:LAB02_SET_OUTPUT_DIMENSIONS = "false"
+# Database and wallet passwords are prompted by the runner, never included here.

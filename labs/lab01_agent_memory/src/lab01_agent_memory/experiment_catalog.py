@@ -40,7 +40,7 @@ class ContextExperimentPlan:
     variants: tuple[ContextExperimentVariant, ...]
 
     def procedure_contents(self) -> dict[str, str]:
-        """Return exact synthetic text associated with each approved procedure."""
+        """Return the exact synthetic text associated with each approved procedure."""
 
         return {
             procedure.procedure_id: procedure.as_memory_content() for procedure in self.procedures

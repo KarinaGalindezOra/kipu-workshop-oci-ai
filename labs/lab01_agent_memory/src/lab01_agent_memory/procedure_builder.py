@@ -56,7 +56,7 @@ class ProcedureDefinition:
             raise ValueError("Too many required_evidence fields")
 
     @classmethod
-    def from_payload(cls, payload: dict[str, Any]) -> "ProcedureDefinition":
+    def from_payload(cls, payload: dict[str, Any]) -> ProcedureDefinition:
         """Create one validated definition from a non-secret JSON object."""
 
         if payload.get("synthetic") is not True:
@@ -72,7 +72,7 @@ class ProcedureDefinition:
         )
 
     def as_memory_content(self) -> str:
-        """Build stable text passed to Agent Memory without putting metadata in prompt code."""
+        """Build stable text passed to Agent Memory without putting metadata in the prompt code."""
 
         evidence = ", ".join(self.required_evidence)
         return (

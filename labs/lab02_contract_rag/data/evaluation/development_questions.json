@@ -1,0 +1,17 @@
+[
+  {
+    "id": "D01",
+    "question": "In v1, which header prevents duplicate updates?",
+    "relevant_section": "Idempotency"
+  },
+  {
+    "id": "D02",
+    "question": "In v2, which fields are in a successful response?",
+    "relevant_section": "Response"
+  },
+  {
+    "id": "D03",
+    "question": "In v2, what authentication protocol is supported?",
+    "relevant_section": null
+  }
+]

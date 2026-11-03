@@ -14,28 +14,22 @@ Cada participante usa Oracle AI Agent Memory SDK desde Python para persistir, re
 4. Diferenciar aislamiento de recuperación de autorización de producción.
 5. Comparar telemetría real de OCI para un prompt repetitivo y un prompt con memoria recuperada.
 
-## Actividades del recorrido
+## Tiempo
 
-1. Validar el entorno local, la sesión OCI, el wallet y el acceso de runtime sin llamar al modelo.
-2. Leer el SDK y ubicar los alcances, la persistencia, la recuperación y el aislamiento.
-3. Persistir y recuperar dos decisiones procedurales sintéticas en Autonomous Database.
-4. Ejecutar la comparación real de dos solicitudes on-demand a OCI Generative AI.
-5. Analizar en Streamlit la evidencia de memoria, aislamiento, telemetría y calidad de respuesta.
-6. Explicar los límites del patrón y su evolución hacia una arquitectura de producción.
-7. Diseñar y evaluar una regla procedural propia mediante la [extensión de ingeniería de memoria](02-memory-engineering-lab.md).
+| Actividad | Duración |
+| --- | ---: |
+| Marco de Agent Memory, ADB y medición real | 25 min |
+| Preflight individual sin inferencia | 20 min |
+| Ejercicio real de memoria y aislamiento en ADB | 35 min |
+| Lectura del SDK, scopes y evidencia de memoria | 25 min |
+| Comparación OCI individual de dos solicitudes | 25 min |
+| Telemetría, evidencia visual, discusión y cierre | 55 min |
 
 ## Antes de comenzar
 
-El código se obtiene desde el repositorio público del workshop: [KarinaGalindezOra/kipu-workshop-oci-ai](https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai). El facilitador puede compartir este mismo enlace mediante un QR; el QR solo dirige al repositorio público y no contiene credenciales.
+El facilitador entrega por un canal privado una copia del repositorio, un usuario temporal de aplicación, un wallet mTLS con contraseña y un archivo de sesión con valores no secretos. El usuario no es `ADMIN` ni el propietario del esquema de memoria.
 
-El workshop usa un **tenant trial centralizado**, una Autonomous Database y un memory store precreados. Cada participante trabaja individualmente desde su propio computador Windows con PowerShell y recibe por un canal privado:
-
-- Un código lógico de aislamiento, por ejemplo `T01` y `P01`. Para diez participantes se asignan pares únicos como `T01/P01`, `T02/P01` hasta `T10/P01`.
-- Un usuario temporal de aplicación de ADB, distinto de `ADMIN` y del propietario del esquema de memoria.
-- Un wallet mTLS privado, su contraseña y un archivo de sesión `.ps1` con valores no secretos.
-- Confirmación de que su identidad OCI individual tiene acceso al modelo on-demand aprobado.
-
-La ADB y el memory store son compartidos como infraestructura; la terminal, identidad OCI, usuario temporal, wallet, códigos de alcance y evidencia son individuales. En esta guía, `TeamCode` identifica un límite lógico de aislamiento y no implica que dos personas compartan una ejecución.
+Cada persona ejecuta desde su propio computador Windows con PowerShell. El equipo comparte ADB y memory store, pero no una terminal, una contraseña ni un resultado.
 
 > Solo se permiten datos sintéticos del repositorio. No ingreses contratos, clientes, credenciales, código interno ni información de Khipu.
 
@@ -61,59 +55,57 @@ El primer archivo construye los alcances `tNN:pNN`, `tNN:shared` y `tNN:control`
 
 La operación es real y visible: `add_memory(..., memory_type="guideline")` persiste una regla procedural y `search(..., user_id=..., exact_user_match=True, record_types=["guideline"])` la recupera desde Agent Memory. El filtro explícito evita presentar mensajes, hechos o preferencias como si fueran un procedimiento. Como Lab 1 usa `KEYWORD`, el bundle separa la pregunta de negocio de la consulta de recuperación: para Payments, `idempotency` recupera de manera determinista la regla de pagos. El propietario creó el store una única vez; el participante no puede recrearlo.
 
-## Paso 3: cargar y renovar la sesión OCI privada
+## Paso 3: cargar la sesión privada
 
-Por un canal privado recibirás un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el identificador del tenancy del workshop, el compartment aprobado, el modelo on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
+El facilitador te dará un wallet privado y un archivo de sesión `.ps1` privado. Ese archivo contiene rutas y referencias no secretas: tu perfil OCI individual, el identificador del tenancy del workshop, el compartment aprobado, el modelo Cohere on-demand, el usuario temporal, el alias del wallet, el owner y el identificador del store. No contiene contraseñas y no debe copiarse al repositorio.
 
-Antes del preflight, renueva **tu propia** sesión OCI dentro del perfil privado que entregó la
-facilitadora. La sesión se crea localmente en tu laptop; no recibes ni reutilizas el token de otra
-persona. Usa navegador, no `--no-browser`.
+Antes del preflight, crea **tu propia** sesión OCI en una ruta privada. Usa el navegador; no
+uses `--no-browser` para una primera sesión, porque ese modo requiere previamente una API key
+o un token de sesión vigente. El ejemplo usa los códigos de ensayo `P01`; sustituye solo los
+valores entregados por el facilitador.
 
-El siguiente bloque no imprime secretos ni modifica el archivo de sesión `.ps1`. Solo lo carga en
-la consola actual para localizar el perfil privado, repara de forma local la clave `user` si una
-versión de OCI CLI la omitió y abre la autenticación web para tu identidad OCI.
+> **Importante:** ejecuta el bloque completo, incluidas las cuatro variables iniciales. Si OCI
+> informa que `~\\.oci\\config` no tiene `user`, el comando no recibió `--config-location`
+> correctamente o se usó `--no-browser` sin una sesión previa. No recrees el repositorio, el
+> wallet ni la base de datos: vuelve a ejecutar el bloque completo **sin** `--no-browser`.
 
 ```powershell
-$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
-. $participantSession
-
-# The delivered session file sets OCI_CLI_CONFIG_FILE to the assigned private config.
-
-powershell -NoProfile -ExecutionPolicy Bypass -File `
-  .\labs\lab01_agent_memory\scripts\repair_oci_session_profile.ps1 `
-  -ConfigFile $env:OCI_CONFIG_FILE `
-  -ProfileName $env:OCI_CONFIG_PROFILE
+$participantProfile = "LAB01_P01"
+$participantRegion = "us-chicago-1"
+$participantTenancyName = "<workshop-tenancy-name>"
+$participantOciConfig = "C:\KhipuPrivate\oci\p01-config"
+$env:BROWSER = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 
 oci session authenticate `
-  --profile-name $env:OCI_CONFIG_PROFILE `
-  --region us-chicago-1 `
-  --tenancy-name $env:LAB01_TENANCY_NAME
+  --config-location $participantOciConfig `
+  --profile-name $participantProfile `
+  --region $participantRegion `
+  --tenancy-name $participantTenancyName
 
 oci session validate `
-  --config-file $env:OCI_CONFIG_FILE `
-  --profile $env:OCI_CONFIG_PROFILE `
+  --config-file $participantOciConfig `
+  --profile $participantProfile `
   --auth security_token
 ```
 
-Completa el inicio de sesión en el navegador con tu identidad OCI individual en el tenancy indicado
-por la facilitadora y espera que PowerShell confirme la sesión válida. El parámetro
-`--tenancy-name` evita que el navegador reutilice una sesión de otro tenant. Si compartes laptop
-con otra identidad OCI, usa una ventana privada o un perfil de navegador separado.
+Completa el inicio de sesión en Chrome con tu identidad OCI individual en el tenancy indicado por
+`$participantTenancyName` y espera que PowerShell confirme la sesión válida. El parámetro
+`--tenancy-name` es obligatorio cuando una persona puede acceder a más de un tenant: evita que
+Chrome reutilice una sesión de otro tenant. Durante este prework privado, verifica que `OCI_CONFIG_FILE` en tu
+archivo de sesión apunte a `$participantOciConfig` y que `OCI_CONFIG_PROFILE` sea
+`$participantProfile`; no cambies los demás valores entregados por el facilitador. La sesión,
+su token y las claves locales son privados: no se copian entre laptops ni se suben al repositorio.
 
-> **Si OCI informa que `~\\.oci\\config` no tiene `user`:** detente. Eso significa que OCI CLI
-> intentó leer su configuración predeterminada, no tu perfil asignado. Confirma que ejecutaste
-> `. $participantSession`, que `$env:OCI_CLI_CONFIG_FILE` se asignó como se muestra arriba y que
-> el script `repair_oci_session_profile.ps1` terminó con
-> `OCI_SESSION_PROFILE_USER_READY True`. No recrees el repositorio, el wallet ni la base de datos.
-
-No edites el archivo de sesión ni cambies sus valores. Cargarlo temporalmente con
-`. $participantSession` es necesario solo para renovar tu token local. En el siguiente paso,
-entrégalo al launcher mediante `-SessionFile`; el launcher validará identidad OCI y wallet, y
-solicitará contraseñas de base de datos y wallet únicamente en la terminal local.
+No cargues el archivo de sesión directamente ni modifiques sus valores después del prework.
+Entrégalo al launcher mediante `-SessionFile` en el paso siguiente. El launcher lo cargará solo
+dentro de ese proceso, validará la identidad OCI y el wallet, y solicitará las contraseñas de
+base de datos y wallet únicamente en la terminal local.
 
 No pases contraseñas como argumentos ni las declares en archivos `.env` compartidos.
 
-Verifica que `LAB01_MEMORY_SCHEMA_OWNER` y `LAB01_MEMORY_STORE_ID` sean valores distintos: el primero nombra el esquema owner de memoria; el segundo nombra el store lógico creado dentro de ese esquema. No intercambies ambos valores.
+> Para el ensayo de la facilitadora, verifica que `LAB01_MEMORY_SCHEMA_OWNER` y
+> `LAB01_MEMORY_STORE_ID` sean valores distintos: el primero nombra el esquema owner de memoria;
+> el segundo nombra el store lógico creado dentro de ese esquema. No intercambies ambos valores.
 
 ## Paso 4: preflight real sin inferencia
 
@@ -122,15 +114,21 @@ parámetros asignados. No se versiona, no contiene contraseñas y no debe compar
 participantes. Ejecuta primero el preflight:
 
 ```powershell
-$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
+# Ejemplo únicamente. Sustituye P02 por el código de participante que te asignó la facilitadora.
+$teamCode = "T01"
+$participantCode = "P02"
+$participantSession = "C:\KhipuPrivate\participants\P02\session\T01-P02-session.ps1"
+
 powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_participant_live.ps1 `
-  -TeamCode T01 `
-  -ParticipantCode P01 `
+  -TeamCode $teamCode `
+  -ParticipantCode $participantCode `
   -SessionFile $participantSession `
   -Preflight
 ```
 
-Usa la ruta real privada entregada por el facilitador. No copies la notación de marcador de posición de ejemplos anteriores: PowerShell interpreta `<` como un operador.
+Usa el bloque privado que te entregó la facilitadora. El ejemplo muestra P02 únicamente para
+ilustrar la estructura; P03 debe usar P03 en las tres líneas, y así sucesivamente. No copies la
+notación de marcador de posición de ejemplos anteriores: PowerShell interpreta `<` como un operador.
 
 El programa solicitará las contraseñas de base de datos y wallet localmente. No llama al modelo
 ni consume inferencias. Además consulta el catálogo de modelos de OCI solo para comprobar el
@@ -257,42 +255,6 @@ TOKEN_QUALITY_PASS True
 
 El resultado confirma que se crearon o reencontraron decisiones individuales, que al menos una `guideline` fue recuperada por búsqueda de palabras clave y que una consulta por el procedimiento de control no devolvió contenido desde ese alcance. También confirma que OCI devolvió dos bloques completos de uso y que el prompt con memoria usó menos tokens de entrada sin degradar los criterios de respuesta. En una segunda ejecución, lo esperado es `INDIVIDUAL_CREATED 0` e `INDIVIDUAL_EXISTING 2`: la prueba de que las reglas permanecieron en ADB y que el comando es idempotente.
 
-## Paso 6B: experimento ampliado de economía de contexto (opcional)
-
-Completa este paso solo después de aprobar el recorrido base de dos inferencias. El experimento
-ampliado no sustituye esa comparación: convierte el mismo principio en una prueba más rigurosa.
-Persiste un catálogo de cinco decisiones sintéticas, recupera la regla principal dentro de tu
-alcance individual y compara cuatro variantes con **la misma pregunta, el mismo modelo y el mismo
-límite de salida**. Lo único que cambia es el contexto enviado al modelo.
-
-```powershell
-$participantSession = "C:\KhipuPrivate\sessions\T01-P01-session.ps1"
-powershell -ExecutionPolicy Bypass -File .\labs\lab01_agent_memory\scripts\run_participant_live.ps1 `
-  -TeamCode T01 `
-  -ParticipantCode P01 `
-  -SessionFile $participantSession `
-  -ContextExperiment
-```
-
-La confirmación explícita está incorporada al launcher. Esta corrida realiza exactamente **cuatro**
-llamadas on-demand a OCI Generative AI, con datos sintéticos aprobados, y produce
-`context-economy-experiment-evidence.json`. No copies contraseñas, wallet, token de sesión ni la
-salida completa de la consola al repositorio.
-
-Las variantes son:
-
-1. **All rules baseline**: reenvía el catálogo completo; es el control deliberadamente amplio.
-2. **Retrieved top 1**: usa solamente la regla recuperada de Agent Memory; es el diseño objetivo.
-3. **Relevant plus distractors**: añade decisiones válidas pero no necesarias para observar el costo
-   del contexto adicional.
-4. **Payment and risk**: compara otra combinación de contexto acotado y sintético.
-
-El resultado es válido solamente si la evidencia confirma `REQUIRE_EXISTING`, `KEYWORD`,
-persistencia, aislamiento, calidad de todas las respuestas y contabilidad de tokens consistente.
-En el dashboard, abre la pestaña **5. Experimentos reales** y carga ese JSON. Allí compara la
-telemetría por variante y discute por qué la recuperación selectiva puede reducir los tokens de
-entrada sin reemplazar los demás controles de producción.
-
 ## Simulación visual opcional después del recorrido obligatorio
 
 No repitas la ejecución real durante el workshop: cada recorrido autorizado usa exactamente dos
@@ -320,9 +282,6 @@ python -m streamlit run labs/lab01_agent_memory/ui/app.py
 Carga los dos JSON `memory-exercise-*-evidence.json` y después `oci-inference-evidence.json` en
 **Evidencia de ejecución del equipo**. La pantalla distingue claramente la memoria real en ADB
 de la comparación de tokens de entrada, salida, total y latencia reportada por OCI Generative AI.
-Si completaste el Paso 6B, abre **5. Experimentos reales** para cargar
-`context-economy-experiment-evidence.json`; este JSON se valida por separado y no altera la
-evidencia base.
 
 La reducción de tokens de entrada proviene del bloque `usage` de OCI Generative AI. No equivale por sí sola a la facturación total de la solución: no incluye costos de memoria, almacenamiento o recuperación.
 
@@ -340,7 +299,5 @@ No equivale por sí sola a seguridad de filas: un usuario que pudiera editar el 
 - [ ] Ejecuté el SDK contra ADB con mi usuario temporal.
 - [ ] Obtuve `PERSISTENCE_CONFIRMED True`, `ISOLATION_PASS True` y `TOKEN_QUALITY_PASS True`.
 - [ ] Verifiqué que `MEMORY_PROMPT_TOKENS` es menor que `BASELINE_PROMPT_TOKENS`.
-- [ ] Si ejecuté el experimento ampliado, comparé cuatro variantes con la misma pregunta y guardé
-  solo `context-economy-experiment-evidence.json`.
 - [ ] Guardé solo el JSON de evidencia; no guardé ni compartí credenciales.
 - [ ] Expliqué por qué el alcance es una frontera de recuperación y no una autorización completa.

@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
-from types import SimpleNamespace
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS_DIRECTORY = REPOSITORY_ROOT / "labs" / "lab01_agent_memory" / "scripts"
@@ -71,14 +70,56 @@ def test_memory_exercise_arguments_select_a_safe_procedure(monkeypatch) -> None:
     assert args.confirm_live_inference is False
 
 
+def test_context_experiment_requires_its_explicit_acknowledgement(monkeypatch) -> None:
+    runner = _load_runner_module()
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_participant_sdk_lab.py",
+            "--bundle",
+            "bundle.json",
+            "--team-code",
+            "T01",
+            "--participant-code",
+            "P01",
+            "--context-experiment",
+            "context-economy-experiment.json",
+            "--confirm-context-experiment",
+            "--output-path",
+            "context-evidence.json",
+        ],
+    )
+
+    args = runner.parse_args()
+
+    assert args.context_experiment.name == "context-economy-experiment.json"
+    assert args.confirm_context_experiment is True
+    assert args.confirm_live_inference is False
+
+
 def test_custom_procedure_arguments_do_not_acknowledge_live_inference(monkeypatch) -> None:
     runner = _load_runner_module()
-    monkeypatch.setattr(sys, "argv", [
-        "run_participant_sdk_lab.py", "--bundle", "bundle.json", "--team-code", "T01",
-        "--participant-code", "P01", "--custom-procedure", "procedure.json",
-        "--output-path", "custom-evidence.json",
-    ])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_participant_sdk_lab.py",
+            "--bundle",
+            "bundle.json",
+            "--team-code",
+            "T01",
+            "--participant-code",
+            "P01",
+            "--custom-procedure",
+            "procedure.json",
+            "--output-path",
+            "custom-evidence.json",
+        ],
+    )
+
     args = runner.parse_args()
+
     assert args.custom_procedure.name == "procedure.json"
     assert args.confirm_live_inference is False
 
@@ -121,43 +162,6 @@ def test_preflight_checks_model_access_before_reporting_success(monkeypatch, cap
     assert "LAB01_PREFLIGHT_COMPLETE" in output
 
 
-def test_model_access_accepts_the_on_demand_model_display_name(monkeypatch) -> None:
-    runner = _load_runner_module()
-
-    class FakeClient:
-        def list_models(self, *, compartment_id: str, limit: int) -> SimpleNamespace:
-            assert compartment_id == "workshop-compartment"
-            assert limit == 1000
-            return SimpleNamespace(
-                data=SimpleNamespace(
-                    items=[
-                        SimpleNamespace(
-                            id="ocid1.generativeaimodel.oc1..example",
-                            display_name="cohere.command-a-03-2025",
-                            base_model_id=None,
-                        )
-                    ]
-                )
-            )
-
-    monkeypatch.setattr(runner, "load_oci_profile", lambda: ({}, object()))
-    monkeypatch.setattr(
-        runner,
-        "inference_settings",
-        lambda: SimpleNamespace(
-            compartment_id="workshop-compartment",
-            model_id="cohere.command-a-03-2025",
-        ),
-    )
-    monkeypatch.setattr(
-        runner.oci.generative_ai,
-        "GenerativeAiClient",
-        lambda config, signer: FakeClient(),
-    )
-
-    runner.validate_model_access()
-
-
 def test_participant_launcher_uses_private_environment_and_preflight() -> None:
     launcher = LAUNCHER_PATH.read_text(encoding="utf-8")
 
@@ -165,9 +169,11 @@ def test_participant_launcher_uses_private_environment_and_preflight() -> None:
     assert "LAB01_PREFLIGHT_NO_INFERENCE" in launcher
     assert "--confirm-live-inference" in launcher
     assert "-MemoryExercise" in launcher
+    assert "-ContextExperiment" in launcher
     assert "-CustomProcedure" in launcher
     assert "$Preflight.IsPresent" in launcher
     assert "$ContextExperiment.IsPresent" in launcher
+    assert "--confirm-context-experiment" in launcher
     assert "zero OCI Generative AI requests" in launcher
     memory_branch = launcher.index("if ($MemoryExercise)")
     profile_ready = launcher.index("LAB01_OCI_PROFILE_READY True")
@@ -175,6 +181,7 @@ def test_participant_launcher_uses_private_environment_and_preflight() -> None:
     assert "session validate" not in launcher
     assert "iam region list" not in launcher
     assert "exactly two on-demand OCI Generative AI requests" in launcher
+    assert "four on-demand OCI Generative AI calls" in launcher
     assert "OAM_T01_P01" not in launcher
     assert "KHIPU_LAB01_MEM" not in launcher
 

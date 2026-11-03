@@ -14,6 +14,7 @@ The participant never uses `ADMIN`, never creates Agent Memory objects, and alwa
 - `scripts/run_participant_sdk_lab.py`: direct Oracle AI Agent Memory SDK runner.
 - `scripts/run_participant_live.ps1`: participant launcher for preflight, no-inference memory exercises, the custom-procedure study, and bounded inference experiments.
 - `scripts/validate_procedure.py`: local-only validation for a participant-authored synthetic procedure.
+- `scripts/bootstrap_team_memory.py`: one-time owner-only memory-store bootstrap.
 - `ui/app.py`: visualizes safe JSON evidence; it does not receive or display credentials.
 - `tests/test_sdk_exercise.py`: deterministic core behavior tests.
 - `../../platform/bootstrap/`: database owner and runtime-access SQL scripts.
@@ -30,15 +31,20 @@ python -m pytest labs/lab01_agent_memory/tests -q
 
 ## Direct SDK execution
 
-The workshop team prepares ADB, the memory store, participant database user, wallet and individual OCI identity before the participant begins. The participant receives those private prerequisites through the approved channel.
+The facilitator must first complete the team-trial prework: provision ADB, create an owner and one application user per participant, bootstrap the empty memory store, grant runtime access, and securely hand off each participant session.
 
 The participant starts with the generic launcher documented in the Spanish [participant guide](../../docs/participant-guides/01-decision-memory.md). Its `-Preflight` mode checks the private local configuration without invoking the model. Its `-MemoryExercise` mode persists and retrieves one approved synthetic decision from ADB without invoking the model and writes `memory-exercise-evidence.json`. The live mode explicitly confirms the exactly two on-demand calls and writes only a safe JSON evidence artifact, such as `artifacts/lab01/t01/p01/oci-inference-evidence.json`.
 
-After the base comparison is approved, `-ContextExperiment` runs an optional controlled experiment with four on-demand OCI inference calls. It keeps the question, model, output limit, and synthetic quality checks constant while varying only the approved procedural context. It writes `context-economy-experiment-evidence.json`, which is validated separately before the Streamlit dashboard displays it.
-
-The memory engineering extension lets a participant author a versioned synthetic procedure, validate it locally, and use `-CustomProcedure` to persist and retrieve it through the existing store. It writes `custom-procedure-evidence.json` and evaluates targeted retrieval, a broader single-term query, and a negative control. It makes zero OCI Generative AI calls.
-
 The live comparison accepts evidence only when OCI returns complete usage statistics, both responses satisfy the bundle's required decision terms, and the memory-optimized request uses fewer provider-reported input tokens. This result is not a claim about total solution cost: memory, storage, and retrieval have separate costs.
+
+## Memory engineering extension
+
+The extension guide lets participants author a versioned, synthetic procedural rule, validate it
+locally, and run `-CustomProcedure` to persist and retrieve it through the existing Agent Memory
+store. That mode generates `custom-procedure-evidence.json`, evaluates targeted retrieval, a
+broader single-term retrieval, and a negative control, and makes zero OCI Generative AI calls.
+It is followed by the separate four-variant context experiment, which deliberately makes OCI
+inference calls to compare prompt-context strategies.
 
 ## Scope and security boundary
 
@@ -48,4 +54,6 @@ An exact `user_id` passed to Agent Memory search is a retrieval boundary. It is 
 
 - [Participant guide](../../docs/participant-guides/01-decision-memory.md)
 - [Memory engineering extension](../../docs/participant-guides/02-memory-engineering-lab.md)
-- [Architecture](../../docs/architecture.md)
+- [Facilitator guide](../../docs/facilitator-guides/01-decision-memory.md)
+- [Facilitator prework](../../docs/facilitator-guides/01-decision-memory-prework.md)
+- [Team trial Terraform profile](../../terraform/environments/trial-team/README.md)

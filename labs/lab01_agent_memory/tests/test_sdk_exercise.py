@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from lab01_agent_memory.experiment_catalog import load_context_experiment
+from lab01_agent_memory.memory_experiments import prepare_context_experiment_memory
 from lab01_agent_memory.participant_lab import load_bundle
 from lab01_agent_memory.sdk_exercise import (
     build_team_scopes,
@@ -138,3 +140,26 @@ def test_memory_exercise_is_idempotent_for_the_selected_procedure() -> None:
 
     assert result.evidence["sdk_execution"]["individual_created"] == 0
     assert result.evidence["sdk_execution"]["individual_existing"] == 1
+
+
+def test_context_experiment_persists_catalog_and_retrieves_from_individual_scope() -> None:
+    memory = FakeAgentMemory()
+    plan = load_context_experiment(EXERCISES_DIR / "context-economy-experiment.json")
+
+    result = prepare_context_experiment_memory(
+        memory,
+        plan,
+        team_code="T01",
+        participant_code="P01",
+    )
+
+    assert result.created == 5
+    assert result.persisted_procedure_ids == (
+        "payment-idempotency-v1",
+        "contract-compatibility-v1",
+        "audit-traceability-v1",
+        "refund-approval-v1",
+        "fraud-escalation-v1",
+    )
+    assert result.retrieved_procedure_ids == ("payment-idempotency-v1",)
+    assert result.isolation_passed is True

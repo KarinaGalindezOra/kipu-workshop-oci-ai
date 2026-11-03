@@ -2,8 +2,10 @@ from dataclasses import dataclass
 
 import pytest
 from lab01_agent_memory.inference import (
+    ContextExperimentVariant,
     InferenceSettings,
     ModelResponse,
+    run_context_experiment,
     run_token_comparison,
 )
 
@@ -124,4 +126,65 @@ def test_real_comparison_rejects_when_memory_does_not_reduce_provider_tokens() -
             baseline_decisions=[("id", "idempotency original request identifier")],
             retrieved_decisions=[("id", "idempotency original request identifier")],
             required_terms=("idempotency",),
+        )
+
+
+def test_context_experiment_records_each_real_variant_with_constant_question() -> None:
+    client = FakeInferenceClient([_response(160), _response(55), _response(95)], [])
+    variants = (
+        ContextExperimentVariant(
+            "all-rules-baseline",
+            "All rules",
+            (("payment", "Use idempotency and original request identifier."),),
+            ("idempotency", "original request identifier"),
+        ),
+        ContextExperimentVariant(
+            "retrieved-top-1",
+            "Retrieved top 1",
+            (("payment", "Use idempotency and original request identifier."),),
+            ("idempotency", "original request identifier"),
+        ),
+        ContextExperimentVariant(
+            "with-distractor",
+            "With distractor",
+            (
+                ("payment", "Use idempotency and original request identifier."),
+                ("contract", "Use contract tests."),
+            ),
+            ("idempotency", "original request identifier"),
+        ),
+    )
+
+    evidence = run_context_experiment(
+        client,
+        _settings(),
+        experiment_id="context-economy",
+        question="How do we process a repeated payment request?",
+        variants=variants,
+    )
+
+    assert len(client.prompts) == 3
+    assert all("How do we process a repeated payment request?" in prompt for prompt in client.prompts)
+    assert evidence["measurement_type"] == "oci_context_experiment"
+    assert evidence["lowest_input_variant_id"] == "retrieved-top-1"
+    assert evidence["lowest_input_reduction_from_baseline"] == 105
+    assert evidence["all_quality_checks_passed"] is True
+
+
+def test_context_experiment_rejects_unbounded_or_duplicate_variants() -> None:
+    variant = ContextExperimentVariant(
+        "repeated",
+        "Repeated",
+        (("payment", "Use idempotency."),),
+        ("idempotency",),
+    )
+    client = FakeInferenceClient([_response(50), _response(40)], [])
+
+    with pytest.raises(ValueError, match="unique"):
+        run_context_experiment(
+            client,
+            _settings(),
+            experiment_id="duplicate",
+            question="Question",
+            variants=(variant, variant),
         )

@@ -1,5 +1,7 @@
 """Tests for participant-authored synthetic procedure persistence and retrieval."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from lab01_agent_memory.custom_procedure_lab import run_custom_procedure_exercise
@@ -25,19 +27,38 @@ class InMemoryMemory:
 
     def search(self, query: str, *, user_id: str, record_types: list[str]) -> list[Record]:
         terms = query.casefold().split()
-        return [record for record in self.records.get(user_id, []) if all(term in record.content.casefold() for term in terms)]
+        return [
+            record
+            for record in self.records.get(user_id, [])
+            if all(term in record.content.casefold() for term in terms)
+        ]
+
+
+def _procedure() -> ProcedureDefinition:
+    return ProcedureDefinition.from_payload(
+        {
+            "synthetic": True,
+            "procedure_id": "refund-traceability-v1",
+            "title": "Synthetic refund traceability",
+            "version": "1.0",
+            "domain": "payments",
+            "trigger_terms": ["refund", "approval"],
+            "procedure": "Validate a synthetic refund approval and preserve traceability.",
+            "required_evidence": ["approval reference"],
+        }
+    )
 
 
 def test_custom_procedure_is_idempotent_and_has_targeted_retrieval() -> None:
-    procedure = ProcedureDefinition.from_payload({
-        "synthetic": True, "procedure_id": "refund-traceability-v1", "title": "Refund",
-        "version": "1.0", "domain": "payments", "trigger_terms": ["refund", "approval"],
-        "procedure": "Validate a synthetic refund approval and preserve traceability.",
-        "required_evidence": ["approval reference"],
-    })
     memory = InMemoryMemory()
-    first = run_custom_procedure_exercise(memory, procedure, team_code="T01", participant_code="P01")
-    second = run_custom_procedure_exercise(memory, procedure, team_code="T01", participant_code="P01")
+
+    first = run_custom_procedure_exercise(
+        memory, _procedure(), team_code="T01", participant_code="P01"
+    )
+    second = run_custom_procedure_exercise(
+        memory, _procedure(), team_code="T01", participant_code="P01"
+    )
+
     assert first.evidence["sdk_execution"]["created"] == 1
     assert second.evidence["sdk_execution"]["existing"] == 1
     assert first.evidence["sdk_execution"]["targeted_retrieval_confirmed"] is True

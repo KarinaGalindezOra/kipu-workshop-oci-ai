@@ -1,0 +1,30 @@
+# This environment must remain disabled until Khipu approves region, policies, network, cost, and resource creation.
+region                     = "<approved_khipu_region>"
+tenancy_ocid               = "<khipu_tenancy_ocid>"
+existing_compartment_id    = "<approved_workshop_compartment_ocid>"
+existing_compartment_name  = "cmp-khipu-ai-workshop-dev"
+object_storage_namespace   = "<khipu_object_storage_namespace>"
+
+enable_object_storage      = false
+enable_autonomous_database = false
+enable_iam_policies        = false
+
+# Keep empty for the recommended facilitator-managed Object Storage model.
+# To allow a team to upload and read only its own known object paths, map its
+# pre-existing IAM group to a prefix. This policy does not allow listing,
+# overwriting, or deleting objects.
+# team_object_access = {
+#   team_01 = {
+#     group_name    = "<identity-domain>/<khipu-workshop-team-01>"
+#     object_prefix = "team-01"
+#   }
+# }
+
+freeform_tags = {
+  Environment = "dev"
+  Project     = "khipu-oci-ai-workshop"
+  Owner       = "<owner>"
+  CostCenter  = "<cost_center>"
+  CreatedBy   = "Terraform"
+  ManagedBy   = "Terraform"
+}

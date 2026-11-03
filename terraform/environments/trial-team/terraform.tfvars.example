@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars and replace only placeholders. Do not commit terraform.tfvars.
+region                = "us-chicago-1"
+tenancy_ocid          = "<team_trial_tenancy_ocid>"
+parent_compartment_id = "<approved_parent_compartment_or_tenancy_root_ocid>"
+team_code             = "T01"
+
+# Cost- and IAM-sensitive resources remain disabled during preflight.
+enable_autonomous_database = false
+enable_object_storage      = false
+enable_iam_policies        = false
+
+freeform_tags = {
+  Environment = "dev"
+  Project     = "khipu-ai-workshop"
+  Owner       = "<facilitator_or_team_owner>"
+  CostCenter  = "<approved_cost_center>"
+  CreatedBy   = "Terraform"
+}
+
+# Immediately before an approved ADB plan, set this to true and export the real
+# password in TF_VAR_autonomous_admin_password. Never place a password in this file.
+# enable_autonomous_database = true

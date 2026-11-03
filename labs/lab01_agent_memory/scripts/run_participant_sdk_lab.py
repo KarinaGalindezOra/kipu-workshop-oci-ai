@@ -193,17 +193,7 @@ def validate_model_access() -> None:
         raise
 
     models = getattr(response.data, "items", [])
-    discoverable_identifiers = {
-        identifier
-        for model in models
-        for identifier in (
-            getattr(model, "id", None),
-            getattr(model, "display_name", None),
-            getattr(model, "base_model_id", None),
-        )
-        if identifier
-    }
-    if settings.model_id not in discoverable_identifiers:
+    if not any(getattr(model, "id", None) == settings.model_id for model in models):
         raise RuntimeError(
             "The configured LAB01_CHAT_MODEL_ID is not discoverable in the selected region. "
             "Confirm the approved on-demand chat model and the participant session file."
@@ -395,38 +385,6 @@ def main() -> None:
         print("NO_OCI_INFERENCE True")
         print("EVIDENCE_PATH", args.output_path)
         return
-    if args.custom_procedure:
-        if args.confirm_live_inference or args.confirm_context_experiment:
-            raise RuntimeError(
-                "The custom procedure exercise does not make OCI Generative AI calls."
-            )
-        if args.output_path is None:
-            raise RuntimeError("The custom procedure exercise requires --output-path.")
-        procedure = load_procedure_definition(args.custom_procedure)
-        print("LAB01_CUSTOM_PROCEDURE_READY", procedure.procedure_id)
-        print_step(1, "VALIDATE", "checking the structured synthetic procedure definition")
-        print_step(2, "PERSIST", "writing the participant procedure to the individual ADB scope")
-        memory, pool = create_runtime_memory()
-        try:
-            result = run_custom_procedure_exercise(
-                memory,
-                procedure,
-                team_code=args.team_code,
-                participant_code=args.participant_code,
-            )
-        finally:
-            pool.close()
-        print_step(3, "RETRIEVE", "comparing targeted, broad, and negative-control queries")
-        print_step(4, "ASSESS", "recording retrieval evidence without OCI Generative AI inference")
-        args.output_path.parent.mkdir(parents=True, exist_ok=True)
-        args.output_path.write_text(json.dumps(result.evidence, indent=2) + "\n", encoding="utf-8")
-        execution = result.evidence["sdk_execution"]
-        print("PERSISTENCE_CONFIRMED", execution["persistence_confirmed"])
-        print("TARGETED_RETRIEVAL_CONFIRMED", execution["targeted_retrieval_confirmed"])
-        print("NEGATIVE_CONTROL_PASS", execution["negative_control_passed"])
-        print("NO_OCI_INFERENCE True")
-        print("EVIDENCE_PATH", args.output_path)
-        return
     if args.context_experiment:
         if args.confirm_live_inference:
             raise RuntimeError(
@@ -514,6 +472,38 @@ def main() -> None:
         print("LOWEST_INPUT_VARIANT", inference["lowest_input_variant_id"])
         print("LOWEST_INPUT_REDUCTION", inference["lowest_input_reduction_from_baseline"])
         print("QUALITY_PASS", inference["all_quality_checks_passed"])
+        print("EVIDENCE_PATH", args.output_path)
+        return
+    if args.custom_procedure:
+        if args.confirm_live_inference or args.confirm_context_experiment:
+            raise RuntimeError(
+                "The custom procedure exercise does not make OCI Generative AI calls."
+            )
+        if args.output_path is None:
+            raise RuntimeError("The custom procedure exercise requires --output-path.")
+        procedure = load_procedure_definition(args.custom_procedure)
+        print("LAB01_CUSTOM_PROCEDURE_READY", procedure.procedure_id)
+        print_step(1, "VALIDATE", "checking the structured synthetic procedure definition")
+        print_step(2, "PERSIST", "writing the participant procedure to the individual ADB scope")
+        memory, pool = create_runtime_memory()
+        try:
+            result = run_custom_procedure_exercise(
+                memory,
+                procedure,
+                team_code=args.team_code,
+                participant_code=args.participant_code,
+            )
+        finally:
+            pool.close()
+        print_step(3, "RETRIEVE", "comparing targeted, broad, and negative-control queries")
+        print_step(4, "ASSESS", "recording retrieval evidence without OCI Generative AI inference")
+        args.output_path.parent.mkdir(parents=True, exist_ok=True)
+        args.output_path.write_text(json.dumps(result.evidence, indent=2) + "\n", encoding="utf-8")
+        execution = result.evidence["sdk_execution"]
+        print("PERSISTENCE_CONFIRMED", execution["persistence_confirmed"])
+        print("TARGETED_RETRIEVAL_CONFIRMED", execution["targeted_retrieval_confirmed"])
+        print("NEGATIVE_CONTROL_PASS", execution["negative_control_passed"])
+        print("NO_OCI_INFERENCE True")
         print("EVIDENCE_PATH", args.output_path)
         return
     if not args.confirm_live_inference:

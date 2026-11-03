@@ -1,67 +1,54 @@
-# Arquitectura del Workshop 1
+# Architecture
 
-## Propósito
+## Purpose
 
-El laboratorio demuestra cómo una aplicación o un agente puede utilizar memoria procedural gobernada antes de llamar a un modelo generativo. La memoria no reemplaza al modelo ni ejecuta acciones; selecciona contexto relevante para la pregunta actual.
+Deliver three hands-on OCI AI labs that can be validated in a personal Trial tenancy and later reproduced in the Khipu tenancy without changing application code.
 
-```text
-Pregunta de ingeniería
-    -> recuperación por alcance en Oracle AI Agent Memory sobre Autonomous Database
-    -> armado de contexto compacto
-    -> OCI Generative AI Inference
-    -> respuesta validada
+## Target topology
+
+```mermaid
+flowchart TB
+  C[Workshop compartment] --> OS[Object Storage]
+  C --> ADB[Autonomous Database 26ai]
+  C --> GENAI[OCI Generative AI On-Demand]
+  ADB --> MEMORY[Oracle AI Agent Memory SDK]
+  OS --> RAG[Versioned RAG pipeline]
+  ADB --> RAG
+  GENAI --> MEMORY
+  GENAI --> RAG
+  GENAI --> API[API change workbench]
 ```
 
-## Componentes que utiliza el participante
+## Isolation model
 
-| Componente | Responsabilidad | Límite de seguridad |
-|---|---|---|
-| Identidad OCI individual | Autentica las dos solicitudes de OCI Generative AI. | Cada participante usa una sesión privada; nunca una sesión compartida. |
-| Usuario temporal de ADB | Ejecuta operaciones de runtime contra el memory store. | No es `ADMIN` ni propietario del esquema. |
-| Oracle AI Agent Memory SDK | Persiste, recupera y busca procedimientos sintéticos. | Usa `SchemaPolicy.REQUIRE_EXISTING`; no crea ni actualiza infraestructura. |
-| Autonomous Database | Aloja el esquema owner y el memory store precreado. | El owner y los grants se preparan antes del workshop. |
-| OCI Generative AI Inference | Recibe los dos prompts comparables y reporta telemetría de uso. | Se utiliza un modelo on-demand aprobado y un límite de salida fijo. |
-| Streamlit | Visualiza los JSON de evidencia local. | No guarda credenciales ni ejecuta llamadas OCI. |
+The workshop uses a shared platform with a team namespace. Every request and resource artifact must carry `team_id`.
 
-## Topología del workshop
+| Component | Isolation mechanism |
+|---|---|
+| Lab 1 deployment gateway | A verified team identity; the server derives the scope and rejects a claimed `team_id` that does not match it |
+| Agent Memory | Server-derived `user_id`, `agent_id`, `thread_id`, and metadata filters |
+| Autonomous Database | One database user/schema per team |
+| Object Storage | One prefix per team |
+| Source repository | One local clone or branch per team |
+| Evidence | One output directory per team |
 
-El workshop se ejecuta en un tenant trial centralizado. La infraestructura se prepara una vez y los participantes ejecutan el recorrido individualmente. Para una cohorte de hasta diez personas, se asigna un `TeamCode` único por participante, por ejemplo `T01/P01` hasta `T10/P01`. El término `TeamCode` conserva el modelo de scopes del SDK; no exige que dos personas compartan terminal o credenciales.
+The repository contains a loopback-only FastAPI rehearsal gateway that proves this boundary without OCI credentials. It is not an OCI deployment and does not persist to ADB. The Khipu platform must replace its local HMAC rehearsal identity with the tenancy-approved identity integration before remote publication is enabled.
 
-```text
-Tenant trial del workshop
-  -> Autonomous Database compartida
-     -> Memory store precreado
-        -> T01 / P01: identidad OCI, usuario temporal, wallet y evidencia propios
-        -> T02 / P01: identidad OCI, usuario temporal, wallet y evidencia propios
-        -> ...
-        -> T10 / P01: identidad OCI, usuario temporal, wallet y evidencia propios
-```
+## Environment strategy
 
-El repositorio se distribuye públicamente mediante el enlace de GitHub o un QR que apunte a ese enlace. Los wallets, contraseñas, usuarios temporales y archivos de sesión se entregan por un canal privado y nunca se suben al repositorio.
+| Environment | Purpose | Network default | Lifecycle |
+|---|---|---|---|
+| Trial Chicago | Validate scripts, model IDs, quotas, timings, and troubleshooting | Public managed endpoints with secure credentials | Disposable |
+| Khipu | Deliver the participant workshop | Pending Khipu security decision | Customer governed |
 
-## Secuencia del laboratorio
+## Terraform boundary
 
-1. El participante ejecuta preflight para validar Python, sesión OCI, wallet y acceso de runtime.
-2. En el primer ejercicio ADB persiste y recupera `payment-idempotency` en su alcance individual.
-3. En el segundo ejercicio ADB persiste y recupera `contract-compatibility` en ese mismo alcance.
-4. En ambos ejercicios se comprueba que el alcance de control no devuelve contenido al participante.
-5. En la corrida final, el mismo modelo procesa dos solicitudes: baseline con todas las decisiones y memoria con la regla recuperada.
-6. El runner acepta la evidencia únicamente si ambas respuestas son completas, cumplen los criterios técnicos y la variante con memoria usa menos tokens de entrada.
-7. Streamlit muestra memoria, aislamiento, tokens, latencia y calidad desde los JSON generados localmente.
+Terraform creates the OCI foundation: compartment, tags, optional IAM policies, bucket, and optional Autonomous Database. It does not contain database passwords or create database schemas. Post-provisioning bootstrap scripts create logical team namespaces only after a secure connection has been established.
 
-## Qué se mide
+## Cost controls
 
-La métrica principal es la reducción de `prompt_tokens` reportada por OCI. La comparación es válida porque conserva la pregunta, modelo, temperatura y límite de salida; cambia únicamente el contexto suministrado.
-
-La reducción de tokens de entrada demuestra eficiencia de contexto en ese caso. No demuestra automáticamente menor costo total ni menor latencia end-to-end: memoria, almacenamiento, recuperación, red y operación también tienen costo y latencia.
-
-## Qué no hace este laboratorio
-
-- No permite que el modelo consulte el memory store de forma autónoma.
-- No ejecuta herramientas, cambios de infraestructura ni acciones de negocio.
-- No sustituye IAM, roles de base de datos, controles de red ni gobierno de datos de producción.
-- No utiliza datos reales del cliente.
-
-## Evolución hacia producción
-
-Una arquitectura productiva puede incorporar filtros de metadata, recuperación vectorial o híbrida, evaluaciones de recuperación, observabilidad OCI, controles de presupuesto, guardrails y herramientas con permisos mínimos. El alcance de memoria debe derivarse de la identidad autenticada por el servicio; no debe ser un valor que el usuario final pueda escoger libremente.
+- Use only on-demand inference; do not create dedicated AI clusters.
+- Set explicit prompt and output limits in lab code.
+- Use synthetic documents and a small, fixed corpus.
+- Keep the Autonomous Database disabled by default in Terraform until an approved plan is reviewed.
+- Record model IDs, input size, latency, and token measurements as evidence.

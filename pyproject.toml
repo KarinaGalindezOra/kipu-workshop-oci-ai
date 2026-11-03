@@ -3,29 +3,51 @@ requires = ["setuptools>=65"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kipu-workshop-oci-ai"
-version = "1.0.0"
-description = "Workshop 1 for OCI Agent Memory and token economy"
+name = "khipu-oci-ai-workshop"
+version = "0.1.0"
+description = "OCI AI workshop labs for Khipu"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
-  "oci>=2.150.0,<2.189.0",
+  "oci>=2.150.0",
   "oracledb>=2.5.0",
   "python-dotenv>=1.0.1",
 ]
 
 [project.optional-dependencies]
-lab01 = ["oracleagentmemory==26.8.0"]
-ui = ["streamlit>=1.39.0,<2.0.0"]
-dev = ["pytest>=8.3.0", "ruff>=0.8.0", "fastapi>=0.115.0,<1.0.0", "httpx>=0.27.0,<1.0.0"]
+lab02 = [
+  "oci==2.187.2",
+  "oracledb==4.0.2",
+]
+lab01 = [
+  "oracleagentmemory==26.8.0",
+]
+lab01-gateway = [
+  "fastapi>=0.115.0,<1.0.0",
+  "httpx>=0.27.0,<1.0.0",
+  "uvicorn>=0.30.0,<1.0.0",
+]
+lab03 = [
+  "fastapi>=0.115.0,<1.0.0",
+  "httpx>=0.27.0,<1.0.0",
+]
+ui = [
+  "streamlit>=1.39.0,<2.0.0",
+]
+dev = [
+  "pytest>=8.3.0",
+  "ruff>=0.8.0",
+  "fastapi>=0.115.0,<1.0.0",
+  "httpx>=0.27.0,<1.0.0",
+]
 
 [tool.setuptools.packages.find]
-where = ["labs/lab01_agent_memory/src"]
-include = ["lab01_agent_memory*"]
+where = ["labs/lab01_agent_memory/src", "labs/lab02_contract_rag/src", "labs/lab03_api_change/src"]
+include = ["lab01_agent_memory*", "lab02_contract_rag*", "lab03_api_change*"]
 
 [tool.pytest.ini_options]
-testpaths = ["labs/lab01_agent_memory/tests"]
-pythonpath = ["labs/lab01_agent_memory/src"]
+testpaths = ["labs/lab01_agent_memory/tests", "labs/lab02_contract_rag/tests", "labs/lab03_api_change/tests"]
+pythonpath = ["labs/lab01_agent_memory/src", "labs/lab02_contract_rag/src", "labs/lab03_api_change/src"]
 
 [tool.ruff]
 line-length = 100
@@ -33,3 +55,4 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+ignore = ["E501"]

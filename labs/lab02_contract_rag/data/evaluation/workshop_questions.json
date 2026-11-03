@@ -1,0 +1,223 @@
+[
+  {
+    "id": "T01",
+    "question": "In v1, what method and endpoint update a disbursement?",
+    "expected_status": "answered",
+    "versions": [
+      "v1"
+    ],
+    "sections": [
+      "Status update endpoint"
+    ],
+    "required_terms": [
+      "PATCH /v1/disbursements/"
+    ],
+    "expected_answer": "PATCH /v1/disbursements/{disbursement_id}."
+  },
+  {
+    "id": "T02",
+    "question": "In v1, what request body field and allowed states are used?",
+    "expected_status": "answered",
+    "versions": [
+      "v1"
+    ],
+    "sections": [
+      "Status update endpoint"
+    ],
+    "required_terms": [
+      "payment_status",
+      "PENDING",
+      "PAID",
+      "FAILED"
+    ],
+    "expected_answer": "payment_status with PENDING, PAID or FAILED."
+  },
+  {
+    "id": "T03",
+    "question": "In v2, what method and endpoint update settlement status?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Settlement status endpoint"
+    ],
+    "required_terms": [
+      "PUT /v2/disbursements/"
+    ],
+    "expected_answer": "PUT /v2/disbursements/{disbursement_id}/status."
+  },
+  {
+    "id": "T04",
+    "question": "In v2, what idempotency header is required?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Idempotency"
+    ],
+    "required_terms": [
+      "Idempotency-Key"
+    ],
+    "expected_answer": "Idempotency-Key is required; a key/body mismatch returns 409 IDEMPOTENCY_MISMATCH."
+  },
+  {
+    "id": "T05",
+    "question": "How do I update the status?",
+    "expected_status": "needs_clarification",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "expected_answer": "Ask the participant to select v1 or v2; do not assume a current version."
+  },
+  {
+    "id": "T06",
+    "question": "When migrating from v1 to v2, how do the endpoint, field and states change?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Settlement status endpoint",
+      "Migration from v1"
+    ],
+    "required_terms": [
+      "PUT",
+      "payment_status",
+      "PROCESSING",
+      "SETTLED",
+      "REJECTED"
+    ],
+    "expected_answer": "Use the v2 endpoint; rename payment_status to status; map PAID to SETTLED, PENDING to PROCESSING, FAILED to REJECTED."
+  },
+  {
+    "id": "T07",
+    "question": "In v2, what timestamp does a successful response return?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Response"
+    ],
+    "required_terms": [
+      "status_changed_at"
+    ],
+    "expected_answer": "The v2 success response uses status_changed_at."
+  },
+  {
+    "id": "T08",
+    "question": "Compare the idempotency headers between v1 and v2.",
+    "expected_status": "answered",
+    "versions": [
+      "v1",
+      "v2"
+    ],
+    "sections": [
+      "Idempotency"
+    ],
+    "required_terms": [
+      "X-Idempotency-Key",
+      "Idempotency-Key"
+    ],
+    "expected_answer": "v1 uses X-Idempotency-Key; v2 uses Idempotency-Key. Cite each version separately."
+  },
+  {
+    "id": "T09",
+    "question": "In v2, is payment_status=PAID accepted at the v1 endpoint?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Migration from v1",
+      "Settlement status endpoint"
+    ],
+    "required_terms": [
+      "not accepted by v2"
+    ],
+    "expected_answer": "The v1 endpoint and payment_status field are not accepted by v2. Use the v2 migration rules."
+  },
+  {
+    "id": "T10",
+    "question": "In v2, what SLA availability is guaranteed?",
+    "expected_status": "insufficient_evidence",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "expected_answer": "The corpus does not document an availability SLA. Abstain without inventing a guarantee."
+  },
+  {
+    "id": "T11",
+    "question": "In v2, how is TLS certificate rotation configured?",
+    "expected_status": "insufficient_evidence",
+    "versions": [
+      "v2"
+    ],
+    "sections": [],
+    "required_terms": [],
+    "expected_answer": "The corpus does not document TLS certificate rotation. Abstain after actual OCI retrieval."
+  },
+  {
+    "id": "T12",
+    "question": "How many transactions were SETTLED yesterday?",
+    "expected_status": "structured_data_required",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "expected_answer": "An operational transaction count requires approved structured data, not the contract corpus."
+  },
+  {
+    "id": "T13",
+    "question": "In v2, what error is returned for an invalid status?",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Error handling"
+    ],
+    "required_terms": [
+      "422 INVALID_STATUS"
+    ],
+    "expected_answer": "422 INVALID_STATUS."
+  },
+  {
+    "id": "T14",
+    "question": "In v2, explain the migration mapping for PAID with evidence.",
+    "expected_status": "answered",
+    "versions": [
+      "v2"
+    ],
+    "sections": [
+      "Migration from v1",
+      "Settlement status endpoint"
+    ],
+    "required_terms": [
+      "PAID",
+      "SETTLED"
+    ],
+    "expected_answer": "PAID maps to SETTLED according to the v2 migration section."
+  },
+  {
+    "id": "T15",
+    "question": "Which contract describes the contract_version field?",
+    "expected_status": "needs_clarification",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "expected_answer": "Ask for the contract version; the field name is not a confirmed version selection."
+  },
+  {
+    "id": "T19",
+    "question": "In v3, what endpoint updates status?",
+    "expected_status": "insufficient_evidence",
+    "versions": [],
+    "sections": [],
+    "required_terms": [],
+    "expected_answer": "v3 is not in the corpus. Do not silently substitute v2."
+  }
+]

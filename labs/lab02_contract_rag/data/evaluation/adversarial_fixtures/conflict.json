@@ -1,0 +1,4 @@
+{
+  "section": "Idempotency",
+  "content": "Every status update must include the Conflicting-Key header."
+}

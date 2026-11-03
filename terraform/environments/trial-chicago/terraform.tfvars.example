@@ -1,0 +1,28 @@
+# Copy to terraform.tfvars and replace only placeholders. Do not commit terraform.tfvars.
+region                = "us-chicago-1"
+tenancy_ocid          = "<trial_tenancy_ocid>"
+parent_compartment_id = "<approved_parent_compartment_ocid>"
+object_storage_namespace = "<object_storage_namespace>"
+
+# Keep cost- and IAM-sensitive resources disabled through the initial preflight.
+enable_autonomous_database = false
+enable_iam_policies        = false
+
+freeform_tags = {
+  Environment = "dev"
+  Project     = "khipu-oci-ai-workshop"
+  Owner       = "<owner>"
+  CostCenter  = "<cost_center>"
+  CreatedBy   = "Terraform"
+  ManagedBy   = "Terraform"
+}
+
+# Set this only immediately before an approved ADB plan. Export the actual password as
+# TF_VAR_autonomous_admin_password instead of placing it in this file.
+# enable_autonomous_database = true
+
+# Set this only immediately before an approved IAM-policy plan. The output named
+# reviewable_participant_policy_statements shows intended statements only; it does
+# not mean that a policy was created. After apply, verify oci_identity_policy appears
+# in `terraform state list` and then run an individual participant preflight.
+# enable_iam_policies = true

@@ -1,8 +1,7 @@
 """Transparent, model-agnostic token estimates for the Phase 1 offline demo."""
 
-from dataclasses import asdict, dataclass
 import re
-
+from dataclasses import asdict, dataclass
 
 _TOKEN_PATTERN = re.compile(r"\w+|[^\w\s]", re.UNICODE)
 

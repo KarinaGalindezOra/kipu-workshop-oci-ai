@@ -1,0 +1,4 @@
+transaction_id,participant_id,status,occurred_at
+synthetic-001,p001,SETTLED,2026-01-01T10:00:00Z
+synthetic-002,p001,PROCESSING,2026-01-01T11:00:00Z
+synthetic-003,p002,SETTLED,2026-01-01T12:00:00Z

@@ -2,7 +2,6 @@
 
 from .models import Guideline
 
-
 GUIDELINES = [
     Guideline(
         identifier="payment-idempotency",

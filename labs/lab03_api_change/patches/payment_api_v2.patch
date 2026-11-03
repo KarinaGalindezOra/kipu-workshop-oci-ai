@@ -1,0 +1,27 @@
+--- a/payment_api.py
++++ b/payment_api.py
+@@
+-from typing import Literal
++import hashlib
++from typing import Literal
+@@
+-app = FastAPI(title="Synthetic Payments API", version="v1")
++app = FastAPI(title="Synthetic Payments API", version="v2")
+@@
+-class PaymentRequestV1(BaseModel):
+-    amount: float = Field(gt=0)
+-    currency: Literal["CLP"]
+-    payment_status: Literal["PENDING", "PAID", "FAILED"] = Field(alias="paymentStatus")
++class PaymentRequestV2(BaseModel):
++    model_config = ConfigDict(extra="forbid")
++    amount: float = Field(gt=0)
++    currency: Literal["CLP"]
++    idempotency_key: str = Field(alias="idempotencyKey", min_length=8, max_length=64)
+@@
+-@app.post("/payments", status_code=201)
+-def create_payment(request: PaymentRequestV1) -> dict[str, str]:
+-    return {"status": request.payment_status, "api_version": "v1"}
++@app.post("/payments", status_code=202)
++def create_payment(request: PaymentRequestV2) -> dict[str, str]:
++    payment_id = hashlib.sha256(request.idempotency_key.encode()).hexdigest()[:12]
++    return {"payment_id": f"pay_{payment_id}", "status": "ACCEPTED", "api_version": "v2"}

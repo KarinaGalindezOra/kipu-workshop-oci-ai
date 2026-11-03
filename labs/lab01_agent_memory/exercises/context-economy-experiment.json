@@ -61,7 +61,13 @@
     {
       "variant_id": "all-rules-baseline",
       "label": "All rules baseline",
-      "procedure_ids": ["payment-idempotency-v1", "contract-compatibility-v1", "audit-traceability-v1", "refund-approval-v1", "fraud-escalation-v1"],
+      "procedure_ids": [
+        "payment-idempotency-v1",
+        "contract-compatibility-v1",
+        "audit-traceability-v1",
+        "refund-approval-v1",
+        "fraud-escalation-v1"
+      ],
       "required_terms": ["idempotency", "original request identifier"]
     },
     {
@@ -73,7 +79,11 @@
     {
       "variant_id": "relevant-plus-distractors",
       "label": "Relevant rule plus distractors",
-      "procedure_ids": ["payment-idempotency-v1", "contract-compatibility-v1", "audit-traceability-v1"],
+      "procedure_ids": [
+        "payment-idempotency-v1",
+        "contract-compatibility-v1",
+        "audit-traceability-v1"
+      ],
       "required_terms": ["idempotency", "original request identifier"]
     },
     {
