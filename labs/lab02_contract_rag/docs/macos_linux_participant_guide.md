@@ -1,17 +1,17 @@
-# macOS and Linux participant guide
+# Guía de participante para macOS y Linux
 
-This guide is the supported participant route for macOS and Linux. It uses the same Python commands on both operating systems. The Windows PowerShell launchers remain an administrator/facilitator compatibility path and are not required here.
+Esta es la ruta soportada para participantes en macOS y Linux. Usa los mismos comandos Python en ambos sistemas. Los launchers PowerShell de Windows se mantienen solo como compatibilidad administrativa y de facilitación.
 
-## Before the workshop
+## Antes del workshop
 
-- Install Python 3.11 and Git.
-- Receive your assigned OCI identity, database schema password through the approved handoff, wallet directory, and private participant session file.
-- Store the wallet and session file outside the repository. The session file must be copied from `config/participant-session.env.example` and must never contain a password, token, private key, or secret.
-- Confirm the wallet directory is readable only by the assigned participant where practical.
+- Instala Python 3.11 y Git.
+- Recibe por el canal aprobado tu identidad OCI, contraseña del schema de base de datos, directorio de wallet y archivo privado de sesión.
+- Guarda wallet y archivo de sesión fuera del repositorio. El archivo de sesión se copia desde `config/participant-session.env.example` y nunca contiene contraseña, token, clave privada ni secreto.
+- Cuando sea posible, limita el acceso de lectura del wallet al participante asignado.
 
-## Install locally
+## Instala localmente
 
-From the repository checkout:
+Desde el checkout del repositorio:
 
 ```bash
 python3.11 -m venv .venv
@@ -20,11 +20,11 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev,lab02,ui]"
 ```
 
-Use `python3` only if it already resolves to Python 3.11. Do not place the private session file inside the repository or commit it.
+Usa `python3` solo si ya corresponde a Python 3.11. No pongas el archivo de sesión privado dentro del repositorio ni lo subas a Git.
 
-## Validate the private assignment
+## Valida tu asignación privada
 
-The command prompts locally for the database schema and wallet passwords. It does not invoke Generative AI or load data.
+El comando solicita localmente las contraseñas del schema y wallet. No invoca Generative AI ni carga datos.
 
 ```bash
 python labs/lab02_contract_rag/scripts/validate_environment.py \
@@ -32,11 +32,11 @@ python labs/lab02_contract_rag/scripts/validate_environment.py \
   --check-db
 ```
 
-Expected output is safe JSON with `status` equal to `passed` and `database_session` equal to `participant_schema`.
+El resultado esperado es JSON seguro con `status` igual a `passed` y `database_session` igual a `participant_schema`.
 
-## Prepare the approved synthetic corpus
+## Prepara el corpus sintético aprobado
 
-Run only after the facilitator approves paid embeddings and synthetic loading. It prompts for local passwords, generates real OCI document embeddings, and writes only to the assigned schema.
+Ejecuta este paso solo cuando la facilitación apruebe embeddings pagados y carga sintética. Solicita contraseñas locales, genera embeddings documentales OCI reales y escribe únicamente en tu schema asignado.
 
 ```bash
 python labs/lab02_contract_rag/scripts/ingest_oci.py \
@@ -45,11 +45,11 @@ python labs/lab02_contract_rag/scripts/ingest_oci.py \
   --confirm-synthetic-load
 ```
 
-Expected output includes `STATUS ingested` and `OCI_EXECUTED True`.
+El resultado esperado incluye `STATUS ingested` y `OCI_EXECUTED True`.
 
-## Freeze development calibration
+## Congela la calibración de desarrollo
 
-Run after approved ingestion. The first command uses paid query embeddings; the second command is local and freezes the resulting calibration. Reuse existing private development measurements rather than collecting them again.
+Ejecuta este paso después de la carga aprobada. El primer comando usa query embeddings pagados; el segundo es local y congela la calibración. Reutiliza mediciones privadas existentes para evitar una nueva recolección con costo.
 
 ```bash
 python labs/lab02_contract_rag/scripts/collect_calibration.py \
@@ -61,18 +61,18 @@ python labs/lab02_contract_rag/scripts/calibrate.py \
   --output /private/path/calibration.json
 ```
 
-Distance overlap can occur in this small corpus. It does not make a candidate valid evidence; claim/evidence validation remains required.
+Puede existir solapamiento de distancias en este corpus pequeño. No convierte un candidato en evidencia válida: siguen siendo obligatorias la selección y validación de afirmación–evidencia.
 
-## Use the local dashboard
+## Usa el dashboard local
 
 ```bash
 python labs/lab02_contract_rag/scripts/run_dashboard.py \
   --session-file /private/path/lab02-p001.env
 ```
 
-Open `http://127.0.0.1:8502` in the local browser. The dashboard remains local to the participant device. Each paid request requires a fresh acknowledgement and password entry. Do not expose the local port through a public proxy.
+Abre `http://127.0.0.1:8502` en tu navegador local. El dashboard permanece local en el equipo participante. Cada solicitud pagada requiere confirmación nueva y contraseña local. No expongas el puerto por un proxy público.
 
-## Run one approved query from the command line
+## Ejecuta una pregunta aprobada desde línea de comandos
 
 ```bash
 python labs/lab02_contract_rag/scripts/run_live_validation.py \
@@ -82,13 +82,13 @@ python labs/lab02_contract_rag/scripts/run_live_validation.py \
   --confirm-live-inference
 ```
 
-The command writes the private evidence report under `LAB02_REPORT_ROOT`. Do not treat a local test, a report from another participant, or a failed OCI call as workshop completion.
+El comando escribe el reporte de evidencia privado bajo `LAB02_REPORT_ROOT`. Una prueba local, un reporte de otra persona o una llamada OCI fallida no acreditan la actividad.
 
-## Troubleshooting
+## Resolución de problemas
 
-- `HTTP_401` from query embeddings: reauthenticate the assigned OCI profile, validate it with an approved read-only OCI command, and obtain retry approval.
-- `ORA-01017`: re-enter the assigned schema password; do not change the schema or table.
-- Dashboard cannot start: confirm Python 3.11, the activated `.venv`, private session path, and port 8502 availability.
-- Wallet error: validate the wallet directory and service alias privately; never paste wallet files or error bodies into chat or reports.
+- `HTTP_401` en query embeddings: reautentica el perfil OCI asignado, valídalo con un comando OCI aprobado de solo lectura y solicita autorización de reintento.
+- `ORA-01017`: vuelve a ingresar la contraseña asignada del schema; no cambies schema ni tabla.
+- El dashboard no inicia: confirma Python 3.11, `.venv` activado, ruta de sesión privada y disponibilidad del puerto 8502.
+- Error de wallet: valida privadamente directorio y alias de servicio; no pegues archivos de wallet ni cuerpos de error en el chat o reportes.
 
-Run the macOS/Linux preflight on at least one actual macOS and one actual Linux device before the workshop. Unit tests on another operating system do not prove wallet, OCI profile, local browser, or network compatibility.
+Realiza el preflight en al menos un Mac y un Linux reales antes del workshop. Las pruebas unitarias en otro sistema operativo no prueban wallet, perfil OCI, navegador local ni compatibilidad de red.

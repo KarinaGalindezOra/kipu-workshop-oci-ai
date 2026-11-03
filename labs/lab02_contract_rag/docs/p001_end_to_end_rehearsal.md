@@ -1,31 +1,31 @@
-# P001 end-to-end rehearsal
+# Ensayo end-to-end de p001
 
-This is the facilitator's reproducible rehearsal for one real Workshop 2 participant. It uses the same local dashboard, participant schema, OCI embedding service, ADB vector search and OCI chat path used in the workshop. It is not a load test and it does not establish readiness for 15 concurrent participants.
+Este es el ensayo reproducible de facilitación para un participante real de Workshop 2. Usa el mismo dashboard local, schema individual, servicio OCI de embeddings, búsqueda vectorial en ADB y OCI chat que se usarán durante el workshop. No es una prueba de carga ni acredita capacidad para 15 participantes concurrentes.
 
-Use only the approved synthetic corpus, synthetic questions and the private p001 assignment. Keep the wallet, session file, passwords, token material and evidence reports outside the repository.
+Usa únicamente el corpus y las preguntas sintéticas aprobadas, además de la asignación privada de p001. Mantén wallet, archivo de sesión, contraseñas, tokens y reportes de evidencia fuera del repositorio.
 
-## Completion criteria
+## Criterio de término
 
-The rehearsal is complete only when the following outcomes have been reviewed in the dashboard and recorded in the private rehearsal log:
+El ensayo termina solo cuando los siguientes resultados fueron revisados en el dashboard y registrados en la bitácora privada de facilitación:
 
-- T01 and T03 are `answered`, have the expected version-scoped route, and expose valid selected evidence.
-- T05 is `needs_clarification` with origin `application_control`; it must not call OCI.
-- T10 is `insufficient_evidence`; it must not invent an SLA or publish a chat answer.
-- Every published contractual claim has a resolvable citation, excerpt, source version, section and line span.
-- The service trace and local report belong to p001, show no simulated mode, and contain no credential material.
+- T01 y T03 quedan en estado `answered`, tienen la ruta esperada para la versión solicitada y muestran evidencia seleccionada válida.
+- T05 queda en estado `needs_clarification`, con origen `application_control`; no debe llamar a OCI.
+- T10 queda en estado `insufficient_evidence`; no debe inventar un SLA ni publicar una respuesta de chat.
+- Toda afirmación contractual publicada tiene cita resoluble, extracto, versión, sección y rango de líneas.
+- La traza de servicios y el reporte local pertenecen a p001, no usan modo simulado y no contienen credenciales.
 
-## 1. Private assignment and local preflight
+## 1. Asignación privada y preflight local
 
-Complete this step before any paid inference. It validates the database schema, wallet and assignment without calling Generative AI.
+Completa este paso antes de toda inferencia pagada. Valida schema, wallet y asignación sin llamar a OCI Generative AI.
 
-On Windows, load the private PowerShell session in a dedicated terminal and run:
+En Windows, carga la sesión privada de PowerShell en una terminal dedicada y ejecuta:
 
 ```powershell
 . '<private-p001-session.ps1>'
 python labs/lab02_contract_rag/scripts/validate_environment.py --check-db
 ```
 
-On macOS or Linux, use the private dotenv session file instead:
+En macOS o Linux, usa el archivo privado dotenv:
 
 ```bash
 python labs/lab02_contract_rag/scripts/validate_environment.py \
@@ -33,21 +33,21 @@ python labs/lab02_contract_rag/scripts/validate_environment.py \
   --check-db
 ```
 
-Expected result: safe JSON with `status` equal to `passed` and `database_session` equal to `participant_schema`.
+Resultado esperado: JSON seguro con `status` igual a `passed` y `database_session` igual a `participant_schema`.
 
-If the result is not passed, stop. Do not change the assigned schema, create replacement credentials or retry a failed password blindly. Follow `troubleshooting.md`.
+Si el resultado no es exitoso, detente. No cambies el schema asignado, no crees credenciales de reemplazo ni repitas una contraseña fallida a ciegas. Sigue `troubleshooting.md`.
 
-## 2. Start the local dashboard
+## 2. Inicia el dashboard local
 
-The default listener is local-only on port 8502. Use a different unused local port only when 8502 is already occupied.
+El listener predeterminado es local en el puerto 8502. Usa otro puerto local disponible solo cuando 8502 ya esté ocupado.
 
-Windows with the loaded private session:
+Windows, con la sesión privada cargada:
 
 ```powershell
 python labs/lab02_contract_rag/scripts/run_dashboard.py --port 8502
 ```
 
-macOS or Linux with a private dotenv session file:
+macOS o Linux, con archivo dotenv privado:
 
 ```bash
 python labs/lab02_contract_rag/scripts/run_dashboard.py \
@@ -55,42 +55,42 @@ python labs/lab02_contract_rag/scripts/run_dashboard.py \
   --port 8502
 ```
 
-Open `http://127.0.0.1:8502`. Do not use a public proxy, shared browser profile or another participant's session.
+Abre `http://127.0.0.1:8502`. No uses un proxy público, un perfil de navegador compartido ni la sesión de otro participante.
 
-## 3. Confirm corpus readiness
+## 3. Confirma el corpus
 
-If p001 has not yet loaded the approved nine-chunk corpus, select **Prepare my synthetic corpus** in the dashboard. Confirm both the paid-inference and synthetic-load acknowledgements, then enter the local database and wallet passwords when prompted.
+Si p001 aún no cargó el corpus aprobado de nueve fragmentos, selecciona **Preparar mi corpus sintético** en el dashboard. Confirma inferencia pagada y carga sintética, luego ingresa las contraseñas locales cuando se soliciten.
 
-Expected result: the dashboard records real document embeddings and ADB insertion in the private p001 schema. If the corpus is already present, do not force a reload or delete rows. Confirm that the calibration file is the approved compatible private calibration before asking questions.
+Resultado esperado: el dashboard registra embeddings documentales reales e inserción en ADB dentro del schema privado de p001. Si el corpus ya existe, no fuerces una recarga ni borres filas. Antes de preguntar, confirma que el archivo de calibración privado es el aprobado y compatible.
 
-## 4. Execute and inspect the four gate cases
+## 4. Ejecuta y revisa los cuatro casos de puerta
 
-Run the following questions individually from the predefined dashboard list. For each paid request, confirm the explicit OCI consumption acknowledgement. Record the visible status and review the evidence before continuing.
+Ejecuta las siguientes preguntas una por una desde la lista predefinida del dashboard. Para cada solicitud pagada, confirma explícitamente el consumo OCI. Registra el estado visible y revisa evidencia antes de continuar.
 
-| Case | Expected result | OCI behaviour to verify |
+| Caso | Resultado esperado | Comportamiento OCI por comprobar |
 |---|---|---|
-| T01 — v1 endpoint | `answered`; `PATCH /v1/disbursements/{disbursement_id}` | Query embedding, version-filtered vector search and chat occur. The selected evidence is the v1 status-endpoint section. |
-| T03 — v2 settlement endpoint | `answered`; `PUT /v2/disbursements/{disbursement_id}/status` | Query embedding, v2-only vector search and chat occur. The selected evidence is the v2 settlement-status section. |
-| T05 — ambiguous update | `needs_clarification` | Application control asks for a version. There must be no OCI embedding, vector search or chat call. |
-| T10 — availability SLA | `insufficient_evidence` | Retrieval may occur, but the system must not publish an invented SLA or a chat answer without selected evidence. |
+| T01 — endpoint v1 | `answered`; `PATCH /v1/disbursements/{disbursement_id}` | Ocurren query embedding, búsqueda vectorial filtrada por versión y chat. La evidencia seleccionada es la sección v1 de actualización de estado. |
+| T03 — endpoint de settlement v2 | `answered`; `PUT /v2/disbursements/{disbursement_id}/status` | Ocurren query embedding, búsqueda vectorial limitada a v2 y chat. La evidencia seleccionada es la sección v2 de settlement status. |
+| T05 — actualización ambigua | `needs_clarification` | El control de aplicación solicita versión. No debe haber llamada de embedding, vector search ni chat. |
+| T10 — SLA de disponibilidad | `insufficient_evidence` | Puede haber recuperación, pero el sistema no publica un SLA inventado ni una respuesta de chat sin evidencia seleccionada. |
 
-For T01 and T03, inspect all of the following in **Expected versus observed**, **Service execution**, and **Claims and verifiable evidence**:
+Para T01 y T03, revisa lo siguiente en **Referencia del ejercicio vs. respuesta obtenida**, **Ejecución de servicios** y **Afirmaciones y evidencia verificable**:
 
-- The observed answer matches the frozen reference facts and expected state.
-- `version_scope_pass` and `citation_checks_pass` are true.
-- The accepted evidence is marked separately from retrieved candidates.
-- The selected excerpt directly states the claimed route.
-- Candidate `cosine_distance` is interpreted only as proximity: a lower distance is not proof that the candidate supports the claim.
-- The trace identifies ADB, query embedding, vector search and chat as independent operations with their own timing.
+- La respuesta observada coincide con los hechos de referencia y el estado esperado.
+- `version_scope_pass` y `citation_checks_pass` son verdaderos.
+- La evidencia aceptada está diferenciada de los candidatos recuperados.
+- El extracto seleccionado declara directamente la ruta afirmada.
+- `cosine_distance` solo expresa proximidad: una distancia menor no demuestra que el candidato respalde la afirmación.
+- La traza identifica ADB, query embedding, vector search y chat como operaciones independientes con sus propios tiempos.
 
-For T05 and T10, confirm that the dashboard clearly distinguishes an application decision from an OCI model answer. A correct abstention or clarification is a successful outcome for that case, not a failed answer.
+Para T05 y T10, confirma que el dashboard distingue una decisión de aplicación de una respuesta del modelo. Una aclaración o abstención correcta es un resultado exitoso para ese caso.
 
-## 5. Record the result safely
+## 5. Registra el resultado de forma segura
 
-Refresh **My execution history** and verify that every report belongs to p001. Store only the safe run summary, status, timing, usage counters and human review outcome in the facilitator's private rehearsal log. Do not copy passwords, wallets, OCI profile files, full vectors, raw provider errors or rejected model drafts.
+Actualiza **Mi historial de ejecuciones** y verifica que cada reporte pertenece a p001. En la bitácora privada de facilitación guarda únicamente resumen seguro, estado, tiempos, contadores de uso y resultado de revisión humana. No copies contraseñas, wallets, perfiles OCI, vectores completos, errores crudos del proveedor ni borradores rechazados.
 
-## 6. Decision after rehearsal
+## 6. Decisión posterior al ensayo
 
-Approve p001 only when all four gate cases meet their completion criteria and a human has reviewed the cited excerpts. If an operational error occurs, mark the affected case pending, preserve its safe report and investigate privately. Do not replace it with a fixture, reference answer or local fallback.
+Aprueba p001 solo si los cuatro casos cumplen sus criterios y una persona revisó los extractos citados. Ante un error operacional, deja el caso pendiente, conserva su reporte seguro e investiga en privado. No lo reemplaces por un fixture, una respuesta de referencia ni un fallback local.
 
-After p001 passes, the remaining operational prerequisites are participant identities, isolated schemas/tables, private handoff, at least one macOS/Linux preflight and the selected workshop execution wave plan.
+Después de aprobar p001, los prerrequisitos operativos restantes son identidades de participantes, schemas/tablas aislados, entrega privada, al menos un preflight en macOS y Linux, y el plan de oleadas del workshop.

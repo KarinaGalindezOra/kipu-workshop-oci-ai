@@ -1,5 +1,5 @@
-# Lab 2 Facilitator Guide
+# Guía de facilitación — Lab 2
 
-Use the canonical [180-minute runbook](docs/facilitator_runbook.md), [tenant bring-up and rehearsal runbook](docs/tenant_setup_runbook.md), [participant README](README.md), [dashboard operations](docs/dashboard_operations.md), [capacity plan for 15 participants](docs/capacity_15.md), [answer key](docs/answer_key.md) and [rubric](docs/rubric.md).
+Usa el [runbook canónico de 180 minutos](docs/facilitator_runbook.md), el [runbook de preparación del tenant y ensayo](docs/tenant_setup_runbook.md), el [README de participantes](README.md), las [operaciones del dashboard](docs/dashboard_operations.md), el [plan de capacidad para 15 participantes](docs/capacity_15.md), la [clave de respuestas](docs/answer_key.md) y la [rúbrica](docs/rubric.md).
 
-One shared Chicago tenant and ADB, individual identities/schemas/sessions/reports, local dashboard with actual OCI actions. No simulated/offline execution can complete the participant workshop. The historical Chicago pilot and developer tests are not proof of current cloud readiness. Workshop 1 remains unchanged.
+Se usa un tenant y una ADB compartidos en Chicago, con identidades, schemas, sesiones y reportes individuales. El dashboard local ejecuta acciones OCI reales. Ninguna ejecución simulada u offline acredita la actividad del participante. El piloto histórico de Chicago y las pruebas de desarrollo no demuestran preparación cloud actual. Workshop 1 no cambia.
