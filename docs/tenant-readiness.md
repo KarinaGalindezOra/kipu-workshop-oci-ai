@@ -14,7 +14,7 @@
 
 - [ ] Confirm subscribed OCI regions and data-residency constraints.
 - [ ] Identify the tenancy administrator who can approve IAM policies and resource creation.
-- [ ] Confirm participant count and OCI IAM identities.
+- [ ] Confirm OCI IAM identities.
 - [ ] Assign a workshop runner for each team and select the credential-handoff or facilitator-managed ADB model.
 - [ ] Decide whether Cloud Shell and public Autonomous Database connectivity are permitted.
 - [ ] Confirm credits, budget owner, expiration date, and maximum spend.

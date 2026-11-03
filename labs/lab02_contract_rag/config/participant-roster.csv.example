@@ -1,16 +1,2 @@
 participant_id,database_schema,oci_profile,session_ready,own_table_ready,peer_probe_pass,dashboard_ready,evaluation_pass
 p001,KHIPU_L2_P001,individual-profile-001,false,false,false,false,false
-p002,KHIPU_L2_P002,individual-profile-002,false,false,false,false,false
-p003,KHIPU_L2_P003,individual-profile-003,false,false,false,false,false
-p004,KHIPU_L2_P004,individual-profile-004,false,false,false,false,false
-p005,KHIPU_L2_P005,individual-profile-005,false,false,false,false,false
-p006,KHIPU_L2_P006,individual-profile-006,false,false,false,false,false
-p007,KHIPU_L2_P007,individual-profile-007,false,false,false,false,false
-p008,KHIPU_L2_P008,individual-profile-008,false,false,false,false,false
-p009,KHIPU_L2_P009,individual-profile-009,false,false,false,false,false
-p010,KHIPU_L2_P010,individual-profile-010,false,false,false,false,false
-p011,KHIPU_L2_P011,individual-profile-011,false,false,false,false,false
-p012,KHIPU_L2_P012,individual-profile-012,false,false,false,false,false
-p013,KHIPU_L2_P013,individual-profile-013,false,false,false,false,false
-p014,KHIPU_L2_P014,individual-profile-014,false,false,false,false,false
-p015,KHIPU_L2_P015,individual-profile-015,false,false,false,false,false

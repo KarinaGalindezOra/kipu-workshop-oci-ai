@@ -34,7 +34,7 @@ Los agentes no deben repetir todo el contexto ni recordar todo indiscriminadamen
 
 ### Objective
 
-Build and validate a version-aware synthetic contract RAG workflow in 180 minutes on prepared infrastructure. All 15 participants independently execute real OCI embedding, retrieval and generation through local dashboards, cites every contractual claim, and clarifies or abstains when support is missing.
+Build and validate a version-aware synthetic contract RAG workflow in 180 minutes on prepared infrastructure. Participants independently execute real OCI embedding, retrieval and generation through local dashboards, cite every contractual claim, and clarify or abstain when support is missing.
 
 ### Observable learning outcomes
 

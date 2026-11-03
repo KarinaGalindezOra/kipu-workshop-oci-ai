@@ -1,6 +1,6 @@
 # Ensayo end-to-end de p001
 
-Este es el ensayo reproducible de facilitación para un participante real de Workshop 2. Usa el mismo dashboard local, schema individual, servicio OCI de embeddings, búsqueda vectorial en ADB y OCI chat que se usarán durante el workshop. No es una prueba de carga ni acredita capacidad para 15 participantes concurrentes.
+Este es el ensayo reproducible de facilitación para un participante real de Workshop 2. Usa el mismo dashboard local, schema individual, servicio OCI de embeddings, búsqueda vectorial en ADB y OCI chat que se usarán durante el workshop.
 
 Usa únicamente el corpus y las preguntas sintéticas aprobadas, además de la asignación privada de p001. Mantén wallet, archivo de sesión, contraseñas, tokens y reportes de evidencia fuera del repositorio.
 

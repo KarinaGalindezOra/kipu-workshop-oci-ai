@@ -1,6 +1,6 @@
 # Lab 2: RAG contractual OCI real con respuestas y evidencia visibles
 
-Workshop 2 dura 180 minutos y está diseñado para 15 participantes. Cada persona usa un dashboard local, una identidad OCI individual y un schema de base de datos aislado. Se comparten un tenant y una Autonomous AI Database en Chicago; no se necesita un tenant ni una ADB por persona. Tenant, modelos, cuota y presupuesto deben aprobarse en el preflight. La capacidad para 15 personas simultáneas es una meta de ensayo, no una afirmación ya validada.
+Workshop 2 dura 180 minutos. Cada persona usa un dashboard local, una identidad OCI individual y un schema de base de datos aislado. Se comparten un tenant y una Autonomous AI Database en Chicago; no se necesita un tenant ni una ADB por persona. Tenant, modelos, cuota y presupuesto deben aprobarse en el preflight.
 
 ## Qué ve el participante
 
@@ -55,7 +55,7 @@ El ensayo guiado de facilitación está en [p001_end_to_end_rehearsal.md](docs/p
 
 ## Preparación administrativa
 
-Revisa [aislamiento por participante](docs/participant_isolation.md), [operaciones del dashboard](docs/dashboard_operations.md), [capacidad para 15 personas](docs/capacity_15.md), [runbook del tenant](docs/tenant_setup_runbook.md) y [runbook de facilitación](docs/facilitator_runbook.md).
+Revisa [aislamiento por participante](docs/participant_isolation.md), [operaciones del dashboard](docs/dashboard_operations.md), [runbook del tenant](docs/tenant_setup_runbook.md) y [runbook de facilitación](docs/facilitator_runbook.md).
 
 El dashboard nunca crea usuarios, políticas IAM, redes, bases de datos ni tablas. La preparación administrativa debe ocurrir antes de la sesión. El esquema v2 de tabla vectorial es incompatible con tablas históricas: crea una tabla/schema aprobados en lugar de sobrescribir ejercicios anteriores.
 
@@ -91,7 +91,6 @@ Las pruebas unitarias y de interfaz usan doubles solo para validar software. No 
 - [ ] Cada schema tiene nueve fragmentos sintéticos y calibración compatible congelada.
 - [ ] El dashboard muestra respuesta real, criterios de referencia y evidencia resoluble.
 - [ ] Cada participante completa los casos y la revisión humana asignados.
-- [ ] La facilitación usa oleadas controladas si la concurrencia total no fue ensayada.
 - [ ] No se cuentan resultados simulados, locales o no ejecutados como éxito OCI.
 
-ADB, embeddings y chat consumen capacidad y presupuesto compartidos. Ante un error, registra el caso pendiente e investiga; no presentes una respuesta simulada como reemplazo. La eliminación de recursos requiere aprobación explícita del propietario.
+ADB, embeddings y chat consumen presupuesto compartido. Ante un error, registra el caso pendiente e investiga; no presentes una respuesta simulada como reemplazo. La eliminación de recursos requiere aprobación explícita del propietario.

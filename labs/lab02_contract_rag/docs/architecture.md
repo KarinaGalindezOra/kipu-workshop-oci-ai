@@ -1,6 +1,6 @@
 # Current workshop execution contract
 
-The participant path is now a local Streamlit dashboard backed exclusively by actual OCI embedding/ADB retrieval/chat. The CLI shares execution.py. No lexical retriever or simulated fixture is used as a fallback. Fifteen individual participants share one Chicago tenant and ADB with separate schemas. See dashboard_operations.md and capacity_15.md. Local-only routes in the original reference diagram below are retained solely as developer regression tools; they are not workshop execution.
+The participant path is now a local Streamlit dashboard backed exclusively by actual OCI embedding/ADB retrieval/chat. The CLI shares execution.py. No lexical retriever or simulated fixture is used as a fallback. Individual participants use separate schemas in one shared Chicago tenant and ADB. See dashboard_operations.md. Local-only routes in the original reference diagram below are retained solely as developer regression tools; they are not workshop execution.
 
 # Architecture and evidence contract
 

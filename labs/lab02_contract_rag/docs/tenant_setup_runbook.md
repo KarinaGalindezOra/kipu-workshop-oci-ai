@@ -23,7 +23,7 @@ Use a dedicated project child compartment. Apply the required project tags throu
 ## Shared OCI preparation
 
 1. Create the approved child compartment in Chicago and attach the required project tags.
-2. Create one Autonomous AI Database with private or approved secured connectivity, mutual TLS, a dedicated database administrator, and capacity sized for the rehearsal. Keep the wallet outside the repository.
+2. Create one Autonomous AI Database with private or approved secured connectivity, mutual TLS and a dedicated database administrator. Keep the wallet outside the repository.
 3. Create the participant IAM group and apply only the approved `generative-ai-family` policy in the project compartment. Add each participant's individual identity to that group.
 4. Validate the OCI CLI profile, region, service-model availability, ADB status, network path, and wallet before creating any participant schema.
 5. Run the real model preflight once with explicitly approved synthetic input:
@@ -101,7 +101,7 @@ It binds to `127.0.0.1` and must expose only that participant's private reports/
 
 ## Rehearsal gates
 
-Run this sequence for the facilitator account and at least one non-facilitator participant before duplicating it. Then complete two real end-to-end rehearsals before the workshop: one positive v2 result and one negative/clarification result. Before the event, validate access isolation in both directions with two known existing participant tables, and conduct the approved 15-person Chicago concurrency rehearsal.
+Run this sequence for the facilitator account and at least one non-facilitator participant before duplicating it. Then complete two real end-to-end rehearsals before the workshop: one positive v2 result and one negative/clarification result. Before the event, validate access isolation in both directions with two known existing participant tables.
 
 Do not count a service error, skipped call, local test, or manually edited report as a passed rehearsal. Store safe operation summaries and timestamps in the private rehearsal log; preserve no passwords, wallets, profile content, raw vectors, or raw rejected model drafts.
 

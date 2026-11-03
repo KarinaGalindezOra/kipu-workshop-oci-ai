@@ -32,4 +32,4 @@ Start with the assigned private participant session and scripts/run_dashboard.py
 
 Compare the observed text with the independent reference and expand every source. A golden-answer pass requires the matching predefined question without manual scope overrides. Custom requests require human review; no expected answer is invented. A local/example/peer report is rejected by history loading. Refresh history after a new run.
 
-Capacity for 15 people must be tested against actual Chicago resources. OCI on-demand throttling is dynamic; record rate-limit failures and request an approved retry with spacing. No automatic bulk retry, mock response or local fallback is available. The evaluator stops on operational error and marks remaining scenarios not run.
+OCI on-demand throttling is dynamic; record rate-limit failures and request an approved retry with spacing. No automatic bulk retry, mock response or local fallback is available. The evaluator stops on operational error and marks remaining scenarios not run.

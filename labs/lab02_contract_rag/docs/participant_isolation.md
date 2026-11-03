@@ -68,7 +68,7 @@ CLI output-dir is a root; ingestion/demo/evaluation add the participant namespac
 
 ## Cost, rollback and cleanup
 
-One shared ADB reduces duplicated infrastructure, but per-participant vector loads and inference consume shared capacity and budget. Budget and quota reviews must use participant count; stagger embedding/evaluation batches if needed. IAM inference-only access does not impose a per-person spending cap by itself. Coordinate shared ADB stop/start windows with everyone.
+One shared ADB reduces duplicated infrastructure, but vector loads and inference consume shared budget. IAM inference-only access does not impose a per-person spending cap by itself. Coordinate shared ADB stop/start windows with the assigned users.
 
 Old team schemas and reports are left intact. Configure new participant accounts and complete a two-person rehearsal before replacing the old exercise. Cleanup, password resets, grant changes and resource deletion require separate administrator approval. No automatic revocation or destruction is performed.
 
@@ -76,4 +76,4 @@ References: [Oracle session context](https://docs.oracle.com/en/database/oracle/
 
 ## Real-service dashboard update
 
-The event has 15 participants (p001-p015). Participant dashboards run locally and invoke real OCI services only. Individual history excludes local demos and simulated fixtures. See dashboard_operations.md and capacity_15.md. The 16-case workshop reference replaces the mixed 20-case developer fixture set for cloud acceptance. No claims of actual OCI capacity are made until the real rehearsal passes.
+Participant dashboards run locally and invoke real OCI services only. Individual history excludes local demos and simulated fixtures. See dashboard_operations.md. The 16-case workshop reference replaces the mixed 20-case developer fixture set for cloud acceptance.

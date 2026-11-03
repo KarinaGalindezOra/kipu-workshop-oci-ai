@@ -13,7 +13,7 @@ The participant reference is data/evaluation/workshop_questions.json: 16 cases, 
 | Correct abstention | SLA/TLS questions retrieve through OCI then abstain without invented facts |
 | Controls | Version clarification, structured-data routing and v3 rejection correctly labeled as application decisions |
 | Actual text review | Human confirms relevance, completeness and correct version alongside the actual answer |
-| Operational readiness | Real concurrent rehearsal for 15 people; record per-person latency/usage/errors |
+| Operational readiness | Record service latency, usage and operational errors from approved real executions |
 
 A source pair is (version, section). Required terms are a reproducible proxy, not a general semantic proof. Reported precision/support checks do not replace reading the actual claims. A system that always abstains fails the ten positive cases. Automatic contract checks can fail when a generated answer omits a required fact even if the citations are valid.
 

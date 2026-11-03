@@ -1,14 +1,14 @@
-# Current status: real OCI dashboard, 15 individual participants
+# Current status: real OCI dashboard with individual participants
 
 Updated: 2026-11-03. The current participant route supersedes historical local/offline completion and mixed fixture acceptance below.
 
 Delivered: local participant-bound Streamlit dashboard, real OCI actions shared with the CLI, actual-versus-expected answer view, source/claim inspection, own report history, separate per-request inference/load acknowledgements, masked transient credentials, recorded service outcomes and no offline/simulated fallback. The live participant matrix has 16 non-fixture scenarios; the 20-case set remains a developer regression only.
 
-The deployment target is one Chicago tenant/ADB, 15 independent participants, individual OCI identities and database schemas. The capacity checklist explicitly requires a real 15-person rehearsal before claiming concurrency readiness. Workshop 1 is unchanged.
+The deployment target is one Chicago tenant/ADB with individual OCI identities and database schemas. Workshop 1 is unchanged.
 
-Verification performed: full repository suite 109 passed, 2 skipped after the connection-pool and safe-reporting changes. Dashboard/adapter checks use isolated developer tests; no such result is presented as real OCI acceptance. The authorized p001 rehearsal below provides limited real OCI evidence. It does not establish 15-participant readiness.
+Verification performed: full repository suite 109 passed, 2 skipped after the connection-pool and safe-reporting changes. Dashboard/adapter checks use isolated developer tests; no such result is presented as real OCI acceptance. The authorized p001 rehearsal below provides limited real OCI evidence.
 
-Start with scripts/run_dashboard.py from each participant's private session. Read docs/dashboard_operations.md, docs/capacity_15.md and the current README. Preserve human review of the obtained answer, not merely a PASS flag.
+Start with scripts/run_dashboard.py from each participant's private session. Read docs/dashboard_operations.md and the current README. Preserve human review of the obtained answer, not merely a PASS flag.
 
 ## Authorized real OCI rehearsal — p001, Chicago
 
@@ -21,7 +21,7 @@ The individual p001 rehearsal used only the approved synthetic contracts and act
 | T05: ambiguous version | Ask for the target version without querying OCI | `needs_clarification`, produced by application control; no model call |
 | T10: availability SLA | Abstain because the contracts document no SLA | `insufficient_evidence`; no chat call was required |
 
-Two successful positive requests also exercised actual ADB, query embedding, exact vector search and OCI chat. On the second observation, reuse of the participant-local ADB pool reduced `adb_connection_acquire` from about 1.54 seconds to about 0.59 seconds (roughly 62%). OCI chat remained the largest and variable component; the two observed positive end-to-end times were approximately 8.65 and 8.03 seconds. These are rehearsal observations, not a production SLO or a concurrency claim.
+Two successful positive requests also exercised actual ADB, query embedding, exact vector search and OCI chat. On the second observation, reuse of the participant-local ADB pool reduced `adb_connection_acquire` from about 1.54 seconds to about 0.59 seconds (roughly 62%). OCI chat remained the largest and variable component; the two observed positive end-to-end times were approximately 8.65 and 8.03 seconds. These are rehearsal observations, not a production SLO.
 
 An expired local OCI CLI security token was correctly surfaced as an authorization failure during rehearsal. Reauthentication restored the approved profile and later actual calls succeeded. This is now an explicit participant preflight check.
 
@@ -58,7 +58,7 @@ Artifacts for reproducible local verification are under artifacts/lab02/implemen
 
 ## Gates still requiring the real environment
 
-- [ ] Khipu confirms participant count, runner identities, region/models and budget owner.
+- [ ] Khipu confirms runner identities, region/models and budget owner.
 - [ ] Administrator approves network, dedicated schemas and new v2 table preparation.
 - [ ] Approved operator performs real synthetic ingestion and development calibration.
 - [ ] Each participant runs the OCI acceptance matrix and records actual latency/usage.

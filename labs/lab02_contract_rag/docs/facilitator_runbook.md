@@ -1,10 +1,10 @@
-# Facilitator runbook: 180 minutes, 15 participants, actual OCI services
+# Facilitator runbook: 180 minutes, actual OCI services
 
 ## Go/no-go before class
 
-Use one shared Chicago tenancy and ADB. Prepare 15 individual identities, database users/schemas, private sessions, own vector tables and local dashboard launchers. Each person executes; peer review does not replace individual execution. Follow [the tenant bring-up and rehearsal runbook](tenant_setup_runbook.md), participant_isolation.md, dashboard_operations.md and capacity_15.md.
+Use one shared Chicago tenancy and ADB. Prepare individual identities, database users/schemas, private sessions, own vector tables and local dashboard launchers. Each person executes; peer review does not replace individual execution. Follow [the tenant bring-up and rehearsal runbook](tenant_setup_runbook.md), participant_isolation.md and dashboard_operations.md.
 
-Perform approved real ingestion and development calibration, own-table checks and bidirectional peer-denial rehearsal. Verify actual 15-person inference/query capacity, limits, budget and networking. No infrastructure preparation or account creation belongs in the participant timebox. The facilitator can distribute compatible calibration; each participant still owns their own vector data.
+Perform approved real ingestion and development calibration, own-table checks and bidirectional peer-denial rehearsal. Verify service access, budget and networking. No infrastructure preparation or account creation belongs in the participant timebox. The facilitator can distribute compatible calibration; each participant still owns their own vector data.
 
 The workshop offers no local retrieval mode, fake model responses, simulator tab or injected failures. Documents remain synthetic. Real parsing, metadata inspection, clarification and routing happen in the application; service traces distinguish these from actual OCI operations. If OCI is unavailable, mark the practical segment pending rather than substituting local success.
 

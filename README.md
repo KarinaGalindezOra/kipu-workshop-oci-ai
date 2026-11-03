@@ -1,73 +1,70 @@
-# Khipu OCI AI Workshop
+# Workshop de IA OCI de Khipu
 
-This repository contains reproducible workshop assets for three OCI AI labs:
+Este repositorio contiene materiales reproducibles para tres laboratorios de inteligencia artificial sobre Oracle Cloud Infrastructure (OCI):
 
-1. Decision memory, context isolation, and OCI-measured token comparison.
-2. Versioned API-contract RAG with evidence.
-3. API change analysis, patch generation, and regression tests.
+1. Memoria de decisiones, aislamiento de contexto y comparación de tokens medida en OCI.
+2. RAG sobre contratos de API versionados, con evidencia verificable.
+3. Análisis de cambios de API, generación de parches y pruebas de regresión.
 
-## Operating model
+## Modelo operativo
 
-- `trial-chicago` is the current technical rehearsal environment in `us-chicago-1`.
-- `trial-team` is the reusable disposable profile for one workshop team. It never creates an OCI trial account; it operates after the facilitator creates that trial.
-- `khipu` is a parameterized target environment that is not deployed until Khipu approves IAM, network, region, and budget decisions.
-- A team trial has one ADB and one Agent Memory store. Each participant executes from their own workstation or Cloud Shell session with an individual temporary application database user.
-- Only synthetic data belongs in the labs.
+- `trial-chicago` es el entorno técnico utilizado para los ensayos en `us-chicago-1`.
+- `trial-team` es un perfil reutilizable para ejecutar un workshop después de que la facilitación cree y prepare el tenant trial correspondiente.
+- `khipu` es un entorno objetivo parametrizado; no se despliega hasta que Khipu apruebe las decisiones de IAM, red, región y presupuesto.
+- Cada persona ejecuta los laboratorios desde su propia estación de trabajo o desde una sesión local de Cloud Shell, con un usuario de aplicación temporal e individual cuando el laboratorio lo requiere.
+- En los laboratorios solo se utilizan datos sintéticos.
 
-> Lab 2 operating-model override: one shared Chicago tenancy and ADB; one isolated user/schema, OCI identity, local session and evidence namespace per participant. See labs/lab02_contract_rag/docs/participant_isolation.md. The trial-per-team description remains the existing Lab 1 model.
+> **Workshop 2:** un tenant y una Autonomous Database compartidos en Chicago; cada participante utiliza una identidad OCI, schema, sesión local y espacio de evidencias aislados. Consulta [aislamiento del participante](labs/lab02_contract_rag/docs/participant_isolation.md).
 
-## Repository layout
+## Estructura del repositorio
 
 ```text
-docs/                 Architecture, readiness, security, and facilitation documents.
-labs/                 Participant-facing laboratory material and code.
-platform/bootstrap/   Idempotent post-provisioning SQL and Python setup.
-terraform/            Parameterized OCI infrastructure.
+docs/                Documentos de arquitectura, preparación, seguridad y facilitación.
+labs/                Material, código y pruebas de los laboratorios.
+platform/bootstrap/  Scripts idempotentes de preparación posterior al aprovisionamiento.
+terraform/           Infraestructura OCI parametrizada.
 ```
 
-## Local setup
+## Configuración local
 
-Use Python 3.11.9.
+Se requiere Python 3.11.9. En Windows PowerShell:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev,lab01,lab01-gateway,lab03,ui]"
+python -m pip install -e ".[dev,lab01,lab01-gateway,lab02,lab03,ui]"
 python -m pytest
 ```
 
-Copy `.env.example` to `.env` only for local configuration. Do not commit `.env`, wallet files, keys, passwords, or Terraform state.
+Para macOS o Linux, revisa las guías específicas de cada laboratorio antes de ejecutar los comandos.
 
 ## Terraform
 
-Terraform must be reviewed before any apply. The default configuration is safe-by-default: it does not create IAM policies or an Autonomous Database unless explicit variables enable them.
+La infraestructura se configura mediante variables de ejemplo. No se incluyen credenciales, wallets, archivos de estado ni valores reales de OCI en el repositorio.
 
 ```powershell
-Set-Location terraform\environments\trial-team
+cd terraform\environments\trial-chicago
+Copy-Item terraform.tfvars.example terraform.tfvars
 terraform init
 terraform validate
-terraform plan -var-file=terraform.tfvars
+terraform plan
 ```
 
-Do not run `terraform apply` until the OCI Trial preflight, cost review, and explicit approval are complete. The default team profile does not create ADB, Object Storage, or IAM policies.
+Revisa el plan y solicita aprobación explícita antes de ejecutar `terraform apply`.
 
-## Validation gates
+## Puertas de validación
 
-- Python local tests pass without OCI access.
-- Terraform formatting and validation pass after provider initialization.
-- Trial Chicago preflight confirms OCI session, selected region, model discovery, and service limits.
-- Each lab passes its evidence gate before the facilitation rehearsal.
+- Ejecutar las pruebas locales antes de un ensayo o workshop.
+- Validar la sesión de OCI, la región, la conectividad de Autonomous Database y los modelos autorizados antes de usar servicios facturables.
+- Mantener wallets, contraseñas, perfiles de OCI y reportes privados fuera de Git.
+- Ejecutar el preflight y el ensayo completo siguiendo el runbook del laboratorio correspondiente.
 
-See `docs/architecture.md` and `docs/tenant-readiness.md` before creating cloud resources.
+## Instrucciones para participantes
 
-Before provisioning the customer environment, follow the gated [Khipu preprovision runbook](docs/khipu-preprovision-runbook.md). It defines the team operating model, IAM boundary, database-schema bootstrap, network decision, rehearsal gates, and go/no-go checklist.
+- [Workshop 1: guía de memoria de agente](docs/participant-guides/01-agent-memory.md)
+- [Workshop 2: guía paso a paso del participante](labs/lab02_contract_rag/docs/participant_step_by_step.md)
+- [Workshop 2: guía de evidencia RAG](docs/participant-guides/02-contract-rag-evidence.md)
+- [Workshop 3: guía de cambios de API](docs/participant-guides/03-api-change-analysis.md)
 
-## Participant instructions
-
-The Spanish participant guides use a progressive workshop format: goal, timebox, prerequisites, numbered steps, expected result, common errors, and an evidence gate for every lab.
-
-- [Workshop guide and prework](docs/participant-guides/README.md)
-- [Workshop 1: Token economy and decision memory](docs/participant-guides/01-decision-memory.md)
-- [Lab 2: Versioned contract RAG with evidence](docs/participant-guides/02-contract-rag-evidence.md)
-- [Lab 3: Safe API change](docs/participant-guides/03-safe-api-change.md)
+Cada guía indica los prerrequisitos, el recorrido práctico, las validaciones esperadas y cómo informar un fallo sin exponer datos sensibles.
