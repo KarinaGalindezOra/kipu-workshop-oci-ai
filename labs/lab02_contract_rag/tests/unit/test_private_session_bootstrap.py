@@ -30,3 +30,22 @@ def test_cli_error_classification_uses_safe_labels():
     assert MODULE.classify_cli_error("ConfigFileNotFound") == "config_file_not_found"
     assert MODULE.classify_cli_error("NotAuthenticated") == "not_authenticated"
     assert MODULE.classify_cli_error("unexpected") == "unclassified"
+
+
+def test_dotenv_session_is_cross_platform_and_password_free():
+    rendered = MODULE.render_dotenv_session(
+        participant="p002",
+        profile_name="KWS2_P002",
+        compartment_id="ocid1.compartment.oc1..example",
+        wallet_dir=Path("/private/wallet"),
+        connect_alias="kws2rag_tp",
+        calibration_file=Path("/private/calibration.json"),
+        development_measurements_file=Path("/private/measurements.json"),
+        report_root=Path("/private/artifacts"),
+    )
+
+    assert "LAB02_PARTICIPANT_ID=p002" in rendered
+    assert "ADB_USERNAME=KHIPU_L2_P002" in rendered
+    assert "OCI_CONFIG_FILE" not in rendered
+    assert "PASSWORD" not in rendered
+    assert "TOKEN" not in rendered

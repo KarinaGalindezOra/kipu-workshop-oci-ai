@@ -35,6 +35,22 @@ If a schema bootstrap stops, do not retry it blindly. Use the launcher's `audit`
 
 After a private participant session file is prepared, run `run_lab02_participant_readiness.ps1` with that file path. It prompts for the participant database and wallet passwords, validates the authenticated schema and performs no inference or data mutation.
 
+### Portable participant session files
+
+The approved facilitator can generate a password-free cross-platform dotenv session for an assigned participant. It is an administrative preparation step, never a participant bootstrap command. The target participant profile does not need to exist on the facilitator workstation: `--bootstrap-profile` is used only to retrieve the approved workshop compartment metadata.
+
+```powershell
+python platform/bootstrap/create_lab02_private_session.py `
+  --participant-id p002 `
+  --profile-name KWS2_P002 `
+  --bootstrap-profile KHIPU_WS2_ADMIN `
+  --format dotenv `
+  --portable `
+  --output '<private-directory>/p002.env'
+```
+
+The generated file uses the portable `${HOME}/.khipu/lab02` directory convention and contains the assigned schema, region, approved models, ADB alias and workshop compartment only. It contains no password, token, private key or wallet password. The participant places the wallet in that private directory, authenticates their own OCI CLI profile, and receives the session file through the approved private channel.
+
 For macOS and Linux participants, use the cross-platform [participant guide](../../labs/lab02_contract_rag/docs/macos_linux_participant_guide.md). It invokes the same Python runners with a private `.env` session file through `--session-file`; it does not replace the existing PowerShell administrator launchers.
 
 After explicit approval of paid embeddings and synthetic loading, run `run_lab02_participant_ingestion.ps1` with that private session file. It invokes the approved embedding model, writes only to the participant schema and stores evidence reports in the private report root.
