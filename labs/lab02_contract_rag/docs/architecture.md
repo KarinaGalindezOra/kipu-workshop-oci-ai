@@ -1,64 +1,86 @@
-# Current workshop execution contract
+# Arquitectura y contrato de evidencia
 
-The participant path is now a local Streamlit dashboard backed exclusively by actual OCI embedding/ADB retrieval/chat. The CLI shares execution.py. No lexical retriever or simulated fixture is used as a fallback. Individual participants use separate schemas in one shared Chicago tenant and ADB. Local-only routes in the original reference diagram below are retained solely as developer regression tools; they are not workshop execution.
+El laboratorio tiene dos rutas deliberadamente distintas:
 
-# Architecture and evidence contract
+- **Práctica local obligatoria:** inspecciona el corpus y aplica recuperación léxica determinista. Sirve para observar fragmentación, metadatos, filtro y ranking sin coste ni llamadas a OCI.
+- **Flujo OCI obligatorio:** usa embedding, Autonomous Database (ADB), AI Vector Search y generación OCI reales. Es la única ruta que acredita la validación cloud y publica una respuesta del modelo.
+
+La ruta local no es un fallback de la ruta OCI. Si OCI falla, se registra como falla operacional y el segmento cloud queda pendiente.
 
 ```mermaid
 flowchart TB
- D[Versioned synthetic contracts] --> C[Sections, metadata and manifest]
- C --> L[Local chunk store]
- C --> E[OCI document embeddings]
- E --> A[ADB vectors and metadata]
- Q[Question] --> R[Resolve version and intent]
- R --> CL[Clarify missing version]
- R --> S[Suggest controlled SQL for operational data]
- R --> LR[Scope filters and lexical ranking]
- L --> LR
- R --> QE[OCI query embedding]
- QE --> VR[Scope filters and exact cosine search]
- A --> VR
- LR --> EV[Select evidence and inspect conflicts]
- VR --> EV
- EV --> X[Local extraction or OCI claim selection]
- X --> V[Validate verbatim claims and evidence IDs]
- V --> O[Answer, partial answer, abstention or error]
+    D[Contratos sintéticos v1 y v2] --> C[Fragmentación por sección]
+    C --> M[Metadatos, hashes y manifiesto]
+
+    subgraph LOCAL[Práctica local sin OCI]
+        M --> L[Corpus local verificado]
+        L --> LR[Filtro estricto de versión y ranking léxico]
+        LR --> LE[Selección de evidencia extractiva]
+        LE --> LA[Reporte local de práctica]
+    end
+
+    subgraph OCI[Flujo OCI real]
+        M --> EM[Embeddings de documentos]
+        EM --> DB[ADB: metadatos, contenido y vectores]
+        QE[Embedding de consulta] --> VR[Filtro estructurado y búsqueda vectorial]
+        DB --> VR
+        VR --> EV[Evaluación de candidatos y evidencia]
+        EV --> P[Prompt con evidencia identificada]
+        P --> G[Generación OCI]
+        G --> V[Validación de afirmaciones y citas]
+        EV --> V
+    end
+
+    Q[Pregunta] --> R[Resolver intención y versión]
+    R -->|Falta versión| CL[Solicitar aclaración]
+    R --> LR
+    R --> QE
+    R -->|Datos operacionales| SQL[Recomendar SQL controlado]
+    V --> O[Respuesta, parcial, abstención o error]
+    LA --> O
 ```
 
-## Participant deployment
+## Fragmentos y metadatos
 
-One shared Chicago tenant and ADB; each participant owns a separate user/schema and table. OCI identities, database credentials, local sessions and report directories are individual. The connection factory validates server-side SESSION_USER/CURRENT_SCHEMA and rejects ANY privileges/DBA.
+El corpus base tiene nueve secciones Markdown completas: cuatro de v1 y cinco de v2. No se usa solapamiento ni truncamiento. `ContractChunk` es el contrato compartido entre ambas rutas e incluye, entre otros, identidad documental, `corpus_id`, API, versión, sección, líneas, clasificación, hashes y procedencia de embedding.
 
-## Boundaries
+El manifiesto valida los documentos en LF normalizado. Un hash comprueba integridad frente a una fuente conocida; no certifica que el documento sea correcto ni que responda una pregunta.
 
-The corpus consists of nine Markdown sections. Preserve whole sections with no overlap. The manifest checks byte hashes; chunk metadata uses normalized LF source text and line locations. Never truncate embeddings silently. Future oversized sections require reviewed subdivision.
+## Recuperación y aislamiento de versiones
 
-`ContractChunk` in models.py is the shared contract. It includes document identity, corpus, source/title/type, API/version, section/subsection, content, source URI/lines, optional effective date, classification, hashes, embedding provenance and optional load timestamp. Local embedding fields are null. ADB stores the common object as validated JSON plus relational scope/provenance columns and VECTOR. Loading time is not effective date; a hash is not a truth certificate.
+Los filtros obligatorios son: `corpus_id` activo, `api_name`, `contract_version` y clasificación `synthetic`. Se aplican antes del ranking lógico.
 
-Strict filters: active corpus, API, requested version, synthetic classification, selected model and dimension. Participant isolation comes from schema permissions, not a user-selected participant filter. Query values are bound; only a validated table identifier and bounded integer row limit enter SQL syntax. No ADMIN account is accepted. The new participant bootstrap grants CREATE SESSION and CREATE TABLE with a 128M quota; index creation on owned tables requires no separate CREATE INDEX system privilege. Administrators must still rehearse it in the target tenant.
+- La práctica local expone `token_overlap`: mayor valor significa más coincidencia léxica.
+- La búsqueda OCI expone `cosine_distance`: menor valor significa mayor proximidad vectorial.
 
-The relational filter defines eligible candidates before logical ranking; no assumption is made about physical optimizer order. Exact cosine search is explicit. No HNSW/IVF index is required. A calibrated maximum distance discards weak neighbors; topic/section evidence selection is a separate gate. The bounded recognizer supports endpoint, migration, idempotency, response and errors in English. Arbitrary questions need a broader relevance evaluator before production use.
+Ninguna métrica demuestra por sí misma que un extracto responde la pregunta. La aplicación selecciona evidencia por sección/faceta y luego verifica la procedencia antes de publicar una afirmación.
 
-Comparisons use two separately filtered retrievals. Migration toward v2 uses v2. Multiple inconsistent texts for the same version/section produce a conflict. The MVP does not detect arbitrary contradictions across unrelated sections: the rubric must cover that limitation.
+Las comparaciones recuperan v1 y v2 por separado. Una migración hacia v2 usa inicialmente el alcance v2 y su sección **Migración desde v1**. Los resultados de una versión no completan silenciosamente la otra.
 
-## Generation, visible answers and expected criteria
+## Generación, evidencia y resultado visible
 
-The dashboard shows the actual published answer next to an independent reference, with claim/source expanders and operation traces. Reference answers are never sent to the model. Participant acceptance uses 16 non-fixture cases. Generation failures are displayed without substituting local answers. Local clarification/routing decisions are explicitly identified and never claimed as model responses.
+El dashboard presenta una referencia independiente del ejercicio junto a la respuesta observada. La referencia no se envía al modelo. Para cada afirmación publicada, el participante puede llegar a:
 
-## Generation and claims
+```text
+afirmación → ID de evidencia → extracto → sección → versión → líneas → hash
+```
 
-The prompt treats documents and questions as untrusted data. The model returns JSON status and claims with evidence IDs. Only text literally present in every cited excerpt is admitted. The application creates citations, not the model. This avoids pretending that a metadata list proves a paraphrase. It also limits expressive synthesis; free-form summaries need independent entailment assessment.
+La aplicación crea las citas; el modelo solo puede elegir IDs de evidencia suministrados. El validador admite en este MVP texto literal contenido en el extracto. Una cita válida todavía requiere revisión humana de relevancia y completitud.
 
-Report 2.0: run ID, mode, status, requested versions, candidate list with score semantics, claims, citations, limitations, sufficient_evidence and timing. Lexical overlap is higher-is-better; cosine distance is lower-is-better. Nonanswer paths never acquire sufficient_evidence from a nonempty list. Unknown evidence IDs and malformed outputs are errors, not documentary abstentions. Unsupported questions, no candidates, conflicts and provider failures remain distinct.
+Los estados distinguen `answered`, `partial`, `needs_clarification`, `insufficient_evidence`, `conflicting_evidence`, `structured_data_required` y `error`. Una lista de candidatos no vacía no equivale a evidencia suficiente.
 
-## Security and operations
+## Seguridad y operación
 
-Use an approved child compartment, tags Environment/Project/Owner/CostCenter/CreatedBy, least privilege, private ADB connectivity and separate participant schemas. No new infrastructure is provisioned here. Separate ingestion privileges from runtime SELECT where the operating model permits. Store production secrets in Vault; protect local wallets outside source control. Do not log provider exception bodies, credentials or full vectors.
+Se usa un tenant y ADB compartidos en Chicago, con identidad, schema, tabla vectorial, sesión y namespace de artefactos individuales. La validación de sesión comprueba `SESSION_USER` y `CURRENT_SCHEMA`, y rechaza privilegios transversales y roles administrativos.
 
-OCI calls are opt-in, with independent inference and load acknowledgements. Provider retries are disabled to bound paid calls; operators review failures before retrying. SDK timeout is 10 seconds connect/30 read; ADB call timeout is 5 seconds. The live runner records retrieval/generation timing, attempted chat calls, successful query embedding calls and provider usage when exposed. A failed request may be billable despite no successful response; call telemetry is not a billing invoice.
+Las llamadas OCI son opt-in: el dashboard solicita confirmación independiente para inferencia y carga. Los reintentos no son automáticos. Los reportes conservan estados, etapas, duraciones, citas y telemetría segura; no guardan secretos ni vectores completos.
 
-## Compatibility and validation
+## Límites pedagógicos y técnicos
 
-The new SQL schema is incompatible with the legacy table. Prepare a new approved table/schema and load the frozen corpus. No automatic DDL or destructive migration is supplied. Legacy attach_evidence remains a metadata attachment with support explicitly unverified. Its sufficient_evidence flag is no longer true for arbitrary text.
+- Los contratos son sintéticos; no describen SLA, autenticación real, límites de producción ni hechos operacionales.
+- T05 y T12 pueden resolverse mediante control de aplicación sin llamar al modelo.
+- T10 y T11 prueban que candidatos cercanos no justifican una respuesta no documentada.
+- SQL queda restringido a una extensión controlada: no hay SQL libre generado por el modelo ni resultados inventados.
+- El corpus pequeño usa búsqueda exacta; no se requiere índice ANN para el objetivo del workshop.
 
-References: [Oracle exact vector search](https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/perform-exact-similarity-search.html), [OCI embedding API](https://docs.oracle.com/en-us/iaas/tools/python/latest/api/generative_ai_inference/models/oci.generative_ai_inference.models.EmbedTextDetails.html).
+Referencias: [Oracle AI Vector Search exacta](https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/perform-exact-similarity-search.html) y [OCI EmbedTextDetails](https://docs.oracle.com/en-us/iaas/tools/python/latest/api/generative_ai_inference/models/oci.generative_ai_inference.models.EmbedTextDetails.html).

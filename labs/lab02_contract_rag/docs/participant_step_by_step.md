@@ -1,8 +1,21 @@
 # Guía del participante — Workshop 2
 
-Esta es la guía que debes seguir durante el workshop. Trabajarás solamente con contratos y preguntas sintéticas. No ingreses datos de clientes, información personal, tokens ni credenciales en el dashboard, la terminal o el chat.
+En este laboratorio construirás evidencia para responder preguntas sobre contratos API sintéticos versionados. No es una demostración de un chatbot: comprobarás qué ocurre entre la fuente, los fragmentos, la recuperación, la selección de evidencia y la respuesta OCI.
 
-El workshop dura **180 minutos**. La instalación, la asignación privada y la validación de tu estación de trabajo se realizan **antes** de comenzar ese tiempo.
+El workshop dura **180 minutos**. La instalación, la asignación privada y la validación de tu estación de trabajo se realizan **antes** de comenzar ese tiempo. Las actividades locales no son una sustitución de OCI: preparan y explican las decisiones que luego comprobarás mediante servicios reales.
+
+## Resultado que debes entregar
+
+Al terminar, tu carpeta local de artefactos y tu [cuaderno de trabajo](participant_workbook.md) deben permitir demostrar:
+
+1. Una diferencia contractual entre v1 y v2, localizada en ambos documentos.
+2. Nueve fragmentos manifestados, con versión, sección, líneas y hash verificables.
+3. Una recuperación léxica local que aplique el filtro de versión antes del ranking.
+4. Una respuesta OCI real con afirmación, cita y extracto que la sustente.
+5. Una comparación entre v1 y v2 sin reutilizar evidencia de una versión en la otra.
+6. Una aclaración, abstención o derivación a datos estructurados que sea correcta.
+
+No copies contraseñas, rutas privadas, wallet, tokens ni datos de clientes en el cuaderno o en los artefactos.
 
 ## Antes de la sesión: preparación obligatoria
 
@@ -80,7 +93,7 @@ Carga el archivo de sesión entregado por la facilitación. El comando solicita 
 
 #### Windows PowerShell
 
-La facilitación te enviará un bloque privado ya preparado para tu identidad. Pégalo sin modificarlo en una terminal dedicada. La ruta no es igual para todas las personas y no aparece en este repositorio. Tendrá esta forma:
+La facilitación te enviará un bloque privado ya preparado para tu identidad. Pégalo sin modificarlo en una terminal dedicada. La ruta no es igual para todas las personas y no aparece en este repositorio.
 
 ```powershell
 . '<private-participant-session.ps1>'
@@ -119,70 +132,121 @@ python labs/lab02_contract_rag/scripts/run_dashboard.py \
 
 Abre `http://127.0.0.1:8502` en tu navegador. Verás **Ejecutar e inspeccionar** y **Mi historial de ejecuciones**. El dashboard es local: no lo expongas mediante un proxy público.
 
-## Durante la sesión: ruta de 180 minutos
+## Durante la sesión: laboratorio de 180 minutos
 
-Descarga el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta personal de artefactos antes de comenzar. Registrarás allí las decisiones y la evidencia que observarás en el dashboard.
+Abre el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta de artefactos. En Windows puedes usar `Copy-Item`; en macOS o Linux, `cp`. Conserva abierta la terminal y el dashboard.
 
-| Minutos | Actividad | Resultado verificable |
-|---:|---|---|
-| 0–10 | Caso y riesgo de versiones | Explicas por qué una respuesta plausible puede pertenecer a la versión equivocada. |
-| 10–25 | Comparación de contratos v1 y v2 | Registras cambios de endpoint, campo, estados e idempotencia. |
-| 25–40 | Fragmentos, metadatos y manifiesto | Relacionas una sección con versión, localizador y hash. |
-| 40–50 | Candidatos versus evidencia | Distingues proximidad vectorial de respaldo semántico. |
-| 50–60 | Pausa | — |
-| 60–75 | Preparación de corpus sintético | Verificas nueve fragmentos en tu schema individual. |
-| 75–90 | Primera consulta OCI real | Ejecutas T01 o T03 y trazas la respuesta hasta su evidencia. |
-| 90–105 | Revisión de evidencia | Interpretas respuesta, cita, extracto, candidatos y telemetría. |
-| 105–125 | Migración y comparación | Ejecutas T06 y T08; mantienes v1 y v2 separadas. |
-| 125–135 | Pausa | — |
-| 135–150 | Límites correctos | Evalúas T05, T10 y T12: aclaración, abstención y datos estructurados. |
-| 150–165 | RAG versus SQL controlado | Clasificas necesidades documentales, estructuradas y combinadas. |
-| 165–175 | Revisión y entrega | Compruebas los artefactos solicitados en tu historial y cuaderno. |
-| 175–180 | Cierre | Explicas una decisión de evidencia y una limitación del sistema. |
+| Minutos | Módulo | Trabajo práctico | Entregable observable |
+|---:|---|---|---|
+| 0–10 | M0: caso y objetivo | Identificar una respuesta plausible, pero contaminada entre versiones. | Riesgo de versión explicado. |
+| 10–25 | M1: fuente de verdad | Comparar v1 y v2 directamente en los archivos Markdown. | Tabla contractual completada. |
+| 25–40 | M2: fragmentos y manifiesto | Ejecutar la inspección local del corpus. | Reporte de nueve fragmentos y un hash localizado. |
+| 40–55 | M3: recuperación local | Ejecutar recuperación léxica local para T03. | Candidatos v2, ranking y evidencia aceptada. |
+| 55–70 | M4: comparación local | Ejecutar recuperación local para T08 y separar v1 de v2. | Dos conjuntos de evidencia sin contaminación. |
+| 70–80 | Pausa | — | — |
+| 80–95 | M5: ingesta OCI | Preparar el corpus sintético en el schema individual. | Traza de embeddings y ADB; nueve fragmentos. |
+| 95–110 | M6: primera respuesta OCI | Ejecutar T01 o T03 con confirmación de consumo. | Respuesta, cita, extracto y traza real. |
+| 110–125 | M7: evidencia versus candidatos | Revisar cada panel del dashboard y contrastar con la matriz. | Afirmación → evidencia → extracto → fuente. |
+| 125–135 | M8: migración OCI | Ejecutar T06 y validar sus tres cambios. | Endpoint, campo y mapeos respaldados. |
+| 135–145 | Pausa | — | — |
+| 145–160 | M9: comparación OCI | Ejecutar T08 y contrastarlo con la práctica local. | Recuperaciones separadas y citas v1/v2. |
+| 160–170 | M10: límites seguros | Resolver T05, T10 y T12. | Aclaración, abstención y decisión SQL correctas. |
+| 170–180 | M11: cierre | Clasificar RAG/SQL y completar el cuaderno. | Entrega individual verificable. |
 
-### Actividad 1: comparar la fuente de verdad
+### M0 y M1 — fuente de verdad antes de recuperar
 
-Abre `data/contract_v1.md` y `data/contract_v2.md`. Completa la primera tabla del cuaderno antes de usar OCI. No infieras equivalencias que no estén documentadas.
+Lee `data/contract_v1.md` y `data/contract_v2.md`. Completa las secciones 1 y 2 del cuaderno. En particular, contrasta método, endpoint, campo de solicitud, estados, header de idempotencia, respuesta y error. No ejecutes OCI todavía.
 
-### Actividad 2: preparar y comprobar el corpus
+Preguntas para discutir:
 
-En el dashboard, selecciona **Preparar mi corpus sintético**. Confirma las casillas de consumo y carga e ingresa las contraseñas localmente cuando se soliciten. Este flujo crea embeddings OCI reales e inserta los nueve fragmentos sintéticos en tu schema individual.
+- ¿Por qué `PATCH /v1/...` junto con `Idempotency-Key` sería una respuesta incorrecta aunque ambas partes existan en el corpus?
+- ¿Qué cambio debe realizar una integración que envía `payment_status=PAID` al migrar a v2?
 
-Registra en el cuaderno el número de fragmentos, el `corpus_id` y un ejemplo de sección, versión y hash. No copies contraseñas ni rutas privadas.
+### M2 — inspeccionar corpus, fragmentos y manifiesto
 
-### Actividad 3: ejecutar y comprobar una respuesta respaldada
+Este paso no usa OCI, no pide contraseña y no genera embeddings. Verifica que el corpus congelado contiene nueve fragmentos y registra los metadatos solicitados.
 
-Selecciona T01 o T03, marca **Preguntar usando OCI** y confirma el consumo aprobado. El flujo real:
+#### Windows PowerShell
 
-1. Crea el embedding OCI de la consulta.
-2. Busca en ADB solo dentro de la versión autorizada.
-3. Selecciona evidencia que respalda la afirmación.
-4. Usa OCI chat solo cuando hay evidencia suficiente.
-5. Publica respuesta, citas, extractos y traza de servicios.
+```powershell
+python labs/lab02_contract_rag/scripts/run_local_practice.py inspect
+```
 
-En **Referencia del ejercicio vs. respuesta obtenida**, compara el estado y los hechos requeridos. Después sigue cada afirmación hasta su cita, extracto, versión, sección y líneas.
+#### macOS o Linux
 
-### Actividad 4: comparar versiones sin contaminarlas
+```bash
+python labs/lab02_contract_rag/scripts/run_local_practice.py \
+  --session-file /private/path/lab02-participant.env \
+  inspect
+```
 
-Ejecuta T06 y T08. Para T06, revisa el cambio de endpoint, campo y estados al migrar a v2. Para T08, registra las dos recuperaciones por separado: una evidencia v1 y una evidencia v2. No uses un extracto de una versión para completar la otra.
+El resultado debe indicar `OCI_EXECUTED False` y `CHUNK_COUNT 9`. Abre el `CORPUS_REPORT` local y registra una fila v1 y otra v2 en el cuaderno: sección, líneas, `chunk_id` y `content_hash`.
 
-### Actividad 5: demostrar un límite correcto
+### M3 — practicar recuperación local para T03
 
-Completa los tres casos del cuaderno:
+La práctica local usa ranking léxico determinista y salida extractiva. Sirve para observar filtro y ranking; **no valida embeddings, ADB ni generación OCI**.
 
-- T05 no define versión: el resultado correcto es `needs_clarification`, sin asumir v2.
-- T10 pregunta por SLA de disponibilidad: el resultado correcto es `insufficient_evidence`; no se inventa una garantía.
-- T12 pide conteos operacionales: el resultado correcto es `structured_data_required`; un contrato no contiene transacciones reales.
+```powershell
+python labs/lab02_contract_rag/scripts/run_local_practice.py retrieve --case-id T03
+```
 
-T05 y T12 son decisiones de control de la aplicación y no requieren generación. T10 comprueba que la recuperación no se convierta en una respuesta sin respaldo.
+En macOS o Linux, agrega tu `--session-file` antes de `retrieve`. El resultado esperado es `STATUS answered`, candidatos solo v2 y una evidencia de la sección **Endpoint de estado de liquidación**. Abre el `EVIDENCE_REPORT` y responde en el cuaderno:
 
-### Actividad 6: decidir entre RAG y SQL
+1. ¿Qué candidatos quedaron excluidos antes del ranking y por qué?
+2. ¿Qué valor expresa el ranking léxico?
+3. ¿Por qué el candidato con mayor coincidencia no sustituye una revisión del extracto?
 
-Clasifica las preguntas del cuaderno. Usa RAG para explicar el contrato con evidencia; usa SQL controlado para hechos operacionales; separa ambos en una necesidad combinada. No se ejecuta SQL libre ni se inventan resultados.
+### M4 — comparar localmente sin mezclar versiones
 
-### Actividad 7: entregar evidencia, no solo una respuesta
+```powershell
+python labs/lab02_contract_rag/scripts/run_local_practice.py retrieve --case-id T08
+```
 
-En **Mi historial de ejecuciones**, verifica que ves solo tus reportes. Entrega el cuaderno con una respuesta positiva, una comparación, un límite correcto y una decisión RAG/SQL. Una respuesta correcta no basta si no puedes mostrar el extracto contractual que la respalda.
+El resultado esperado contiene evidencia `Idempotencia` de v1 y v2. Registra por separado `X-Idempotency-Key` y `Idempotency-Key`. Si falta una de las versiones, no completes la respuesta con conocimiento previo: revisa el filtro y avisa a la facilitación.
+
+### M5 — preparar el corpus en OCI
+
+En el dashboard, selecciona **Preparar mi corpus sintético**. Confirma las casillas de consumo y carga, e ingresa las contraseñas localmente si se solicitan. El flujo realiza embeddings OCI reales e inserta o reutiliza de forma compatible los nueve fragmentos sintéticos en tu schema individual.
+
+Registra en el cuaderno:
+
+- Cantidad de fragmentos.
+- `corpus_id` activo.
+- Operaciones OCI/ADB que aparecieron en la traza.
+- Diferencia entre el reporte de M2 y esta carga OCI.
+
+### M6 y M7 — ejecutar y auditar una respuesta OCI
+
+Selecciona T01 o T03, marca **Preguntar usando OCI** y confirma el consumo aprobado. Después revisa, en este orden:
+
+1. **Respuesta de referencia del ejercicio:** criterio congelado antes de llamar a OCI.
+2. **Respuesta obtenida de OCI:** texto publicado después de validar referencias.
+3. **Comprobaciones automáticas:** estado, aislamiento de versión y referencias existentes.
+4. **Ejecución de servicios:** embedding, búsqueda ADB y chat; una operación omitida también es información.
+5. **Afirmaciones y evidencia verificable:** extracto, versión, sección, líneas y hash.
+6. **Candidatos recuperados:** candidatos evaluados, incluso aquellos que no se usaron en la respuesta.
+
+Una `cosine_distance` menor significa que un candidato vectorial está más cerca de la consulta. No prueba que responda la pregunta. La evidencia se publica solo si el extracto respalda la afirmación concreta.
+
+### M8 y M9 — migración y comparación OCI
+
+Ejecuta T06. Comprueba tres aspectos distintos: endpoint nuevo, cambio de `payment_status` a `status`, y mapeo de estados. Después ejecuta T08 y contrasta el resultado con M4.
+
+En la comparación OCI debes poder indicar qué cita es v1 y cuál es v2. No aceptes una respuesta que presente un header sin identificar su versión.
+
+### M10 — comprobar límites correctos
+
+Ejecuta o revisa los casos siguientes:
+
+- **T05:** no especifica versión. Resultado correcto: `needs_clarification`; no debe asumir v2 ni consumir chat.
+- **T10:** solicita un SLA no documentado. Resultado correcto: `insufficient_evidence`; puede haber recuperación real, pero no una garantía inventada.
+- **T12:** solicita un conteo operacional. Resultado correcto: `structured_data_required`; no debe inventar SQL ni un número.
+
+Registra qué operaciones ocurrieron y cuáles se omitieron. Un modelo que se abstiene correctamente es un resultado funcional, no un fallo.
+
+### M11 — cierre y entrega
+
+Completa la sección final del cuaderno y revisa **Mi historial de ejecuciones**. Entrega únicamente los artefactos solicitados por la facilitación; no subas información privada a Git ni la compartas por chat.
 
 ## Si algo falla
 

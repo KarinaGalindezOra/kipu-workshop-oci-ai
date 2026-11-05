@@ -13,7 +13,7 @@ La guía incluye:
 3. Crear el entorno virtual e instalar dependencias.
 4. Cargar tu asignación privada y validar ADB.
 5. Abrir el dashboard local.
-6. Completar la ruta guiada de 180 minutos: preparar el corpus sintético autorizado, ejecutar casos OCI reales, revisar evidencia y justificar límites del sistema.
+6. Completar la ruta guiada de 180 minutos: inspeccionar fragmentos y recuperación léxica local, preparar el corpus sintético autorizado, ejecutar casos OCI reales, revisar evidencia y justificar límites del sistema.
 
 > **Importante:** recibirás identidad OCI, acceso a ADB, wallet y archivo de sesión por un canal privado. No están en este repositorio y no debes compartirlos, modificarlos ni subirlos a Git.
 
@@ -21,6 +21,7 @@ La guía incluye:
 
 - Por qué una respuesta semánticamente cercana no puede sustituir un filtro explícito de versión.
 - Cómo recuperar evidencia y asociarla a cada afirmación publicada.
+- La diferencia entre recuperación léxica local, búsqueda vectorial OCI y evidencia aceptada.
 - Cuándo solicitar una aclaración, abstenerse por evidencia insuficiente o recomendar datos estructurados.
 - Cómo inspeccionar la latencia y las operaciones OCI que realmente ocurrieron.
 

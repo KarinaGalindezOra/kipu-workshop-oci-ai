@@ -30,16 +30,29 @@ Completa la tabla leyendo `data/contract_v1.md` y `data/contract_v2.md`.
 | Timestamp de respuesta exitosa |  |  |  |
 | Error por estado inválido |  |  |  |
 
-## 3. Fragmentos y procedencia
+## 3. Fragmentos y procedencia local
 
-Después de preparar el corpus, registra un fragmento de cada versión. No necesitas copiar el contenido completo: identifica cómo volverías a encontrarlo.
+Ejecuta M2 con `run_local_practice.py inspect`. Este reporte no llama a OCI. Registra un fragmento de cada versión. No necesitas copiar el contenido completo: identifica cómo volverías a encontrarlo.
 
 | Versión | Sección | Líneas | `chunk_id` | `content_hash` | Por qué este fragmento es trazable |
 |---|---|---|---|---|---|
 | v1 |  |  |  |  |  |
 | v2 |  |  |  |  |  |
 
-## 4. Consultas OCI con respuesta respaldada
+¿Qué valida el `content_hash` y qué no puede validar por sí solo?
+
+## 4. Recuperación léxica local
+
+Ejecuta M3 con T03 y M4 con T08. Los resultados deben declarar `OCI_EXECUTED False`: esta práctica demuestra la separación entre filtro y ranking léxico, no una validación RAG cloud.
+
+| Caso | Versiones recuperadas | Candidato de mayor ranking | Evidencia seleccionada | Por qué el ranking no basta para publicar una afirmación |
+|---|---|---|---|---|
+| T03 |  |  |  |  |
+| T08 |  |  |  |  |
+
+Para T08, escribe la diferencia entre `X-Idempotency-Key` y `Idempotency-Key` y asóciala a la versión correcta.
+
+## 5. Consultas OCI con respuesta respaldada
 
 Ejecuta T01 o T03, luego T06 y T08. Para cada caso, usa el dashboard para seguir la respuesta hasta la evidencia seleccionada.
 
@@ -51,7 +64,7 @@ Ejecuta T01 o T03, luego T06 y T08. Para cada caso, usa el dashboard para seguir
 
 Para T08, deja explícito qué cita corresponde a v1 y cuál a v2. Una `cosine_distance` menor significa mayor proximidad, no que el candidato sea automáticamente el mejor respaldo semántico.
 
-## 5. Límites correctos
+## 6. Límites correctos
 
 | Caso | Resultado correcto | ¿Hubo embedding? | ¿Hubo chat? | Explicación |
 |---|---|---:|---:|---|
@@ -61,7 +74,7 @@ Para T08, deja explícito qué cita corresponde a v1 y cuál a v2. Una `cosine_d
 
 Explica por qué una abstención correcta es mejor que una respuesta plausible sin respaldo:
 
-## 6. RAG o SQL controlado
+## 7. RAG o SQL controlado
 
 | Necesidad | RAG, SQL o combinado | Justificación | Control necesario |
 |---|---|---|---|
@@ -70,11 +83,12 @@ Explica por qué una abstención correcta es mejor que una respuesta plausible s
 | Contar transacciones `SETTLED` ayer |  |  |  |
 | Explicar un estado y contar transacciones con ese estado |  |  |  |
 
-## 7. Entrega y reflexión
+## 8. Entrega y reflexión
 
 Antes de cerrar, confirma:
 
 - [ ] Registré una respuesta positiva con cita y extracto.
+- [ ] Ejecuté inspección del corpus y recuperación léxica local sin OCI.
 - [ ] Separé evidencia v1 y v2 en una comparación.
 - [ ] Registré una aclaración o abstención correcta.
 - [ ] Justifiqué cuándo usar RAG y cuándo SQL controlado.
