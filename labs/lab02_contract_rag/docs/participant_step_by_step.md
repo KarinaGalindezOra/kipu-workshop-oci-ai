@@ -1,10 +1,10 @@
 # Guía del participante — Workshop 2
 
-Esta es la única guía que debes seguir durante el workshop. Trabajarás solamente con contratos y preguntas sintéticas. No ingreses datos de clientes, información personal, tokens ni credenciales en el dashboard, la terminal o el chat.
+Esta es la guía que debes seguir durante el workshop. Trabajarás solamente con contratos y preguntas sintéticas. No ingreses datos de clientes, información personal, tokens ni credenciales en el dashboard, la terminal o el chat.
 
-El workshop dura 180 minutos. Sigue los pasos en orden y conserva el dashboard abierto durante tu actividad.
+El workshop dura **180 minutos**. La instalación, la asignación privada y la validación de tu estación de trabajo se realizan **antes** de comenzar ese tiempo.
 
-## Antes de comenzar
+## Antes de la sesión: preparación obligatoria
 
 Debes recibir por el canal privado aprobado:
 
@@ -16,20 +16,18 @@ Debes recibir por el canal privado aprobado:
 
 No crees usuarios, tablas, políticas IAM ni recursos OCI. No copies esos archivos privados dentro del repositorio ni los subas a Git.
 
-## Paso 0: descarga el repositorio
+### Paso 0: descarga el repositorio
 
 Elige una de estas alternativas.
 
-### Alternativa A: Git
-
-Si tienes Git instalado, abre una terminal y ejecuta:
+#### Alternativa A: Git
 
 ```bash
 git clone https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai.git
 cd kipu-workshop-oci-ai
 ```
 
-### Alternativa B: archivo ZIP
+#### Alternativa B: archivo ZIP
 
 1. Abre la [página principal del repositorio](https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai).
 2. Selecciona **Code** y luego **Download ZIP**.
@@ -38,25 +36,25 @@ cd kipu-workshop-oci-ai
 
 En los pasos siguientes, esa carpeta será la **raíz del repositorio**.
 
-## Paso 1: verifica Python 3.11
+### Paso 1: verifica Python 3.11
 
-### Windows
+#### Windows
 
 ```powershell
 py -3.11 --version
 ```
 
-### macOS o Linux
+#### macOS o Linux
 
 ```bash
 python3.11 --version
 ```
 
-Si no ves una versión 3.11, detente y solicita ayuda a la facilitación antes de continuar.
+Si no ves una versión 3.11, detente y solicita ayuda a la facilitación.
 
-## Paso 2: crea el entorno e instala el proyecto
+### Paso 2: crea el entorno e instala el proyecto
 
-### Windows PowerShell
+#### Windows PowerShell
 
 ```powershell
 py -3.11 -m venv .venv
@@ -65,7 +63,7 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev,lab02,ui]"
 ```
 
-### macOS o Linux
+#### macOS o Linux
 
 ```bash
 python3.11 -m venv .venv
@@ -74,26 +72,26 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev,lab02,ui]"
 ```
 
-Si usas macOS o Linux, consulta además la [guía macOS y Linux](macos_linux_participant_guide.md) para cargar tu sesión privada y resolver errores propios de esos sistemas.
+Si usas macOS o Linux, consulta también la [guía macOS y Linux](macos_linux_participant_guide.md).
 
-## Paso 3: valida tu asignación privada
+### Paso 3: valida tu asignación privada
 
 Carga el archivo de sesión entregado por la facilitación. El comando solicita las contraseñas localmente y no invoca OCI Generative AI.
 
-### Windows PowerShell
+#### Windows PowerShell
 
-La facilitación te enviará un bloque privado ya preparado para tu identidad. Pégalo sin modificarlo en una terminal dedicada. La ruta del archivo no es igual para todas las personas y no aparece en este repositorio. El bloque tendrá esta forma:
+La facilitación te enviará un bloque privado ya preparado para tu identidad. Pégalo sin modificarlo en una terminal dedicada. La ruta no es igual para todas las personas y no aparece en este repositorio. Tendrá esta forma:
 
 ```powershell
 . '<private-participant-session.ps1>'
 python labs/lab02_contract_rag/scripts/validate_environment.py --check-db
 ```
 
-No escribas literalmente los caracteres `<` y `>`: son una explicación visual, no parte del comando. No sustituyas la ruta por un wallet ni por la sesión de otra persona.
+No escribas literalmente los caracteres `<` y `>`: son una explicación visual. No sustituyas la ruta por un wallet ni por la sesión de otra persona.
 
-### macOS o Linux
+#### macOS o Linux
 
-La facilitación te enviará la ruta de tu archivo dotenv privado. Pega el bloque recibido; su forma será:
+La facilitación te enviará la ruta de tu archivo dotenv privado. Pega el bloque recibido; tendrá esta forma:
 
 ```bash
 python labs/lab02_contract_rag/scripts/validate_environment.py \
@@ -101,17 +99,17 @@ python labs/lab02_contract_rag/scripts/validate_environment.py \
   --check-db
 ```
 
-El resultado esperado muestra `status` igual a `passed` y `database_session` igual a `participant_schema`. Si falla, detente y avisa a la facilitación. No cambies el schema ni intentes otras credenciales.
+El resultado esperado muestra `status` igual a `passed` y `database_session` igual a `participant_schema`. Si falla, detente y avisa a la facilitación.
 
-## Paso 4: abre el dashboard
+### Paso 4: abre el dashboard
 
-### Windows PowerShell
+#### Windows PowerShell
 
 ```powershell
 python labs/lab02_contract_rag/scripts/run_dashboard.py --port 8502
 ```
 
-### macOS o Linux
+#### macOS o Linux
 
 ```bash
 python labs/lab02_contract_rag/scripts/run_dashboard.py \
@@ -121,45 +119,70 @@ python labs/lab02_contract_rag/scripts/run_dashboard.py \
 
 Abre `http://127.0.0.1:8502` en tu navegador. Verás **Ejecutar e inspeccionar** y **Mi historial de ejecuciones**. El dashboard es local: no lo expongas mediante un proxy público.
 
-## Paso 5: conoce los contratos y prepara tu corpus
+## Durante la sesión: ruta de 180 minutos
 
-Lee `data/contract_v1.md` y `data/contract_v2.md`. Identifica endpoint, campos, estados e idempotencia de cada versión.
+Descarga el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta personal de artefactos antes de comenzar. Registrarás allí las decisiones y la evidencia que observarás en el dashboard.
 
-Cuando comience esta actividad, selecciona **Preparar mi corpus sintético** en el dashboard. Confirma las casillas de consumo y carga, e ingresa las contraseñas localmente si se solicitan. El flujo crea embeddings OCI reales e inserta los nueve fragmentos sintéticos en tu schema individual.
+| Minutos | Actividad | Resultado verificable |
+|---:|---|---|
+| 0–10 | Caso y riesgo de versiones | Explicas por qué una respuesta plausible puede pertenecer a la versión equivocada. |
+| 10–25 | Comparación de contratos v1 y v2 | Registras cambios de endpoint, campo, estados e idempotencia. |
+| 25–40 | Fragmentos, metadatos y manifiesto | Relacionas una sección con versión, localizador y hash. |
+| 40–50 | Candidatos versus evidencia | Distingues proximidad vectorial de respaldo semántico. |
+| 50–60 | Pausa | — |
+| 60–75 | Preparación de corpus sintético | Verificas nueve fragmentos en tu schema individual. |
+| 75–90 | Primera consulta OCI real | Ejecutas T01 o T03 y trazas la respuesta hasta su evidencia. |
+| 90–105 | Revisión de evidencia | Interpretas respuesta, cita, extracto, candidatos y telemetría. |
+| 105–125 | Migración y comparación | Ejecutas T06 y T08; mantienes v1 y v2 separadas. |
+| 125–135 | Pausa | — |
+| 135–150 | Límites correctos | Evalúas T05, T10 y T12: aclaración, abstención y datos estructurados. |
+| 150–165 | RAG versus SQL controlado | Clasificas necesidades documentales, estructuradas y combinadas. |
+| 165–175 | Revisión y entrega | Compruebas los artefactos solicitados en tu historial y cuaderno. |
+| 175–180 | Cierre | Explicas una decisión de evidencia y una limitación del sistema. |
 
-## Paso 6: ejecuta preguntas OCI reales
+### Actividad 1: comparar la fuente de verdad
 
-Selecciona una pregunta predefinida, marca **Preguntar usando OCI** y confirma el consumo aprobado. Comienza por una pregunta con versión explícita, como T01 o T03.
+Abre `data/contract_v1.md` y `data/contract_v2.md`. Completa la primera tabla del cuaderno antes de usar OCI. No infieras equivalencias que no estén documentadas.
 
-El flujo real es:
+### Actividad 2: preparar y comprobar el corpus
 
-1. OCI crea el embedding de la pregunta.
-2. ADB busca fragmentos dentro de la versión autorizada.
-3. La aplicación selecciona evidencia que respalda la respuesta.
-4. OCI chat genera únicamente afirmaciones respaldadas.
-5. El dashboard muestra respuesta, citas, extractos y traza de servicios.
+En el dashboard, selecciona **Preparar mi corpus sintético**. Confirma las casillas de consumo y carga e ingresa las contraseñas localmente cuando se soliciten. Este flujo crea embeddings OCI reales e inserta los nueve fragmentos sintéticos en tu schema individual.
 
-## Paso 7: revisa evidencia, no solo la respuesta
+Registra en el cuaderno el número de fragmentos, el `corpus_id` y un ejemplo de sección, versión y hash. No copies contraseñas ni rutas privadas.
 
-En **Referencia del ejercicio vs. respuesta obtenida**, comprueba que el estado y los hechos requeridos coincidan. Luego revisa:
+### Actividad 3: ejecutar y comprobar una respuesta respaldada
 
-- **Ejecución de servicios:** qué operaciones OCI/ADB ocurrieron y cuánto tardaron.
-- **Afirmaciones y evidencia verificable:** cita, extracto, versión, sección y líneas que sustentan la respuesta.
-- **Candidatos recuperados y evidencia seleccionada:** una distancia coseno menor expresa proximidad, pero no prueba por sí sola que un fragmento sea evidencia suficiente.
+Selecciona T01 o T03, marca **Preguntar usando OCI** y confirma el consumo aprobado. El flujo real:
 
-## Paso 8: prueba los límites correctos
+1. Crea el embedding OCI de la consulta.
+2. Busca en ADB solo dentro de la versión autorizada.
+3. Selecciona evidencia que respalda la afirmación.
+4. Usa OCI chat solo cuando hay evidencia suficiente.
+5. Publica respuesta, citas, extractos y traza de servicios.
 
-Ejecuta una pregunta sin versión: el resultado correcto es `needs_clarification`, sin llamada al modelo.
+En **Referencia del ejercicio vs. respuesta obtenida**, compara el estado y los hechos requeridos. Después sigue cada afirmación hasta su cita, extracto, versión, sección y líneas.
 
-Ejecuta una pregunta sobre SLA de disponibilidad: el resultado correcto es `insufficient_evidence`; el contrato no debe convertirse en una garantía inventada.
+### Actividad 4: comparar versiones sin contaminarlas
 
-Ejecuta una pregunta de conteos operacionales: el resultado correcto es `structured_data_required`; los contratos no contienen transacciones reales.
+Ejecuta T06 y T08. Para T06, revisa el cambio de endpoint, campo y estados al migrar a v2. Para T08, registra las dos recuperaciones por separado: una evidencia v1 y una evidencia v2. No uses un extracto de una versión para completar la otra.
 
-## Paso 9: entrega tu evidencia
+### Actividad 5: demostrar un límite correcto
 
-Abre **Mi historial de ejecuciones**. Verifica que los reportes son tuyos y contienen respuesta observada, citas y telemetría segura. Completa la actividad o rúbrica que te solicite la facilitación.
+Completa los tres casos del cuaderno:
 
-Una respuesta correcta no basta si no puedes mostrar qué extracto contractual la respalda. Una cita válida tampoco reemplaza la revisión humana de relevancia y completitud.
+- T05 no define versión: el resultado correcto es `needs_clarification`, sin asumir v2.
+- T10 pregunta por SLA de disponibilidad: el resultado correcto es `insufficient_evidence`; no se inventa una garantía.
+- T12 pide conteos operacionales: el resultado correcto es `structured_data_required`; un contrato no contiene transacciones reales.
+
+T05 y T12 son decisiones de control de la aplicación y no requieren generación. T10 comprueba que la recuperación no se convierta en una respuesta sin respaldo.
+
+### Actividad 6: decidir entre RAG y SQL
+
+Clasifica las preguntas del cuaderno. Usa RAG para explicar el contrato con evidencia; usa SQL controlado para hechos operacionales; separa ambos en una necesidad combinada. No se ejecuta SQL libre ni se inventan resultados.
+
+### Actividad 7: entregar evidencia, no solo una respuesta
+
+En **Mi historial de ejecuciones**, verifica que ves solo tus reportes. Entrega el cuaderno con una respuesta positiva, una comparación, un límite correcto y una decisión RAG/SQL. Una respuesta correcta no basta si no puedes mostrar el extracto contractual que la respalda.
 
 ## Si algo falla
 

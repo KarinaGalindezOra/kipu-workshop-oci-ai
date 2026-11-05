@@ -13,7 +13,7 @@ La guía incluye:
 3. Crear el entorno virtual e instalar dependencias.
 4. Cargar tu asignación privada y validar ADB.
 5. Abrir el dashboard local.
-6. Preparar el corpus sintético autorizado, ejecutar preguntas OCI reales y revisar su evidencia.
+6. Completar la ruta guiada de 180 minutos: preparar el corpus sintético autorizado, ejecutar casos OCI reales, revisar evidencia y justificar límites del sistema.
 
 > **Importante:** recibirás identidad OCI, acceso a ADB, wallet y archivo de sesión por un canal privado. No están en este repositorio y no debes compartirlos, modificarlos ni subirlos a Git.
 
@@ -27,6 +27,7 @@ La guía incluye:
 ## Material de consulta durante el workshop
 
 - [Guía macOS y Linux](docs/macos_linux_participant_guide.md)
+- [Cuaderno de trabajo del participante](docs/participant_workbook.md)
 - [Ejercicios de Workshop 2](docs/exercises.md)
 - [Resolución de problemas para participantes](docs/troubleshooting.md)
 - [Descripción breve de evidencia RAG](../../docs/participant-guides/02-contract-rag-evidence.md)

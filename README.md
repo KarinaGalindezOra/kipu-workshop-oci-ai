@@ -6,6 +6,8 @@ Este repositorio contiene los materiales públicos y reproducibles de los labora
 
 **Empieza aquí:** [Guía única paso a paso del participante](labs/lab02_contract_rag/docs/participant_step_by_step.md).
 
+Durante la sesión, usa además el [cuaderno de trabajo del participante](labs/lab02_contract_rag/docs/participant_workbook.md) y las [actividades](labs/lab02_contract_rag/docs/exercises.md). La preparación técnica se completa antes de la sesión; la guía contiene la ruta completa de 180 minutos.
+
 La guía comienza con la descarga o clonación del repositorio, continúa con la instalación para Windows, macOS o Linux y termina con la ejecución del dashboard local, las actividades OCI reales y la revisión de evidencia.
 
 Antes de la sesión, recibirás por un canal privado tu asignación individual de OCI y Autonomous Database (ADB). No necesitas crear recursos OCI, configurar IAM ni usar credenciales de administración.
