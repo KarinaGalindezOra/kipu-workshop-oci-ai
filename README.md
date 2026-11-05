@@ -1,33 +1,34 @@
 # Workshop de IA OCI de Khipu
 
-Este repositorio contiene materiales reproducibles para tres laboratorios de inteligencia artificial sobre Oracle Cloud Infrastructure (OCI):
+Este repositorio contiene los materiales públicos y reproducibles de los laboratorios de inteligencia artificial de Khipu sobre Oracle Cloud Infrastructure (OCI).
 
-1. Memoria de decisiones, aislamiento de contexto y comparación de tokens medida en OCI.
-2. RAG sobre contratos de API versionados, con evidencia verificable.
-3. Análisis de cambios de API, generación de parches y pruebas de regresión.
+## ¿Participarás en Workshop 2?
 
-## Modelo operativo
+**Empieza aquí:** [Guía única paso a paso del participante](labs/lab02_contract_rag/docs/participant_step_by_step.md).
 
-- `trial-chicago` es el entorno técnico utilizado para los ensayos en `us-chicago-1`.
-- `trial-team` es un perfil reutilizable para ejecutar un workshop después de que la facilitación cree y prepare el tenant trial correspondiente.
-- `khipu` es un entorno objetivo parametrizado; no se despliega hasta que Khipu apruebe las decisiones de IAM, red, región y presupuesto.
-- Cada persona ejecuta los laboratorios desde su propia estación de trabajo o desde una sesión local de Cloud Shell, con un usuario de aplicación temporal e individual cuando el laboratorio lo requiere.
-- En los laboratorios solo se utilizan datos sintéticos.
+La guía comienza con la descarga o clonación del repositorio, continúa con la instalación para Windows, macOS o Linux y termina con la ejecución del dashboard local, las actividades OCI reales y la revisión de evidencia.
 
-> **Workshop 2:** un tenant y una Autonomous Database compartidos en Chicago; cada participante utiliza una identidad OCI, schema, sesión local y espacio de evidencias aislados. Consulta [aislamiento del participante](labs/lab02_contract_rag/docs/participant_isolation.md).
+Antes de la sesión, recibirás por un canal privado tu asignación individual de OCI y Autonomous Database (ADB). No necesitas crear recursos OCI, configurar IAM ni usar credenciales de administración.
 
-## Estructura del repositorio
+## Laboratorios
+
+1. [Workshop 1: memoria de decisiones y aislamiento de contexto](docs/participant-guides/01-agent-memory.md)
+2. [Workshop 2: RAG contractual con evidencia verificable](labs/lab02_contract_rag/README.md)
+3. [Workshop 3: análisis de cambios de API](docs/participant-guides/03-api-change-analysis.md)
+
+## Contenido público
 
 ```text
-docs/                Documentos de arquitectura, preparación, seguridad y facilitación.
-labs/                Material, código y pruebas de los laboratorios.
-platform/bootstrap/  Scripts idempotentes de preparación posterior al aprovisionamiento.
-terraform/           Infraestructura OCI parametrizada.
+docs/                Guías y material público para participantes.
+labs/                Código, contratos sintéticos, ejercicios y pruebas.
+terraform/           Plantillas parametrizadas de infraestructura, sin valores reales.
 ```
 
-## Configuración local
+Los procedimientos de preparación de tenant, credenciales, runbooks de facilitación, respuestas de evaluación y ensayos operativos se administran de forma privada y no forman parte del recorrido de participantes.
 
-Se requiere Python 3.11.9. En Windows PowerShell:
+## Validación local para colaboradores
+
+Si colaborarás en el código, utiliza Python 3.11.9:
 
 ```powershell
 python -m venv .venv
@@ -37,34 +38,4 @@ python -m pip install -e ".[dev,lab01,lab01-gateway,lab02,lab03,ui]"
 python -m pytest
 ```
 
-Para macOS o Linux, revisa las guías específicas de cada laboratorio antes de ejecutar los comandos.
-
-## Terraform
-
-La infraestructura se configura mediante variables de ejemplo. No se incluyen credenciales, wallets, archivos de estado ni valores reales de OCI en el repositorio.
-
-```powershell
-cd terraform\environments\trial-chicago
-Copy-Item terraform.tfvars.example terraform.tfvars
-terraform init
-terraform validate
-terraform plan
-```
-
-Revisa el plan y solicita aprobación explícita antes de ejecutar `terraform apply`.
-
-## Puertas de validación
-
-- Ejecutar las pruebas locales antes de un ensayo o workshop.
-- Validar la sesión de OCI, la región, la conectividad de Autonomous Database y los modelos autorizados antes de usar servicios facturables.
-- Mantener wallets, contraseñas, perfiles de OCI y reportes privados fuera de Git.
-- Ejecutar el preflight y el ensayo completo siguiendo el runbook del laboratorio correspondiente.
-
-## Instrucciones para participantes
-
-- [Workshop 1: guía de memoria de agente](docs/participant-guides/01-agent-memory.md)
-- [Workshop 2: guía paso a paso del participante](labs/lab02_contract_rag/docs/participant_step_by_step.md)
-- [Workshop 2: guía de evidencia RAG](docs/participant-guides/02-contract-rag-evidence.md)
-- [Workshop 3: guía de cambios de API](docs/participant-guides/03-api-change-analysis.md)
-
-Cada guía indica los prerrequisitos, el recorrido práctico, las validaciones esperadas y cómo informar un fallo sin exponer datos sensibles.
+No subas wallets, contraseñas, perfiles OCI, archivos de sesión ni reportes privados a Git.

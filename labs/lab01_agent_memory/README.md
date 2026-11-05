@@ -54,6 +54,5 @@ An exact `user_id` passed to Agent Memory search is a retrieval boundary. It is 
 
 - [Participant guide](../../docs/participant-guides/01-decision-memory.md)
 - [Memory engineering extension](../../docs/participant-guides/02-memory-engineering-lab.md)
-- [Facilitator guide](../../docs/facilitator-guides/01-decision-memory.md)
-- [Facilitator prework](../../docs/facilitator-guides/01-decision-memory-prework.md)
+- Los materiales de facilitación y prework se distribuyen de forma privada.
 - [Team trial Terraform profile](../../terraform/environments/trial-team/README.md)

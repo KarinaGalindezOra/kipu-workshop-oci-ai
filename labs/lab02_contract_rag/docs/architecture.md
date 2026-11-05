@@ -1,6 +1,6 @@
 # Current workshop execution contract
 
-The participant path is now a local Streamlit dashboard backed exclusively by actual OCI embedding/ADB retrieval/chat. The CLI shares execution.py. No lexical retriever or simulated fixture is used as a fallback. Individual participants use separate schemas in one shared Chicago tenant and ADB. See dashboard_operations.md. Local-only routes in the original reference diagram below are retained solely as developer regression tools; they are not workshop execution.
+The participant path is now a local Streamlit dashboard backed exclusively by actual OCI embedding/ADB retrieval/chat. The CLI shares execution.py. No lexical retriever or simulated fixture is used as a fallback. Individual participants use separate schemas in one shared Chicago tenant and ADB. Local-only routes in the original reference diagram below are retained solely as developer regression tools; they are not workshop execution.
 
 # Architecture and evidence contract
 
@@ -27,7 +27,7 @@ flowchart TB
 
 ## Participant deployment
 
-One shared Chicago tenant and ADB; each participant owns a separate KHIPU_L2_Pnnn user/schema and table. OCI identities, database credentials, local sessions and report directories are individual. The connection factory validates server-side SESSION_USER/CURRENT_SCHEMA and rejects ANY privileges/DBA. See [participant isolation](participant_isolation.md).
+One shared Chicago tenant and ADB; each participant owns a separate user/schema and table. OCI identities, database credentials, local sessions and report directories are individual. The connection factory validates server-side SESSION_USER/CURRENT_SCHEMA and rejects ANY privileges/DBA.
 
 ## Boundaries
 

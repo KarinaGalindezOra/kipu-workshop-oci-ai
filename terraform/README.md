@@ -32,4 +32,4 @@ The `environments/khipu` configuration is disabled by default. Its participant p
 
 If Khipu approves direct synthetic-document upload, configure `team_object_access` with one pre-existing IAM group and one prefix per team. The generated policy grants `OBJECT_CREATE` and `OBJECT_READ` only for that prefix; it omits object listing, overwrite, and deletion. Review the rendered policy statements before enabling `enable_iam_policies`.
 
-See [Khipu preprovision runbook](../docs/khipu-preprovision-runbook.md) for the approval gates, credential model, database bootstrap, rehearsal, and cleanup procedure.
+Approval gates, credential handling, database bootstrap, rehearsal and cleanup procedures are maintained in the private facilitator materials.

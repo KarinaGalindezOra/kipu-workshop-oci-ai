@@ -1,59 +1,129 @@
-# Paso a paso del participante — Workshop 2
+# Guía del participante — Workshop 2
 
-Esta es la guía que seguirás durante el workshop. Trabajarás solamente con contratos y preguntas sintéticas. No ingreses datos de clientes, credenciales, tokens, archivos wallet ni información personal en el dashboard, terminal o chat.
+Esta es la única guía que debes seguir durante el workshop. Trabajarás solamente con contratos y preguntas sintéticas. No ingreses datos de clientes, información personal, tokens ni credenciales en el dashboard, la terminal o el chat.
+
+El workshop dura 180 minutos. Sigue los pasos en orden y conserva el dashboard abierto durante tu actividad.
 
 ## Antes de comenzar
 
-Recibirás por el canal privado aprobado:
+Debes recibir por el canal privado aprobado:
 
-- Tu identidad OCI individual.
-- Tu schema de ADB y las contraseñas que se solicitan localmente.
+- Una identidad OCI individual.
+- Tu usuario o schema de ADB y las contraseñas que se solicitan localmente.
 - Tu wallet privado.
 - Tu archivo privado de sesión.
-- La confirmación de que puedes usar el modelo OCI aprobado.
+- La confirmación de que puedes usar el modelo OCI autorizado.
 
-No crees usuarios, tablas, políticas IAM ni recursos OCI. Esa preparación corresponde a la facilitación.
+No crees usuarios, tablas, políticas IAM ni recursos OCI. No copies esos archivos privados dentro del repositorio ni los subas a Git.
 
-## Paso 1: instala el proyecto
+## Paso 0: descarga el repositorio
 
-En Windows, desde la raíz del repositorio:
+Elige una de estas alternativas.
+
+### Alternativa A: Git
+
+Si tienes Git instalado, abre una terminal y ejecuta:
+
+```bash
+git clone https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai.git
+cd kipu-workshop-oci-ai
+```
+
+### Alternativa B: archivo ZIP
+
+1. Abre la [página principal del repositorio](https://github.com/KarinaGalindezOra/kipu-workshop-oci-ai).
+2. Selecciona **Code** y luego **Download ZIP**.
+3. Descomprime el archivo descargado.
+4. Abre una terminal dentro de la carpeta descomprimida `kipu-workshop-oci-ai-main`.
+
+En los pasos siguientes, esa carpeta será la **raíz del repositorio**.
+
+## Paso 1: verifica Python 3.11
+
+### Windows
 
 ```powershell
-python -m venv .venv
+py -3.11 --version
+```
+
+### macOS o Linux
+
+```bash
+python3.11 --version
+```
+
+Si no ves una versión 3.11, detente y solicita ayuda a la facilitación antes de continuar.
+
+## Paso 2: crea el entorno e instala el proyecto
+
+### Windows PowerShell
+
+```powershell
+py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 python -m pip install -e ".[dev,lab02,ui]"
 ```
 
-En macOS o Linux, sigue la [guía macOS/Linux](macos_linux_participant_guide.md).
+### macOS o Linux
 
-## Paso 2: valida tu asignación
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev,lab02,ui]"
+```
 
-En Windows, abre una terminal privada, carga el archivo de sesión entregado por la facilitación y ejecuta:
+Si usas macOS o Linux, consulta además la [guía macOS y Linux](macos_linux_participant_guide.md) para cargar tu sesión privada y resolver errores propios de esos sistemas.
+
+## Paso 3: valida tu asignación privada
+
+Carga el archivo de sesión entregado por la facilitación. El comando solicita las contraseñas localmente y no invoca OCI Generative AI.
+
+### Windows PowerShell
 
 ```powershell
 . '<private-participant-session.ps1>'
 python labs/lab02_contract_rag/scripts/validate_environment.py --check-db
 ```
 
-El resultado esperado muestra `status: passed` y `database_session: participant_schema`. Si falla, detente y avisa a la facilitación; no cambies el schema ni adivines credenciales.
+### macOS o Linux
 
-## Paso 3: abre el dashboard
+```bash
+python labs/lab02_contract_rag/scripts/validate_environment.py \
+  --session-file /private/path/lab02-participant.env \
+  --check-db
+```
+
+El resultado esperado muestra `status` igual a `passed` y `database_session` igual a `participant_schema`. Si falla, detente y avisa a la facilitación. No cambies el schema ni intentes otras credenciales.
+
+## Paso 4: abre el dashboard
+
+### Windows PowerShell
 
 ```powershell
 python labs/lab02_contract_rag/scripts/run_dashboard.py --port 8502
 ```
 
-Abre `http://127.0.0.1:8502` en tu navegador. Verás tu espacio de trabajo, la pregunta seleccionada y dos pestañas: **Ejecutar e inspeccionar** y **Mi historial de ejecuciones**.
+### macOS o Linux
 
-## Paso 4: conoce los contratos y prepara el corpus
+```bash
+python labs/lab02_contract_rag/scripts/run_dashboard.py \
+  --session-file /private/path/lab02-participant.env \
+  --port 8502
+```
 
-Lee los contratos `data/contract_v1.md` y `data/contract_v2.md`. Identifica endpoint, campos, estados e idempotencia de cada versión.
+Abre `http://127.0.0.1:8502` en tu navegador. Verás **Ejecutar e inspeccionar** y **Mi historial de ejecuciones**. El dashboard es local: no lo expongas mediante un proxy público.
 
-Cuando la facilitación lo indique, selecciona **Preparar mi corpus sintético**. Confirma las casillas de consumo y carga, luego ingresa localmente las contraseñas solicitadas. El dashboard crea embeddings OCI reales e inserta los nueve fragmentos sintéticos en tu schema.
+## Paso 5: conoce los contratos y prepara tu corpus
 
-## Paso 5: ejecuta una pregunta OCI real
+Lee `data/contract_v1.md` y `data/contract_v2.md`. Identifica endpoint, campos, estados e idempotencia de cada versión.
 
-Selecciona una pregunta predefinida, marca **Preguntar usando OCI**, confirma el consumo aprobado e ingresa las contraseñas locales si se solicitan. Empieza por una pregunta con versión explícita, por ejemplo T01 o T03.
+Cuando comience esta actividad, selecciona **Preparar mi corpus sintético** en el dashboard. Confirma las casillas de consumo y carga, e ingresa las contraseñas localmente si se solicitan. El flujo crea embeddings OCI reales e inserta los nueve fragmentos sintéticos en tu schema individual.
+
+## Paso 6: ejecuta preguntas OCI reales
+
+Selecciona una pregunta predefinida, marca **Preguntar usando OCI** y confirma el consumo aprobado. Comienza por una pregunta con versión explícita, como T01 o T03.
 
 El flujo real es:
 
@@ -61,26 +131,30 @@ El flujo real es:
 2. ADB busca fragmentos dentro de la versión autorizada.
 3. La aplicación selecciona evidencia que respalda la respuesta.
 4. OCI chat genera únicamente afirmaciones respaldadas.
-5. El dashboard muestra la respuesta, citas, extractos y traza de servicios.
+5. El dashboard muestra respuesta, citas, extractos y traza de servicios.
 
-## Paso 6: revisa evidencia, no solo el resultado
+## Paso 7: revisa evidencia, no solo la respuesta
 
-En **Referencia del ejercicio vs. respuesta obtenida**, comprueba que estado y hechos requeridos coinciden. Luego revisa:
+En **Referencia del ejercicio vs. respuesta obtenida**, comprueba que el estado y los hechos requeridos coincidan. Luego revisa:
 
-- **Ejecución de servicios**: qué operaciones OCI/ADB ocurrieron y cuánto tardaron.
-- **Afirmaciones y evidencia verificable**: cita, extracto, versión, sección y líneas que respaldan cada afirmación.
-- **Candidatos recuperados y evidencia seleccionada**: una distancia coseno menor expresa proximidad, pero no prueba que un fragmento sea evidencia suficiente.
+- **Ejecución de servicios:** qué operaciones OCI/ADB ocurrieron y cuánto tardaron.
+- **Afirmaciones y evidencia verificable:** cita, extracto, versión, sección y líneas que sustentan la respuesta.
+- **Candidatos recuperados y evidencia seleccionada:** una distancia coseno menor expresa proximidad, pero no prueba por sí sola que un fragmento sea evidencia suficiente.
 
-## Paso 7: prueba los límites correctos
+## Paso 8: prueba los límites correctos
 
-Ejecuta una pregunta sin versión: el resultado esperado es `needs_clarification`, sin llamar al modelo.
+Ejecuta una pregunta sin versión: el resultado correcto es `needs_clarification`, sin llamada al modelo.
 
-Ejecuta una pregunta sobre SLA de disponibilidad: el resultado esperado es `insufficient_evidence`; el contrato no debe convertirse en una garantía inventada.
+Ejecuta una pregunta sobre SLA de disponibilidad: el resultado correcto es `insufficient_evidence`; el contrato no debe convertirse en una garantía inventada.
 
-Ejecuta una pregunta de conteos operacionales: el resultado esperado es `structured_data_required`; los contratos no contienen transacciones reales.
+Ejecuta una pregunta de conteos operacionales: el resultado correcto es `structured_data_required`; los contratos no contienen transacciones reales.
 
-## Paso 8: entrega tu evidencia
+## Paso 9: entrega tu evidencia
 
-Actualiza **Mi historial de ejecuciones**. Revisa que los reportes son tuyos y contienen respuesta observada, citas y telemetría segura. Completa la rúbrica solicitada por la facilitación.
+Abre **Mi historial de ejecuciones**. Verifica que los reportes son tuyos y contienen respuesta observada, citas y telemetría segura. Completa la actividad o rúbrica que te solicite la facilitación.
 
-Una respuesta correcta no es suficiente si no puedes mostrar qué extracto contractual la respalda. Una cita válida tampoco reemplaza la revisión humana de relevancia y completitud.
+Una respuesta correcta no basta si no puedes mostrar qué extracto contractual la respalda. Una cita válida tampoco reemplaza la revisión humana de relevancia y completitud.
+
+## Si algo falla
+
+Consulta [Resolución de problemas para participantes](troubleshooting.md). No envíes por chat contraseñas, archivos wallet, perfiles OCI, contenido de sesiones ni mensajes de error completos.

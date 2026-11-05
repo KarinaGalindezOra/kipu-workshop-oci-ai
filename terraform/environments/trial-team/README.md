@@ -53,4 +53,4 @@ Do not run `terraform apply` until the reviewed plan shows the intended team-onl
 resources. Terraform does not create OCI trial accounts; it operates after the trial
 has been created by the facilitator team.
 
-For the complete Console-to-participant walkthrough, use the [Lab 1 facilitator prework](../../../docs/facilitator-guides/01-decision-memory-prework.md).
+The complete Console-to-participant walkthrough is maintained in the private facilitator materials.
