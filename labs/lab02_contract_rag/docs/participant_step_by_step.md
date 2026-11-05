@@ -82,12 +82,18 @@ Carga el archivo de sesión entregado por la facilitación. El comando solicita 
 
 ### Windows PowerShell
 
+La facilitación te enviará un bloque privado ya preparado para tu identidad. Pégalo sin modificarlo en una terminal dedicada. La ruta del archivo no es igual para todas las personas y no aparece en este repositorio. El bloque tendrá esta forma:
+
 ```powershell
 . '<private-participant-session.ps1>'
 python labs/lab02_contract_rag/scripts/validate_environment.py --check-db
 ```
 
+No escribas literalmente los caracteres `<` y `>`: son una explicación visual, no parte del comando. No sustituyas la ruta por un wallet ni por la sesión de otra persona.
+
 ### macOS o Linux
+
+La facilitación te enviará la ruta de tu archivo dotenv privado. Pega el bloque recibido; su forma será:
 
 ```bash
 python labs/lab02_contract_rag/scripts/validate_environment.py \

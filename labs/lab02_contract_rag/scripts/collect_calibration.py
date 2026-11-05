@@ -49,7 +49,7 @@ try:
                 )
     payload = {
         "context": {
-            "corpus_id": "contracts-baseline-01",
+            "corpus_id": "contracts-baseline-02-es",
             "region": settings.region,
             "model_id": settings.embedding_model_id,
             "dimension": settings.vector_dimension,

@@ -1,13 +1,13 @@
 [
   {
     "id": "T01",
-    "question": "In v1, what method and endpoint update a disbursement?",
+    "question": "En v1, ¿qué método y endpoint actualizan un desembolso?",
     "expected_status": "answered",
     "versions": [
       "v1"
     ],
     "sections": [
-      "Status update endpoint"
+      "Endpoint de actualización de estado"
     ],
     "required_terms": [
       "PATCH /v1/disbursements/"
@@ -16,13 +16,13 @@
   },
   {
     "id": "T02",
-    "question": "In v1, what request body field and allowed states are used?",
+    "question": "En v1, ¿qué campo del cuerpo de solicitud y estados permitidos se usan?",
     "expected_status": "answered",
     "versions": [
       "v1"
     ],
     "sections": [
-      "Status update endpoint"
+      "Endpoint de actualización de estado"
     ],
     "required_terms": [
       "payment_status",
@@ -34,13 +34,13 @@
   },
   {
     "id": "T03",
-    "question": "In v2, what method and endpoint update settlement status?",
+    "question": "En v2, ¿qué método y endpoint actualizan el estado de liquidación?",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Settlement status endpoint"
+      "Endpoint de estado de liquidación"
     ],
     "required_terms": [
       "PUT /v2/disbursements/"
@@ -49,13 +49,13 @@
   },
   {
     "id": "T04",
-    "question": "In v2, what idempotency header is required?",
+    "question": "En v2, ¿qué header de idempotencia se requiere?",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Idempotency"
+      "Idempotencia"
     ],
     "required_terms": [
       "Idempotency-Key"
@@ -64,7 +64,7 @@
   },
   {
     "id": "T05",
-    "question": "How do I update the status?",
+    "question": "¿Cómo actualizo el estado?",
     "expected_status": "needs_clarification",
     "versions": [],
     "sections": [],
@@ -73,14 +73,14 @@
   },
   {
     "id": "T06",
-    "question": "When migrating from v1 to v2, how do the endpoint, field and states change?",
+    "question": "Al migrar de v1 a v2, ¿cómo cambian el endpoint, el campo y los estados?",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Settlement status endpoint",
-      "Migration from v1"
+      "Endpoint de estado de liquidación",
+      "Migración desde v1"
     ],
     "required_terms": [
       "PUT",
@@ -93,13 +93,13 @@
   },
   {
     "id": "T07",
-    "question": "In v2, what timestamp does a successful response return?",
+    "question": "En v2, ¿qué timestamp devuelve una respuesta exitosa?",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Response"
+      "Respuesta"
     ],
     "required_terms": [
       "status_changed_at"
@@ -108,14 +108,14 @@
   },
   {
     "id": "T08",
-    "question": "Compare the idempotency headers between v1 and v2.",
+    "question": "Compara los headers de idempotencia entre v1 y v2.",
     "expected_status": "answered",
     "versions": [
       "v1",
       "v2"
     ],
     "sections": [
-      "Idempotency"
+      "Idempotencia"
     ],
     "required_terms": [
       "X-Idempotency-Key",
@@ -125,23 +125,22 @@
   },
   {
     "id": "T09",
-    "question": "In v2, is payment_status=PAID accepted at the v1 endpoint?",
+    "question": "En v2, ¿se acepta payment_status=PAID en el endpoint de v1?",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Migration from v1",
-      "Settlement status endpoint"
+      "Migración desde v1"
     ],
     "required_terms": [
-      "not accepted by v2"
+      "no son aceptados por v2"
     ],
     "fixture": null
   },
   {
     "id": "T10",
-    "question": "In v2, what SLA availability is guaranteed?",
+    "question": "En v2, ¿qué SLA de disponibilidad se garantiza?",
     "expected_status": "insufficient_evidence",
     "versions": [
       "v2"
@@ -152,7 +151,7 @@
   },
   {
     "id": "T11",
-    "question": "In v2, how is TLS certificate rotation configured?",
+    "question": "En v2, ¿cómo se configura la rotación de certificados TLS?",
     "expected_status": "insufficient_evidence",
     "versions": [
       "v2"
@@ -163,7 +162,7 @@
   },
   {
     "id": "T12",
-    "question": "How many transactions were SETTLED yesterday?",
+    "question": "¿Cuántas transacciones quedaron SETTLED ayer?",
     "expected_status": "structured_data_required",
     "versions": [],
     "sections": [],
@@ -172,13 +171,13 @@
   },
   {
     "id": "T13",
-    "question": "In v2, what error is returned for an invalid status?",
+    "question": "En v2, ¿qué error se devuelve para un estado no válido?",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Error handling"
+      "Manejo de errores"
     ],
     "required_terms": [
       "422 INVALID_STATUS"
@@ -187,14 +186,13 @@
   },
   {
     "id": "T14",
-    "question": "In v2, explain the migration mapping for PAID with evidence.",
+    "question": "En v2, explica el mapeo de PAID con evidencia.",
     "expected_status": "answered",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Migration from v1",
-      "Settlement status endpoint"
+      "Migración desde v1"
     ],
     "required_terms": [
       "PAID",
@@ -204,7 +202,7 @@
   },
   {
     "id": "T15",
-    "question": "Which contract describes the contract_version field?",
+    "question": "¿Qué contrato describe el campo contract_version?",
     "expected_status": "needs_clarification",
     "versions": [],
     "sections": [],
@@ -213,20 +211,20 @@
   },
   {
     "id": "T16",
-    "question": "In v2, what idempotency header is required?",
+    "question": "En v2, ¿qué header de idempotencia se requiere?",
     "expected_status": "conflicting_evidence",
     "versions": [
       "v2"
     ],
     "sections": [
-      "Idempotency"
+      "Idempotencia"
     ],
     "required_terms": [],
     "fixture": "T16"
   },
   {
     "id": "T17",
-    "question": "In v2, what idempotency header is required?",
+    "question": "En v2, ¿qué header de idempotencia se requiere?",
     "expected_status": "error",
     "versions": [
       "v2"
@@ -237,7 +235,7 @@
   },
   {
     "id": "T18",
-    "question": "In v2, what idempotency header is required?",
+    "question": "En v2, ¿qué header de idempotencia se requiere?",
     "expected_status": "error",
     "versions": [
       "v2"
@@ -248,7 +246,7 @@
   },
   {
     "id": "T19",
-    "question": "In v3, what endpoint updates status?",
+    "question": "En v3, ¿qué endpoint actualiza el estado?",
     "expected_status": "insufficient_evidence",
     "versions": [],
     "sections": [],
@@ -257,7 +255,7 @@
   },
   {
     "id": "T20",
-    "question": "In v2, what endpoint updates status?",
+    "question": "En v2, ¿qué endpoint actualiza el estado?",
     "expected_status": "error",
     "versions": [
       "v2"

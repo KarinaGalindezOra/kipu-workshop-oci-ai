@@ -62,7 +62,7 @@ def calibrate(measurements: dict) -> dict:
 def validate_calibration(path: Path, *, region: str, model_id: str, dimension: int) -> float:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload["context"] != {
-        "corpus_id": "contracts-baseline-01",
+        "corpus_id": "contracts-baseline-02-es",
         "region": region,
         "model_id": model_id,
         "dimension": dimension,

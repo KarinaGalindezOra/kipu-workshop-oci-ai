@@ -69,7 +69,7 @@ def test_calibration_rejects_changed_embedding_context(tmp_path):
     payload = calibrate(
         {
             "context": {
-                "corpus_id": "contracts-baseline-01",
+                "corpus_id": "contracts-baseline-02-es",
                 "region": "region",
                 "model_id": "model",
                 "dimension": 2,

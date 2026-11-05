@@ -13,7 +13,7 @@ class ContractChunk:
     section: str
     content: str
     content_hash: str
-    corpus_id: str = "contracts-baseline-01"
+    corpus_id: str = "contracts-baseline-02-es"
     document_id: str = ""
     api_name: str = "disbursement"
     source_title: str = ""

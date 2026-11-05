@@ -7,7 +7,7 @@ import re
 
 from .models import ContractChunk
 
-VERSION_PATTERN = re.compile(r"^Contract Version:\s*(v\d+)\s*$", re.MULTILINE)
+VERSION_PATTERN = re.compile(r"^(?:Contract Version|Versión del contrato):\s*(v\d+)\s*$", re.MULTILINE)
 SECTION_PATTERN = re.compile(r"^##\s+(.+?)\s*$", re.MULTILINE)
 
 
@@ -21,7 +21,7 @@ def contract_version(markdown: str) -> str:
 
 
 def chunk_contract(
-    source_uri: str, markdown: str, corpus_id: str = "contracts-baseline-01"
+    source_uri: str, markdown: str, corpus_id: str = "contracts-baseline-02-es"
 ) -> list[ContractChunk]:
     """Split each level-two heading into a single source-traceable chunk."""
 

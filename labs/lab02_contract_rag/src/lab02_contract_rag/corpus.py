@@ -19,7 +19,8 @@ def load_corpus(data_dir: Path | None = None) -> list[ContractChunk]:
         if name not in {"contract_v1.md", "contract_v2.md"}:
             raise ValueError("Manifest contains an unapproved source")
         raw = (data_dir / name).read_bytes()
-        if hashlib.sha256(raw).hexdigest() != entry["sha256"]:
+        canonical = raw.replace(b"\r\n", b"\n")
+        if hashlib.sha256(canonical).hexdigest() != entry["sha256"]:
             raise ValueError("Source bytes do not match the frozen corpus manifest")
         text = raw.decode("utf-8").replace("\r\n", "\n")
         items = chunk_contract(f"synthetic://contracts/{name}", text, manifest["corpus_id"])

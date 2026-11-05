@@ -319,7 +319,7 @@ def retrieve_evidence(
     query_embedding: list[float],
     top_k: int,
     settings: LiveLab02Settings,
-    corpus_id="contracts-baseline-01",
+    corpus_id="contracts-baseline-02-es",
 ):
     if not 1 <= top_k <= 3 or contract_version not in {"v1", "v2"}:
         raise ValueError("Invalid retrieval scope")

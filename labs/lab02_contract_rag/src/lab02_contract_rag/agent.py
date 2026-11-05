@@ -28,29 +28,29 @@ STATES = {
 def resolve_request(question: str, version: str | None = None, compare: bool = False):
     mentioned = set(re.findall(r"\bv\d+\b", question.lower()))
     if version and version not in {"v1", "v2"} or mentioned - {"v1", "v2"}:
-        return [], "insufficient_evidence", "Requested version is not in the corpus."
-    if compare or re.search(r"\bcompar|\bbetween\b|\bdifference", question, re.I):
+        return [], "insufficient_evidence", "La versión solicitada no está en el corpus."
+    if compare or re.search(r"\bcompar|\bbetween\b|\bdifference|\bentre\b|\bdiferencia", question, re.I):
         return ["v1", "v2"], None, ""
     if len(mentioned) > 1:
-        if re.search(r"migrat|moving|\bto v2\b", question, re.I):
+        if re.search(r"migrat|moving|\bto v2\b|\ba v2\b", question, re.I):
             if version and version != "v2":
                 return (
                     [],
                     "needs_clarification",
-                    "Selected version conflicts with migration target.",
+                    "La versión seleccionada entra en conflicto con el destino de migración.",
                 )
             return ["v2"], None, ""
         if version:
             return [version], None, ""
-        target = re.match(r"\s*(?:in|for)\s+(v[12])\b", question, re.I)
+        target = re.match(r"\s*(?:in|for|en|para)\s+(v[12])\b", question, re.I)
         if target:
             return [target.group(1).lower()], None, ""
-        return [], "needs_clarification", "Choose a target version or comparison mode."
+        return [], "needs_clarification", "Elige una versión objetivo o el modo de comparación."
     if version and mentioned and version not in mentioned:
-        return [], "needs_clarification", "Selected version conflicts with the question."
+        return [], "needs_clarification", "La versión seleccionada entra en conflicto con la pregunta."
     versions = [version] if version else sorted(mentioned)
     if not versions:
-        return [], "needs_clarification", "Which contract version: v1 or v2?"
+        return [], "needs_clarification", "¿Qué versión del contrato: v1 o v2?"
     return versions, None, ""
 
 
@@ -94,7 +94,7 @@ def run_agent(
     version: str | None = None,
     compare: bool = False,
     generator: Generator | None = None,
-    corpus_id: str = "contracts-baseline-01",
+    corpus_id: str = "contracts-baseline-02-es",
     api_name: str = "disbursement",
     require_oci_retrieval: bool = False,
 ) -> dict:
@@ -128,11 +128,11 @@ def run_agent(
     try:
         if not isinstance(question, str) or not question.strip() or len(question) > 4000:
             raise ValueError("Question must contain between 1 and 4000 characters")
-        if re.search(r"transactions?|operational|metrics?|latency|records?", question, re.I):
+        if re.search(r"transactions?|transacciones?|operational|operacional|metrics?|métricas?|latency|latencia|records?|registros?", question, re.I):
             result.update(status="structured_data_required")
             result["limitations"] = [
-                "Use an approved read-only query with an explicit time range. "
-                "Documentary and operational parts must be answered separately."
+                "Usa una consulta aprobada de solo lectura con un rango de tiempo explícito. "
+                "Las partes documentales y operacionales deben responderse por separado."
             ]
             return result
         versions, status, message = resolve_request(question, version, compare)
@@ -142,7 +142,7 @@ def run_agent(
             return result
         facets, unsupported = requested_facets(question)
         if not facets and not require_oci_retrieval:
-            result["limitations"] = ["No supported contract topic was identified."]
+            result["limitations"] = ["No se identificó un tema contractual respaldado."]
             return result
         next_stage("retrieve")
         candidates = []
@@ -166,11 +166,11 @@ def run_agent(
             result.update(
                 status="conflicting_evidence",
                 citations=sources,
-                limitations=["Conflicting sections require human review."],
+                limitations=["Las secciones contradictorias requieren revisión humana."],
             )
             return result
         if not evidence:
-            result["limitations"] = ["Insufficient evidence."]
+            result["limitations"] = ["Evidencia insuficiente."]
             return result
         covered = {(e.chunk.contract_version, section_facet(e.chunk.section)) for e in evidence}
         missing = {(v, f) for v in versions for f in facets} - covered
@@ -190,7 +190,7 @@ def run_agent(
             result["provider_usage"] = payload["provider_usage"]
         claims = validate_generation(payload, sources)
         if not claims:
-            result["limitations"] = ["Insufficient evidence."]
+            result["limitations"] = ["Evidencia insuficiente."]
             return result
         used_ids = {eid for claim in claims for eid in claim["evidence_ids"]}
         used_sources = [s for s in sources if s["evidence_id"] in used_ids]
@@ -208,7 +208,7 @@ def run_agent(
             c["text"] + " " + " ".join(f"[{eid}]" for eid in c["evidence_ids"]) for c in claims
         )
         if missing or unsupported:
-            result["limitations"] = ["Some requested details are not supported by the evidence."]
+            result["limitations"] = ["Algunos detalles solicitados no están respaldados por la evidencia."]
     except Exception:
         # Provider exception strings may include credentials, request bodies or identifiers.
         result.update(
@@ -218,7 +218,7 @@ def run_agent(
             citations=[],
             sufficient_evidence=False,
             error_stage=stage,
-            limitations=["Stage failed. Check the private troubleshooting runbook."],
+            limitations=["Falló una etapa. Consulta el runbook privado de solución de problemas."],
         )
     finally:
         result["timings_ms"][stage] = round((time.perf_counter() - stage_started) * 1000, 3)

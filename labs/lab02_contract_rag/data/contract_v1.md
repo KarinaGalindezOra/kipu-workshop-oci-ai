@@ -1,19 +1,19 @@
-# Disbursement API Contract v1
+# Contrato de API de desembolsos v1
 
-Contract Version: v1
+Versión del contrato: v1
 
-## Status update endpoint
+## Endpoint de actualización de estado
 
-Clients update a disbursement with `PATCH /v1/disbursements/{disbursement_id}`. The request body uses `payment_status` with one of `PENDING`, `PAID`, or `FAILED`.
+Los clientes actualizan un desembolso con `PATCH /v1/disbursements/{disbursement_id}`. El cuerpo de la solicitud usa `payment_status` con uno de estos valores: `PENDING`, `PAID` o `FAILED`.
 
-## Idempotency
+## Idempotencia
 
-Every status update must include the `X-Idempotency-Key` header. Reusing a key with a different request body returns `409 IDEMPOTENCY_CONFLICT`.
+Cada actualización de estado debe incluir el header `X-Idempotency-Key`. Reutilizar una clave con un cuerpo de solicitud diferente devuelve `409 IDEMPOTENCY_CONFLICT`.
 
-## Response
+## Respuesta
 
-A successful status update returns `200 OK` with `disbursement_id`, `payment_status`, and `updated_at`.
+Una actualización de estado exitosa devuelve `200 OK` con `disbursement_id`, `payment_status` y `updated_at`.
 
-## Error handling
+## Manejo de errores
 
-An unknown disbursement returns `404 DISBURSEMENT_NOT_FOUND`. An invalid status returns `422 INVALID_PAYMENT_STATUS`.
+Un desembolso desconocido devuelve `404 DISBURSEMENT_NOT_FOUND`. Un estado no válido devuelve `422 INVALID_PAYMENT_STATUS`.

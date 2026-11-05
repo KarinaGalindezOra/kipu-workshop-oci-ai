@@ -17,7 +17,7 @@ if (-not (Test-Path -LiteralPath $SessionPath -PathType Leaf)) {
 }
 
 . $SessionPath
-$measurements = 'C:\KhipuPrivate\lab02-development-measurements.json'
+$measurements = 'C:\KhipuPrivate\lab02-development-measurements-02-es.json'
 if (Test-Path -LiteralPath $env:LAB02_CALIBRATION_FILE -PathType Leaf) {
     throw 'Frozen calibration already exists; do not overwrite it.'
 }

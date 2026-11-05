@@ -16,7 +16,9 @@ def chunks():
 
 
 def test_full_frozen_acceptance_matrix():
-    cases = json.loads((LAB_ROOT / "data/evaluation/acceptance_questions.json").read_text())
+    cases = json.loads(
+        (LAB_ROOT / "data/evaluation/acceptance_questions.json").read_text(encoding="utf-8")
+    )
     report = evaluate(cases)
     assert report["acceptance_pass"]
     assert len(report["cases"]) == 20
@@ -28,7 +30,7 @@ def test_manifest_and_source_locations(chunks):
     assert len(chunks) == 9
     for chunk in chunks:
         name = chunk.source_uri.rsplit("/", 1)[1]
-        lines = (LAB_ROOT / "data" / name).read_text().splitlines()
+        lines = (LAB_ROOT / "data" / name).read_text(encoding="utf-8").splitlines()
         selected = "\n".join(lines[chunk.line_start - 1 : chunk.line_end])
         assert chunk.section in selected and chunk.content in selected
         assert hashlib.sha256(chunk.content.encode()).hexdigest() == chunk.content_hash

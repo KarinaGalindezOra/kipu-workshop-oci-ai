@@ -22,7 +22,7 @@ def fixture_retriever(case, chunks, base):
         if fixture == "T20":
             raise TimeoutError("Private provider exception must not enter reports")
         original = next(
-            c for c in chunks if c.contract_version == "v2" and c.section == "Idempotency"
+            c for c in chunks if c.contract_version == "v2" and c.section == "Idempotencia"
         )
         name = "conflict" if fixture == "T16" else "injection"
         data = json.loads(

@@ -6,7 +6,7 @@ import re
 
 from .models import ContractChunk, RetrievedEvidence
 
-TOKEN_PATTERN = re.compile(r"[a-z0-9_/-]+")
+TOKEN_PATTERN = re.compile(r"[\w/-]+", re.UNICODE)
 
 
 def tokens(value: str) -> set[str]:
@@ -21,17 +21,21 @@ def retrieve(
     contract_version: str,
     limit: int = 3,
     *,
-    corpus_id: str = "contracts-baseline-01",
+    corpus_id: str = "contracts-baseline-02-es",
     api_name: str = "disbursement",
 ) -> list[RetrievedEvidence]:
     """Filter by version first, then rank chunks by lexical token overlap."""
 
-    question_tokens = tokens(question)
+    question_tokens = tokens(question) - {"v1", "v2", "v3"}
     if not 1 <= limit <= 3:
         raise ValueError("Retrieval limit must be between 1 and 3")
     evidence = [
         RetrievedEvidence(
-            chunk=chunk, score=len(question_tokens & tokens(f"{chunk.section} {chunk.content}"))
+            chunk=chunk,
+            score=(
+                2 * len(question_tokens & tokens(chunk.section))
+                + len(question_tokens & tokens(chunk.content))
+            ),
         )
         for chunk in chunks
         if chunk.contract_version == contract_version

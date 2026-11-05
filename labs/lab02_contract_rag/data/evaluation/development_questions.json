@@ -1,17 +1,17 @@
 [
   {
     "id": "D01",
-    "question": "In v1, which header prevents duplicate updates?",
-    "relevant_section": "Idempotency"
+    "question": "En v1, ¿qué header evita actualizaciones duplicadas?",
+    "relevant_section": "Idempotencia"
   },
   {
     "id": "D02",
-    "question": "In v2, which fields are in a successful response?",
-    "relevant_section": "Response"
+    "question": "En v2, ¿qué campos tiene una respuesta exitosa?",
+    "relevant_section": "Respuesta"
   },
   {
     "id": "D03",
-    "question": "In v2, what authentication protocol is supported?",
+    "question": "En v2, ¿qué protocolo de autenticación se admite?",
     "relevant_section": null
   }
 ]
