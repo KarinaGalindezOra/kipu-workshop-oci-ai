@@ -70,19 +70,51 @@ Ejecuta M5 en el dashboard mediante **Preparar mi corpus sintético**. Esta acti
 
 ¿Por qué es correcto que la ingesta no publique candidatos, citas ni una respuesta del modelo? ¿Por qué la calibración no llama al modelo de chat?
 
-## 6. Consultas OCI con respuesta respaldada
+## 6. M6 — primera respuesta OCI
 
-Ejecuta T01 o T03, luego T06 y T08. Para cada caso, usa el dashboard para seguir la respuesta hasta la evidencia seleccionada.
+Ejecuta T01 o T03 en el dashboard. Registra la respuesta de referencia antes de OCI, la respuesta observada, la traza de servicios y la evidencia publicada. No transcribas contraseñas, rutas privadas ni tokens.
 
-| Caso | Estado esperado | Estado observado | Evidencia seleccionada | Métrica y valor | Por qué el extracto respalda la afirmación | Cita verificable |
+| Caso | Estado esperado | Estado observado | Afirmación publicada | Evidencia seleccionada | Métrica y valor | Cita verificable |
 |---|---|---|---|---|---|---|
 | T01 o T03 | `answered` |  |  |  |  |  |
-| T06 | `answered` |  |  |  |  |  |
-| T08 | `answered` |  |  |  |  |  |
 
-Para T08, deja explícito qué cita corresponde a v1 y cuál a v2. Una `cosine_distance` menor significa mayor proximidad, no que el candidato sea automáticamente el mejor respaldo semántico.
+¿Qué operaciones de servicio ocurrieron? ¿Hubo exactamente una llamada de embedding de consulta y una llamada de chat?
 
-## 7. Límites correctos
+## 7. M7 — auditar evidencia versus candidatos
+
+Usa la misma ejecución de M6. Sigue el orden del dashboard: respuesta de referencia, respuesta obtenida, comprobaciones automáticas, traza, evidencia seleccionada y candidatos recuperados.
+
+| Comprobación | Valor observado | Interpretación |
+|---|---|---|
+| `passed` |  |  |
+| `version_scope_pass` |  |  |
+| `citation_checks_pass` |  |  |
+| `support_recall` |  |  |
+| `accepted_evidence_precision` |  |  |
+
+¿Qué candidato fue seleccionado como evidencia? ¿Qué candidatos no se publicaron? ¿Por qué una `cosine_distance` menor no convierte automáticamente un candidato en respaldo semántico?
+
+## 8. M8 — migración OCI
+
+Ejecuta T06. La respuesta debe respaldar por separado el endpoint v2, el cambio de `payment_status` a `status` y los tres mapeos de estados.
+
+| Estado esperado | Estado observado | Cambio de endpoint | Cambio de campo | Mapeos de estados | Evidencia y cita para cada aspecto |
+|---|---|---|---|---|---|
+| `answered` |  |  |  |  |  |
+
+¿La traza mostró `adb_section_coverage`? Si ocurrió, explica qué aspecto necesario completó y por qué sigue limitado a la misma versión, corpus y espacio de embeddings.
+
+## 9. M9 — comparación OCI entre versiones
+
+Ejecuta T08 y contrástalo con M4. La respuesta debe mantener v1 y v2 separadas, tanto en las afirmaciones como en las citas.
+
+| Estado esperado | Estado observado | Header y cita de v1 | Header y cita de v2 | Diferencia comprobada |
+|---|---|---|---|---|
+| `answered` |  |  |  |  |
+
+¿Qué diferencia observaste entre la recuperación léxica local de M4 y la búsqueda vectorial OCI de M9? ¿Qué propiedad debe mantenerse igual en ambas rutas?
+
+## 10. M10 — límites correctos
 
 | Caso | Resultado correcto | ¿Hubo embedding? | ¿Hubo chat? | Explicación |
 |---|---|---:|---:|---|
@@ -92,7 +124,7 @@ Para T08, deja explícito qué cita corresponde a v1 y cuál a v2. Una `cosine_d
 
 Explica por qué una abstención correcta es mejor que una respuesta plausible sin respaldo:
 
-## 8. RAG o SQL controlado
+## 11. M11 — RAG o SQL controlado
 
 | Necesidad | RAG, SQL o combinado | Justificación | Control necesario |
 |---|---|---|---|
@@ -101,7 +133,7 @@ Explica por qué una abstención correcta es mejor que una respuesta plausible s
 | Contar transacciones `SETTLED` ayer |  |  |  |
 | Explicar un estado y contar transacciones con ese estado |  |  |  |
 
-## 9. Entrega y reflexión
+## 12. Entrega y reflexión
 
 Antes de cerrar, confirma:
 
