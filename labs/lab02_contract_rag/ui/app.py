@@ -229,9 +229,14 @@ def main():
             action = st.radio("Acción", ["Preguntar usando OCI", "Preparar mi corpus sintético"])
             db_password = st.text_input("Mi contraseña de base de datos", type="password")
             wallet_password = st.text_input("Contraseña del wallet", type="password")
-            approve = st.checkbox("Confirmo la inferencia OCI con costo aprobada para esta solicitud.")
-            load = st.checkbox("Autorizo insertar fragmentos sintéticos faltantes en mi propio schema.")
-            submitted = st.form_submit_button("Ejecutar flujo OCI real", type="primary")
+            approve = st.checkbox(
+                "Confirmo",
+                help=(
+                    "Confirma la inferencia OCI. Si preparas el corpus, también autoriza la carga "
+                    "de fragmentos sintéticos faltantes únicamente en tu propio schema."
+                ),
+            )
+            submitted = st.form_submit_button("Ejecutar flujo", type="primary")
         if submitted:
             st.session_state.pop("last_result", None)
             if not approve:
@@ -249,7 +254,7 @@ def main():
                         raise ValueError(
                             "Ingresa las contraseñas privadas para abrir la sesión ADB local inicial."
                         )
-                    if ingest and not load:
+                    if ingest and not approve:
                         raise ValueError("Se requiere autorización explícita de carga sintética.")
                     ui_stage = "flujo OCI"
                     with st.spinner("Ejecutando contra los servicios OCI asignados..."):
@@ -257,7 +262,7 @@ def main():
                             settings,
                             question or "Prepare the synthetic corpus",
                             confirm_inference=True,
-                            confirm_load=load,
+                            confirm_load=approve,
                             ingest_only=ingest,
                             version=version,
                             database_password=db_password,
