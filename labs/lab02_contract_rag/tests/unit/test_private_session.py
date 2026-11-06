@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -24,6 +25,20 @@ def test_private_session_rejects_password_or_secret_values(tmp_path):
 
     with pytest.raises(ValueError, match="must not contain passwords or secrets"):
         private_session.load_participant_session(session)
+
+
+def test_private_session_resolves_relative_private_paths(tmp_path, monkeypatch):
+    session = tmp_path / "participant.env"
+    session.write_text(
+        "ADB_WALLET_DIR=wallet\nLAB02_REPORT_ROOT=artifacts\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(private_session, "load_dotenv", lambda *args, **kwargs: None)
+
+    private_session.load_participant_session(session)
+
+    assert Path(os.environ["ADB_WALLET_DIR"]) == (tmp_path / "wallet").resolve()
+    assert Path(os.environ["LAB02_REPORT_ROOT"]) == (tmp_path / "artifacts").resolve()
 
 
 def test_private_session_requires_existing_file(tmp_path):

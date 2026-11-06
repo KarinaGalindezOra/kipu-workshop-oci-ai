@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from dotenv import dotenv_values, load_dotenv
 
 FORBIDDEN_KEY_FRAGMENTS = ("PASSWORD", "SECRET", "TOKEN", "PRIVATE_KEY")
+PATH_VARIABLES = (
+    "ADB_WALLET_DIR",
+    "LAB02_CALIBRATION_FILE",
+    "LAB02_DEVELOPMENT_MEASUREMENTS_FILE",
+    "LAB02_REPORT_ROOT",
+)
 
 
 def add_session_file_argument(parser) -> None:
@@ -34,4 +41,8 @@ def load_participant_session(session_file: Path | None) -> Path | None:
     if forbidden:
         raise ValueError("Private participant session files must not contain passwords or secrets")
     load_dotenv(path, override=True)
+    for key in PATH_VARIABLES:
+        raw_value = values.get(key)
+        if raw_value and not Path(raw_value).expanduser().is_absolute():
+            os.environ[key] = str((path.parent / raw_value).resolve())
     return path

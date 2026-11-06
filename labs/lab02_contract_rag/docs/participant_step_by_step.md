@@ -95,15 +95,15 @@ Carga el archivo de sesión entregado por la facilitación y crea o renueva el t
 
 #### Windows PowerShell
 
-La facilitación te enviará un bloque privado ya preparado para tu identidad. Pégalo sin modificarlo en una terminal dedicada. La ruta no es igual para todas las personas y no aparece en este repositorio.
+La facilitación te enviará un paquete privado individual. Descomprímelo fuera del repositorio, sin modificarlo. En la misma terminal, reemplaza la ruta por la ubicación real de tu archivo `lab02-participant.env`; no escribas literalmente los caracteres `<` y `>`.
 
 ```powershell
-. '<private-participant-session.ps1>'
-python labs/lab02_contract_rag/scripts/authenticate_oci_session.py
-python labs/lab02_contract_rag/scripts/validate_environment.py --check-db
+$sessionFile = '<private-package-path>\lab02-participant.env'
+python labs/lab02_contract_rag/scripts/authenticate_oci_session.py --session-file $sessionFile
+python labs/lab02_contract_rag/scripts/validate_environment.py --session-file $sessionFile --check-db
 ```
 
-No escribas literalmente los caracteres `<` y `>`: son una explicación visual. No sustituyas la ruta por un wallet ni por la sesión de otra persona.
+No sustituyas tu archivo de sesión, wallet o perfil por los de otra persona.
 
 #### macOS o Linux
 
@@ -124,7 +124,7 @@ El resultado esperado primero muestra `OCI_SESSION_AUTHENTICATED` y `OCI_SESSION
 #### Windows PowerShell
 
 ```powershell
-python labs/lab02_contract_rag/scripts/run_dashboard.py --port 8502
+python labs/lab02_contract_rag/scripts/run_dashboard.py --session-file $sessionFile --port 8502
 ```
 
 #### macOS o Linux
@@ -146,7 +146,7 @@ Abre el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta d
 #### Windows PowerShell
 
 ```powershell
-$artifactDir = Join-Path $env:LAB02_REPORT_ROOT $env:LAB02_PARTICIPANT_ID
+$artifactDir = Join-Path (Split-Path $sessionFile -Parent) 'artifacts'
 New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
 Copy-Item `
   labs\lab02_contract_rag\docs\participant_workbook.md `
@@ -197,7 +197,7 @@ Este paso no usa OCI, no pide contraseña y no genera embeddings. Verifica que e
 #### Windows PowerShell
 
 ```powershell
-python labs/lab02_contract_rag/scripts/run_local_practice.py inspect
+python labs/lab02_contract_rag/scripts/run_local_practice.py --session-file $sessionFile inspect
 ```
 
 #### macOS o Linux
@@ -215,7 +215,7 @@ El resultado debe indicar `OCI_EXECUTED False` y `CHUNK_COUNT 9`. Abre el `CORPU
 La práctica local usa ranking léxico determinista y salida extractiva. Sirve para observar filtro y ranking; **no valida embeddings, ADB ni generación OCI**.
 
 ```powershell
-python labs/lab02_contract_rag/scripts/run_local_practice.py retrieve --case-id T03
+python labs/lab02_contract_rag/scripts/run_local_practice.py --session-file $sessionFile retrieve --case-id T03
 ```
 
 En macOS o Linux, agrega tu `--session-file` antes de `retrieve`. El resultado esperado es `STATUS answered`, candidatos solo v2 y una evidencia de la sección **Endpoint de estado de liquidación**. Abre el `EVIDENCE_REPORT` y responde en el cuaderno:
@@ -227,7 +227,7 @@ En macOS o Linux, agrega tu `--session-file` antes de `retrieve`. El resultado e
 ### M4 — comparar localmente sin mezclar versiones
 
 ```powershell
-python labs/lab02_contract_rag/scripts/run_local_practice.py retrieve --case-id T08
+python labs/lab02_contract_rag/scripts/run_local_practice.py --session-file $sessionFile retrieve --case-id T08
 ```
 
 El resultado esperado contiene evidencia `Idempotencia` de v1 y v2. Registra por separado `X-Idempotency-Key` y `Idempotency-Key`. Si falta una de las versiones, no completes la respuesta con conocimiento previo: revisa el filtro y avisa a la facilitación.
