@@ -12,6 +12,7 @@ from pathlib import Path
 from . import live_validation as live
 from .agent import resolve_request, run_agent
 from .corpus import load_corpus
+from .evidence import requested_facets, section_facet
 from .participant import artifact_directory, participant_id
 from .reporting import write_result
 
@@ -164,8 +165,8 @@ def execute_live(
                     result = run_agent("Which contract version?", lambda v, q: [])
                     result.update(
                         status="ingested",
-                        question="Prepare the synthetic corpus",
-                        limitations=["No model answer requested during ingestion."],
+                        question="Preparar el corpus sintético",
+                        limitations=["Durante la ingesta no se solicitó una respuesta del modelo."],
                     )
                 else:
 
@@ -178,7 +179,7 @@ def execute_live(
                                     0
                                 ],
                             )
-                        return operation(
+                        items = operation(
                             "adb_vector_search",
                             lambda: live.retrieve_evidence(
                                 cursor,
@@ -189,6 +190,28 @@ def execute_live(
                                 settings,
                             ),
                         )
+                        facets, _ = requested_facets(query)
+                        covered = {
+                            section_facet(item.chunk.section)
+                            for item in items
+                            if section_facet(item.chunk.section) is not None
+                        }
+                        missing_facets = facets - covered
+                        if missing_facets:
+                            items.extend(
+                                operation(
+                                    "adb_section_coverage",
+                                    lambda: live.retrieve_section_coverage(
+                                        cursor,
+                                        settings.table_name,
+                                        target,
+                                        missing_facets,
+                                        {item.chunk.chunk_id for item in items},
+                                        settings,
+                                    ),
+                                )
+                            )
+                        return items
 
                     def generator(query, evidence):
                         telemetry["chat_calls"] += 1

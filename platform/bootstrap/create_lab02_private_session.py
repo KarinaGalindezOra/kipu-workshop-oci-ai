@@ -80,6 +80,10 @@ def render_session(
         calibration_assignment = (
             "$env:LAB02_CALIBRATION_FILE = Join-Path $HOME '.khipu\\lab02\\calibration.json'"
         )
+        development_measurements_assignment = (
+            "$env:LAB02_DEVELOPMENT_MEASUREMENTS_FILE = "
+            "Join-Path $HOME '.khipu\\lab02\\development-measurements.json'"
+        )
         report_assignment = "$env:LAB02_REPORT_ROOT = Join-Path $HOME '.khipu\\lab02\\artifacts'"
     else:
         config_assignment = f"$env:OCI_CONFIG_FILE = '{config_file}'"
@@ -87,8 +91,12 @@ def render_session(
         calibration_assignment = (
             "$env:LAB02_CALIBRATION_FILE = 'C:\\KhipuPrivate\\lab02-calibration-02-es.json'"
         )
+        development_measurements_assignment = (
+            "$env:LAB02_DEVELOPMENT_MEASUREMENTS_FILE = "
+            "'C:\\KhipuPrivate\\lab02-development-measurements.json'"
+        )
         report_assignment = "$env:LAB02_REPORT_ROOT = 'C:\\KhipuPrivate\\artifacts\\lab02'"
-    return f"""# Private facilitator rehearsal session for Workshop 2 participant {participant}.
+    return f"""# Private Workshop 2 participant session for {participant}.
 # Do not commit or distribute this file. Passwords are prompted at runtime.
 $env:LAB02_PARTICIPANT_ID = '{participant}'
 $env:ADB_USERNAME = '{schema}'
@@ -103,6 +111,7 @@ $env:ADB_CONNECT_STRING = 'kws2rag_tp'
 $env:LAB02_VECTOR_DIMENSION = '1536'
 $env:LAB02_CONTRACT_TABLE = 'LAB02_CONTRACT_CHUNKS'
 {calibration_assignment}
+{development_measurements_assignment}
 {report_assignment}
 $env:LAB02_TOP_K = '3'
 $env:LAB02_SET_OUTPUT_DIMENSIONS = 'false'

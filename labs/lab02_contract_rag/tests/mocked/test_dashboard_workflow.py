@@ -164,6 +164,56 @@ def test_comparison_embeds_question_once(settings, services, monkeypatch):
     assert sum(t["service_operation"] == "adb_vector_search" for t in result["service_trace"]) == 2
 
 
+def test_migration_adds_strict_structural_coverage_when_vector_candidates_are_incomplete(
+    settings, services, monkeypatch
+):
+    chunks = load_corpus()
+    migration = next(c for c in chunks if c.contract_version == "v2" and c.section == "Migración desde v1")
+    endpoint = next(
+        c
+        for c in chunks
+        if c.contract_version == "v2" and c.section == "Endpoint de estado de liquidación"
+    )
+    monkeypatch.setattr(
+        live,
+        "retrieve_evidence",
+        lambda *a: [RetrievedEvidence(migration, 0.2, "vector", "cosine_distance")],
+    )
+    monkeypatch.setattr(
+        live,
+        "retrieve_section_coverage",
+        lambda *a: [
+            RetrievedEvidence(
+                endpoint,
+                0.0,
+                "structural_section_coverage",
+                "facet_coverage",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        live,
+        "generate_grounded_answer",
+        lambda client, s, q, evidence: {
+            "status": "answered",
+            "claims": [
+                {"text": item.chunk.content, "evidence_ids": [f"E{index}"]}
+                for index, item in enumerate(evidence, 1)
+            ],
+        },
+    )
+    question = next(item["question"] for item in workshop_cases() if item["id"] == "T06")
+
+    result = execution.execute_live(settings, question, confirm_inference=True)
+
+    assert result["status"] == "answered"
+    assert {source["section"] for source in result["citations"]} == {
+        "Migración desde v1",
+        "Endpoint de estado de liquidación",
+    }
+    assert any(item["service_operation"] == "adb_section_coverage" for item in result["service_trace"])
+
+
 def test_report_reader_rejects_peer_and_local_reports(settings, services, tmp_path):
     result = execution.execute_live(
         settings, "En v2, ¿qué header de idempotencia?", confirm_inference=True

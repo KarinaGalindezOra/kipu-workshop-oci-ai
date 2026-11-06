@@ -52,7 +52,25 @@ Ejecuta M3 con T03 y M4 con T08. Los resultados deben declarar `OCI_EXECUTED Fal
 
 Para T08, escribe la diferencia entre `X-Idempotency-Key` y `Idempotency-Key` y asóciala a la versión correcta.
 
-## 5. Consultas OCI con respuesta respaldada
+## 5. Preparación del corpus en OCI
+
+Ejecuta M5 en el dashboard mediante **Preparar mi corpus sintético**. Esta actividad usa OCI Generative AI para crear embeddings de documentos e inserta o reutiliza los fragmentos compatibles en tu schema individual de ADB. No formula una pregunta contractual ni solicita una respuesta de chat.
+
+| Elemento | Registro de la ejecución |
+|---|---|
+| Estado observado |  |
+| Cantidad de fragmentos del corpus |  |
+| `corpus_id` activo |  |
+| Operaciones OCI/ADB exitosas |  |
+| Llamadas de embedding de consulta |  |
+| Llamadas de chat |  |
+| Resultado de la calibración |  |
+| Embeddings de consulta usados para calibrar |  |
+| Diferencia respecto de M2 |  |
+
+¿Por qué es correcto que la ingesta no publique candidatos, citas ni una respuesta del modelo? ¿Por qué la calibración no llama al modelo de chat?
+
+## 6. Consultas OCI con respuesta respaldada
 
 Ejecuta T01 o T03, luego T06 y T08. Para cada caso, usa el dashboard para seguir la respuesta hasta la evidencia seleccionada.
 
@@ -64,7 +82,7 @@ Ejecuta T01 o T03, luego T06 y T08. Para cada caso, usa el dashboard para seguir
 
 Para T08, deja explícito qué cita corresponde a v1 y cuál a v2. Una `cosine_distance` menor significa mayor proximidad, no que el candidato sea automáticamente el mejor respaldo semántico.
 
-## 6. Límites correctos
+## 7. Límites correctos
 
 | Caso | Resultado correcto | ¿Hubo embedding? | ¿Hubo chat? | Explicación |
 |---|---|---:|---:|---|
@@ -74,7 +92,7 @@ Para T08, deja explícito qué cita corresponde a v1 y cuál a v2. Una `cosine_d
 
 Explica por qué una abstención correcta es mejor que una respuesta plausible sin respaldo:
 
-## 7. RAG o SQL controlado
+## 8. RAG o SQL controlado
 
 | Necesidad | RAG, SQL o combinado | Justificación | Control necesario |
 |---|---|---|---|
@@ -83,7 +101,7 @@ Explica por qué una abstención correcta es mejor que una respuesta plausible s
 | Contar transacciones `SETTLED` ayer |  |  |  |
 | Explicar un estado y contar transacciones con ese estado |  |  |  |
 
-## 8. Entrega y reflexión
+## 9. Entrega y reflexión
 
 Antes de cerrar, confirma:
 

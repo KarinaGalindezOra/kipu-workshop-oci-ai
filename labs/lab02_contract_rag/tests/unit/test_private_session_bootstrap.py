@@ -62,4 +62,5 @@ def test_portable_powershell_session_uses_the_participant_home_directory():
 
     assert "$env:OCI_CONFIG_FILE = Join-Path $HOME '.oci\\config'" in rendered
     assert "$env:ADB_WALLET_DIR = Join-Path $HOME '.khipu\\lab02\\wallet'" in rendered
+    assert "LAB02_DEVELOPMENT_MEASUREMENTS_FILE" in rendered
     assert "C:/facilitator/config" not in rendered

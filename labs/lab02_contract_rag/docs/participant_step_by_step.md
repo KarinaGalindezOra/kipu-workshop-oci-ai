@@ -137,6 +137,8 @@ python labs/lab02_contract_rag/scripts/run_dashboard.py \
 
 Abre `http://127.0.0.1:8502` en tu navegador. Verás **Ejecutar e inspeccionar** y **Mi historial de ejecuciones**. El dashboard es local: no lo expongas mediante un proxy público.
 
+Si el terminal informa que el puerto `8502` no está disponible, no es un error de OCI: otro dashboard local ya lo está usando. Cierra ese proceso o inicia este dashboard con `--port 8503` y abre `http://127.0.0.1:8503`.
+
 ## Durante la sesión: laboratorio de 180 minutos
 
 Abre el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta de artefactos. Hazlo en la misma terminal donde cargaste tu sesión privada en el Paso 3. No copies el cuaderno dentro del repositorio ni incluyas contraseñas, wallet, tokens o datos de clientes.
@@ -260,6 +262,14 @@ Los resultados OCI de M5 en adelante se revisan en el dashboard local: **Ejecuta
 
 En el dashboard, selecciona **Preparar mi corpus sintético**. Confirma las casillas de consumo y carga, e ingresa las contraseñas localmente si se solicitan. El flujo realiza embeddings OCI reales e inserta o reutiliza de forma compatible los nueve fragmentos sintéticos en tu schema individual.
 
+Después de una ingesta exitosa, congela la calibración compatible con ese corpus, región y modelo. Este paso usa únicamente las preguntas sintéticas de desarrollo, hace embeddings de consulta reales y no llama al modelo de chat:
+
+```powershell
+python labs/lab02_contract_rag/scripts/calibrate_participant.py --confirm-live-inference
+```
+
+Si informa `CALIBRATION_ALREADY_VALID`, no realizó llamadas nuevas. Si informa `CALIBRATION_WRITTEN`, quedó una calibración local privada compatible. Si falla, no avances a una consulta OCI: avisa a la facilitación.
+
 Registra en el cuaderno:
 
 - Cantidad de fragmentos.
@@ -277,6 +287,8 @@ Selecciona T01 o T03, marca **Preguntar usando OCI** y confirma el consumo aprob
 4. **Ejecución de servicios:** embedding, búsqueda ADB y chat; una operación omitida también es información.
 5. **Afirmaciones y evidencia verificable:** extracto, versión, sección, líneas y hash.
 6. **Candidatos recuperados:** candidatos evaluados, incluso aquellos que no se usaron en la respuesta.
+
+Cuando la búsqueda vectorial inicial no contiene una sección necesaria para un aspecto solicitado, la traza puede mostrar `adb_section_coverage`. Es una recuperación estructurada de completitud, limitada al mismo corpus, API, versión, clasificación y espacio de embeddings; no mezcla versiones ni sustituye la revisión semántica del extracto.
 
 Una `cosine_distance` menor significa que un candidato vectorial está más cerca de la consulta. No prueba que responda la pregunta. La evidencia se publica solo si el extracto respalda la afirmación concreta.
 

@@ -39,7 +39,7 @@ python labs/lab02_contract_rag/scripts/run_dashboard.py \
   --port 8502
 ```
 
-Abre `http://127.0.0.1:8502`. El proceso debe permanecer abierto en esa terminal mientras utilizas el dashboard.
+Abre `http://127.0.0.1:8502`. El proceso debe permanecer abierto en esa terminal mientras utilizas el dashboard. Si el puerto ya está ocupado por otro dashboard local, ciérralo o sustituye `8502` por `8503` tanto en el comando como en la URL.
 
 ## Errores frecuentes
 

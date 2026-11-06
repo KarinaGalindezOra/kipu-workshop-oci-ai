@@ -1,0 +1,112 @@
+"""Freeze a participant-local calibration from real OCI development measurements."""
+
+import argparse
+import json
+import os
+from dataclasses import replace
+from pathlib import Path
+
+from lab02_contract_rag.calibration import calibrate, validate_calibration
+from lab02_contract_rag.corpus import LAB_ROOT
+from lab02_contract_rag.live_validation import (
+    create_database_connection,
+    create_inference_client,
+    embed_texts,
+    retrieve_evidence,
+    settings_from_environment,
+)
+from lab02_contract_rag.private_session import add_session_file_argument, load_participant_session
+
+
+def configured_paths() -> tuple[Path, Path]:
+    calibration_value = os.getenv("LAB02_CALIBRATION_FILE")
+    if not calibration_value:
+        raise ValueError("Private calibration path is unavailable")
+    calibration_path = Path(calibration_value)
+    measurements_path = Path(
+        os.getenv(
+            "LAB02_DEVELOPMENT_MEASUREMENTS_FILE",
+            str(calibration_path.with_name("development-measurements.json")),
+        )
+    )
+    return calibration_path, measurements_path
+
+
+def calibration_is_current(path: Path, settings) -> bool:
+    if not path.is_file():
+        return False
+    try:
+        validate_calibration(
+            path,
+            region=settings.region,
+            model_id=settings.embedding_model_id,
+            dimension=settings.vector_dimension,
+        )
+    except (KeyError, OSError, ValueError, json.JSONDecodeError):
+        return False
+    return True
+
+
+def collect_measurements(settings) -> dict:
+    client = create_inference_client(settings)
+    questions = json.loads(
+        (LAB_ROOT / "data/evaluation/development_questions.json").read_text(encoding="utf-8")
+    )
+    rows = []
+    with create_database_connection(settings) as connection, connection.cursor() as cursor:
+        for item in questions:
+            version = "v1" if "v1" in item["question"] else "v2"
+            vector = embed_texts(client, settings, [item["question"]], "SEARCH_QUERY")[0]
+            evidence = retrieve_evidence(cursor, settings.table_name, version, vector, 3, settings)
+            for candidate in evidence:
+                rows.append(
+                    {
+                        "question_id": item["id"],
+                        "distance": candidate.score,
+                        "relevant": candidate.chunk.section == item["relevant_section"],
+                    }
+                )
+    return {
+        "context": {
+            "corpus_id": "contracts-baseline-02-es",
+            "region": settings.region,
+            "model_id": settings.embedding_model_id,
+            "dimension": settings.vector_dimension,
+        },
+        "rows": rows,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_session_file_argument(parser)
+    parser.add_argument("--confirm-live-inference", action="store_true")
+    args = parser.parse_args()
+    load_participant_session(args.session_file)
+    settings = replace(settings_from_environment(require_calibration=False), max_cosine_distance=2)
+    calibration_path, measurements_path = configured_paths()
+
+    if calibration_is_current(calibration_path, settings):
+        print("CALIBRATION_ALREADY_VALID")
+        return
+    if not args.confirm_live_inference:
+        parser.error(
+            "Calibration is stale or missing. Use --confirm-live-inference before paid OCI calls."
+        )
+
+    try:
+        measurements = collect_measurements(settings)
+        frozen = calibrate(measurements)
+        measurements_path.parent.mkdir(parents=True, exist_ok=True)
+        measurements_path.write_text(json.dumps(measurements, indent=2), encoding="utf-8")
+        calibration_path.parent.mkdir(parents=True, exist_ok=True)
+        calibration_path.write_text(json.dumps(frozen, indent=2), encoding="utf-8")
+        print("CALIBRATION_WRITTEN; keep configuration private")
+    except Exception:
+        raise SystemExit(
+            "Calibration failed; inspect the private setup and service access before retrying"
+        ) from None
+
+
+if __name__ == "__main__":
+    main()

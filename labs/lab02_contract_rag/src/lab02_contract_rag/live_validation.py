@@ -20,7 +20,7 @@ import oracledb
 
 from .corpus import LAB_ROOT, load_corpus
 from .demo import DEFAULT_QUESTION
-from .evidence import citations
+from .evidence import citations, section_facet
 from .models import ContractChunk, RetrievedEvidence
 from .participant import (
     artifact_directory,
@@ -369,6 +369,75 @@ def retrieve_evidence(
             raise ValueError("Stored evidence differs from the frozen source manifest")
         if math.isfinite(distance) and distance <= settings.max_cosine_distance:
             evidence.append(RetrievedEvidence(chunk, float(distance), "vector", "cosine_distance"))
+    return evidence
+
+
+def retrieve_section_coverage(
+    cursor,
+    table_name: str,
+    contract_version: str,
+    facets: set[str],
+    existing_chunk_ids: set[str],
+    settings: LiveLab02Settings,
+    corpus_id="contracts-baseline-02-es",
+):
+    """Retrieve only missing requested facets using strict stored metadata filters.
+
+    This is not an approximate-search substitute: it is a bounded structural
+    completion after the initial vector candidates. It is used only when a
+    required facet has no vector candidate, and remains limited to the active
+    corpus, API, version, classification and embedding space.
+    """
+
+    if not facets or contract_version not in {"v1", "v2"}:
+        return []
+    cursor.execute(
+        f"""
+        SELECT metadata_json
+        FROM {validated_table_name(table_name)}
+        WHERE contract_version = :contract_version AND corpus_id = :corpus_id
+          AND api_name = :api_name AND data_classification = 'synthetic'
+          AND embedding_model_id = :model_id AND embedding_dimension = :dimension
+        ORDER BY chunk_id
+    """,
+        contract_version=contract_version,
+        corpus_id=corpus_id,
+        api_name="disbursement",
+        model_id=settings.embedding_model_id,
+        dimension=settings.vector_dimension,
+    )
+    approved = {c.chunk_id: c for c in load_corpus()}
+    evidence = []
+    for (raw,) in cursor:
+        raw = raw.read() if hasattr(raw, "read") else raw
+        chunk = ContractChunk(**json.loads(raw))
+        if (
+            chunk.contract_version != contract_version
+            or chunk.corpus_id != corpus_id
+            or chunk.api_name != "disbursement"
+            or chunk.data_classification != "synthetic"
+            or chunk.embedding_model_id != settings.embedding_model_id
+            or chunk.embedding_dimension != settings.vector_dimension
+            or chunk.embedding_input_hash != hashlib.sha256(chunk.content.encode()).hexdigest()
+        ):
+            raise ValueError("Stored metadata conflicts with retrieval scope")
+        original = approved.get(chunk.chunk_id)
+        stored = asdict(chunk)
+        reference = asdict(original) if original else {}
+        for field in ("embedding", "embedding_model_id", "embedding_dimension", "loaded_at"):
+            stored.pop(field, None)
+            reference.pop(field, None)
+        if stored != reference:
+            raise ValueError("Stored evidence differs from the frozen source manifest")
+        if chunk.chunk_id not in existing_chunk_ids and section_facet(chunk.section) in facets:
+            evidence.append(
+                RetrievedEvidence(
+                    chunk,
+                    0.0,
+                    "structural_section_coverage",
+                    "facet_coverage",
+                )
+            )
     return evidence
 
 

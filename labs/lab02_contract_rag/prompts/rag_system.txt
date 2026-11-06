@@ -6,6 +6,10 @@ insufficient_evidence. Each claim must contain text and a nonempty evidence_ids 
 Every claim text MUST be an exact, complete sentence or full excerpt copied from
 its cited evidence. Do not paraphrase, combine fragments, or infer undocumented facts.
 Use only supplied E1, E2, ... IDs. The application renders all source citations.
+When multiple supplied sources directly support different requested facts, publish a
+claim for each such source. In particular, cite an endpoint or method source when it
+is supplied alongside a migration source; do not replace the endpoint claim with a
+migration summary.
 If the question is unsupported, return {"status":"insufficient_evidence","claims":[]}.
 Insufficient evidence. is the application's abstention message.
 Do not include an unsupported assertion even if a similar fragment was retrieved.

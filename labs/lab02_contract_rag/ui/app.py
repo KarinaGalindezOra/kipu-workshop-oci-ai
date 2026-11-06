@@ -22,61 +22,73 @@ from lab02_contract_rag.participant import participant_id
 
 def render_result(result):
     candidates, candidate_by_chunk = candidate_selection(result)
-    st.subheader("Referencia del ejercicio vs. respuesta obtenida")
-    st.caption(f"Pregunta: {result['question']}")
-    st.caption(f"Ejecución: {result['run_id']} | Participante: {result['participant_id']}")
-    comparison = expected_comparison(result)
-    left, right = st.columns(2)
-    with left:
-        st.markdown("**Respuesta de referencia del ejercicio**")
-        st.caption("Definida en la matriz antes de ejecutar OCI.")
-        if comparison:
-            case = comparison["case"]
-            st.write(case["expected_answer"])
-            st.caption(f"Estado esperado: {case['expected_status']}")
-            st.write("Secciones requeridas: " + (", ".join(case["sections"]) or "No aplica"))
-            st.write(
-                "Hechos requeridos: " + (", ".join(case["required_terms"]) or "No inventar hechos")
-            )
-        else:
-            st.info(
-                "No hay una respuesta esperada congelada para esta consulta personalizada. "
-                "Se requiere revisión humana."
-            )
-    with right:
-        st.markdown("**Respuesta obtenida de OCI**")
-        st.caption("Publicada por esta ejecución, después de validar sus citas.")
-        st.write(result["status"])
-        if result["answer"]:
-            st.text(result["answer"])
-        else:
-            st.info("No hay una respuesta publicada del modelo para este resultado.")
+    is_ingestion = result["status"] == "ingested"
+    if is_ingestion:
+        st.subheader("Preparación del corpus sintético")
+        st.caption(f"Ejecución: {result['run_id']} | Participante: {result['participant_id']}")
+        st.success(
+            "El corpus quedó preparado para consultas OCI. Esta actividad no formula una "
+            "pregunta contractual ni solicita una respuesta de chat."
+        )
         for limitation in result["limitations"]:
             st.write(limitation)
-    st.divider()
-    if comparison:
-        assessment = comparison["assessment"]
-        if assessment["passed"]:
-            st.success(
-                "Las comprobaciones automáticas del contrato fueron aprobadas. "
-                "Revisa el texto y la evidencia reales a continuación."
+    else:
+        st.subheader("Referencia del ejercicio vs. respuesta obtenida")
+        st.caption(f"Pregunta: {result['question']}")
+        st.caption(f"Ejecución: {result['run_id']} | Participante: {result['participant_id']}")
+        comparison = expected_comparison(result)
+        left, right = st.columns(2)
+        with left:
+            st.markdown("**Respuesta de referencia del ejercicio**")
+            st.caption("Definida en la matriz antes de ejecutar OCI.")
+            if comparison:
+                case = comparison["case"]
+                st.write(case["expected_answer"])
+                st.caption(f"Estado esperado: {case['expected_status']}")
+                st.write("Secciones requeridas: " + (", ".join(case["sections"]) or "No aplica"))
+                st.write(
+                    "Hechos requeridos: "
+                    + (", ".join(case["required_terms"]) or "No inventar hechos")
+                )
+            else:
+                st.info(
+                    "No hay una respuesta de referencia para esta consulta personalizada. "
+                    "Se requiere revisión humana."
+                )
+        with right:
+            st.markdown("**Respuesta obtenida de OCI**")
+            st.caption("Publicada por esta ejecución, después de validar sus citas.")
+            st.write(result["status"])
+            if result["answer"]:
+                st.text(result["answer"])
+            else:
+                st.info("No hay una respuesta publicada del modelo para este resultado.")
+            for limitation in result["limitations"]:
+                st.write(limitation)
+        st.divider()
+        if comparison:
+            assessment = comparison["assessment"]
+            if assessment["passed"]:
+                st.success(
+                    "Las comprobaciones automáticas del contrato fueron aprobadas. "
+                    "Revisa el texto y la evidencia reales a continuación."
+                )
+            else:
+                st.error(
+                    "No se cumple el contrato esperado. Inspecciona el resultado y las fuentes reales."
+                )
+            st.dataframe(
+                [
+                    {"Comprobación": key, "Observado": str(value)}
+                    for key, value in assessment.items()
+                    if key not in {"id", "expected_status"}
+                ],
+                hide_index=True,
             )
-        else:
-            st.error(
-                "No se cumple el contrato esperado. Inspecciona el resultado y las fuentes reales."
-            )
-        st.dataframe(
-            [
-                {"Comprobación": key, "Observado": str(value)}
-                for key, value in assessment.items()
-                if key not in {"id", "expected_status"}
-            ],
-            hide_index=True,
+        st.warning(
+            "Revisión humana pendiente: las comprobaciones automáticas y las citas son necesarias, "
+            "pero debes confirmar que el extracto realmente sustenta la respuesta."
         )
-    st.warning(
-        "Revisión humana pendiente: las comprobaciones automáticas y las citas son necesarias, "
-        "pero debes confirmar que el extracto realmente sustenta la respuesta."
-    )
     st.subheader("Ejecución de servicios")
     if result.get("execution_origin") == "application_control":
         st.info("Decisión de la aplicación: no se necesitó inferencia OCI. No es una respuesta del modelo.")
@@ -116,8 +128,9 @@ def render_result(result):
                 )
     with st.expander("Candidatos recuperados y evidencia seleccionada"):
         st.caption(
-            "Una menor cosine_distance indica un candidato más cercano. La selección de "
-            "evidencia requiere además respaldo semántico de la afirmación."
+            "Una menor cosine_distance indica un candidato vectorial más cercano. Una "
+            "cobertura estructural de sección completa un aspecto solicitado ausente en los "
+            "candidatos vectoriales; ninguna señal sustituye el respaldo semántico."
         )
         st.dataframe(
             [
@@ -125,6 +138,7 @@ def render_result(result):
                     "Versión": e["contract_version"],
                     "Sección": e["section"],
                     "Posición": e["rank_value"],
+                    "Método": e["method"],
                     "Métrica": e["score_type"],
                     "Seleccionada como evidencia": "Sí"
                     if e["selected_as_evidence"]
