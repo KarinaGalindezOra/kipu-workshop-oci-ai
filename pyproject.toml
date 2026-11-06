@@ -17,6 +17,7 @@ dependencies = [
 [project.optional-dependencies]
 lab02 = [
   "oci==2.187.2",
+  "oci-cli>=3.85.0,<4.0",
   "oracledb==4.0.2",
 ]
 lab01 = [

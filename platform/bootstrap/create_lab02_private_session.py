@@ -66,25 +66,44 @@ def resolve_compartment_id(config_file: Path | None, profile_name: str) -> str:
 
 
 def render_session(
-    *, participant: str, config_file: Path, profile_name: str, compartment_id: str
+    *,
+    participant: str,
+    config_file: Path,
+    profile_name: str,
+    compartment_id: str,
+    portable: bool = False,
 ) -> str:
     schema = participant_schema(participant)
+    if portable:
+        config_assignment = "$env:OCI_CONFIG_FILE = Join-Path $HOME '.oci\\config'"
+        wallet_assignment = "$env:ADB_WALLET_DIR = Join-Path $HOME '.khipu\\lab02\\wallet'"
+        calibration_assignment = (
+            "$env:LAB02_CALIBRATION_FILE = Join-Path $HOME '.khipu\\lab02\\calibration.json'"
+        )
+        report_assignment = "$env:LAB02_REPORT_ROOT = Join-Path $HOME '.khipu\\lab02\\artifacts'"
+    else:
+        config_assignment = f"$env:OCI_CONFIG_FILE = '{config_file}'"
+        wallet_assignment = "$env:ADB_WALLET_DIR = 'C:\\KhipuPrivate\\Wallet_KWS2RAG'"
+        calibration_assignment = (
+            "$env:LAB02_CALIBRATION_FILE = 'C:\\KhipuPrivate\\lab02-calibration-02-es.json'"
+        )
+        report_assignment = "$env:LAB02_REPORT_ROOT = 'C:\\KhipuPrivate\\artifacts\\lab02'"
     return f"""# Private facilitator rehearsal session for Workshop 2 participant {participant}.
 # Do not commit or distribute this file. Passwords are prompted at runtime.
 $env:LAB02_PARTICIPANT_ID = '{participant}'
 $env:ADB_USERNAME = '{schema}'
 $env:OCI_REGION = 'us-chicago-1'
-$env:OCI_CONFIG_FILE = '{config_file}'
+{config_assignment}
 $env:OCI_CONFIG_PROFILE = '{profile_name}'
 $env:OCI_COMPARTMENT_ID = '{compartment_id}'
 $env:OCI_EMBEDDING_MODEL_ID = 'cohere.embed-v4.0'
 $env:OCI_CHAT_MODEL_ID = 'xai.grok-4.7'
 $env:ADB_CONNECT_STRING = 'kws2rag_tp'
-$env:ADB_WALLET_DIR = 'C:\\KhipuPrivate\\Wallet_KWS2RAG'
+{wallet_assignment}
 $env:LAB02_VECTOR_DIMENSION = '1536'
 $env:LAB02_CONTRACT_TABLE = 'LAB02_CONTRACT_CHUNKS'
-$env:LAB02_CALIBRATION_FILE = 'C:\\KhipuPrivate\\lab02-calibration-02-es.json'
-$env:LAB02_REPORT_ROOT = 'C:\\KhipuPrivate\\artifacts\\lab02'
+{calibration_assignment}
+{report_assignment}
 $env:LAB02_TOP_K = '3'
 $env:LAB02_SET_OUTPUT_DIMENSIONS = 'false'
 """
@@ -174,6 +193,7 @@ def main() -> None:
             config_file=args.config_file or Path("~/.oci/config"),
             profile_name=args.profile_name,
             compartment_id=compartment_id,
+            portable=args.portable,
         )
         if args.format == "powershell"
         else render_dotenv_session(

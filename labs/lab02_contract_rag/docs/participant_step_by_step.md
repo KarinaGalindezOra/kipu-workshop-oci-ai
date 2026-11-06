@@ -74,6 +74,7 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev,lab02,ui]"
+oci --version
 ```
 
 #### macOS o Linux
@@ -83,13 +84,14 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev,lab02,ui]"
+oci --version
 ```
 
 Si usas macOS o Linux, consulta también la [guía macOS y Linux](macos_linux_participant_guide.md).
 
-### Paso 3: valida tu asignación privada
+### Paso 3: activa tu sesión OCI individual y valida tu asignación privada
 
-Carga el archivo de sesión entregado por la facilitación. El comando solicita las contraseñas localmente y no invoca OCI Generative AI.
+Carga el archivo de sesión entregado por la facilitación y crea o renueva el token local de tu identidad OCI individual. Este paso abre un navegador para iniciar sesión; no llama a OCI Generative AI, no genera embeddings y no inserta datos en ADB. Hazlo antes de abrir el dashboard y repítelo si tu token expira.
 
 #### Windows PowerShell
 
@@ -97,6 +99,7 @@ La facilitación te enviará un bloque privado ya preparado para tu identidad. P
 
 ```powershell
 . '<private-participant-session.ps1>'
+python labs/lab02_contract_rag/scripts/authenticate_oci_session.py
 python labs/lab02_contract_rag/scripts/validate_environment.py --check-db
 ```
 
@@ -107,12 +110,14 @@ No escribas literalmente los caracteres `<` y `>`: son una explicación visual. 
 La facilitación te enviará la ruta de tu archivo dotenv privado. Pega el bloque recibido; tendrá esta forma:
 
 ```bash
+python labs/lab02_contract_rag/scripts/authenticate_oci_session.py \
+  --session-file /private/path/lab02-participant.env
 python labs/lab02_contract_rag/scripts/validate_environment.py \
   --session-file /private/path/lab02-participant.env \
   --check-db
 ```
 
-El resultado esperado muestra `status` igual a `passed` y `database_session` igual a `participant_schema`. Si falla, detente y avisa a la facilitación.
+El resultado esperado primero muestra `OCI_SESSION_AUTHENTICATED` y `OCI_SESSION_VALID`; después, la validación de base de datos muestra `status` igual a `passed` y `database_session` igual a `participant_schema`. Si falla, detente y avisa a la facilitación. No sustituyas tu perfil, wallet o archivo de sesión por el de otra persona.
 
 ### Paso 4: abre el dashboard
 

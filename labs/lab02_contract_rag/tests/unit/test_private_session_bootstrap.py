@@ -49,3 +49,17 @@ def test_dotenv_session_is_cross_platform_and_password_free():
     assert "OCI_CONFIG_FILE" not in rendered
     assert "PASSWORD" not in rendered
     assert "TOKEN" not in rendered
+
+
+def test_portable_powershell_session_uses_the_participant_home_directory():
+    rendered = MODULE.render_session(
+        participant="p002",
+        config_file=Path("C:/facilitator/config"),
+        profile_name="KWS2_P002",
+        compartment_id="ocid1.compartment.oc1..example",
+        portable=True,
+    )
+
+    assert "$env:OCI_CONFIG_FILE = Join-Path $HOME '.oci\\config'" in rendered
+    assert "$env:ADB_WALLET_DIR = Join-Path $HOME '.khipu\\lab02\\wallet'" in rendered
+    assert "C:/facilitator/config" not in rendered
