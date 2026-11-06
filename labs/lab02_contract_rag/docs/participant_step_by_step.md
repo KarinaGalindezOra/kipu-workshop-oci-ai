@@ -225,6 +225,32 @@ python labs/lab02_contract_rag/scripts/run_local_practice.py retrieve --case-id 
 
 El resultado esperado contiene evidencia `Idempotencia` de v1 y v2. Registra por separado `X-Idempotency-Key` y `Idempotency-Key`. Si falta una de las versiones, no completes la respuesta con conocimiento previo: revisa el filtro y avisa a la facilitación.
 
+### Dónde revisar los reportes
+
+Los reportes de M2, M3 y M4 son archivos JSON locales. La terminal siempre imprime la ruta exacta como `CORPUS_REPORT` o `EVIDENCE_REPORT`; ábrela para revisar fragmentos, candidatos, afirmaciones y citas. Estos archivos se guardan bajo `artifacts/lab02/local-practice/<participant-id>/` y están excluidos de Git. No se muestran en el dashboard porque no son ejecuciones OCI.
+
+#### Windows PowerShell
+
+Reemplaza `<ruta-impresa-por-la-terminal>` por la ruta completa que acabas de recibir:
+
+```powershell
+notepad '<ruta-impresa-por-la-terminal>'
+```
+
+#### macOS
+
+```bash
+open '<ruta-impresa-por-la-terminal>'
+```
+
+#### Linux
+
+```bash
+xdg-open '<ruta-impresa-por-la-terminal>'
+```
+
+Los resultados OCI de M5 en adelante se revisan en el dashboard local: **Ejecutar e inspeccionar** muestra la ejecución recién terminada y **Mi historial de ejecuciones** conserva las ejecuciones de tu propia sesión. Esos reportes también se guardan en tu carpeta privada de artefactos configurada por la facilitación.
+
 ### M5 — preparar el corpus en OCI
 
 En el dashboard, selecciona **Preparar mi corpus sintético**. Confirma las casillas de consumo y carga, e ingresa las contraseñas localmente si se solicitan. El flujo realiza embeddings OCI reales e inserta o reutiliza de forma compatible los nueve fragmentos sintéticos en tu schema individual.
