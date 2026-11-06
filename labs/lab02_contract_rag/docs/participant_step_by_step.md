@@ -134,7 +134,28 @@ Abre `http://127.0.0.1:8502` en tu navegador. Verás **Ejecutar e inspeccionar**
 
 ## Durante la sesión: laboratorio de 180 minutos
 
-Abre el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta de artefactos. En Windows puedes usar `Copy-Item`; en macOS o Linux, `cp`. Conserva abierta la terminal y el dashboard.
+Abre el [cuaderno de trabajo](participant_workbook.md) y cópialo a tu carpeta de artefactos. Hazlo en la misma terminal donde cargaste tu sesión privada en el Paso 3. No copies el cuaderno dentro del repositorio ni incluyas contraseñas, wallet, tokens o datos de clientes.
+
+#### Windows PowerShell
+
+```powershell
+$artifactDir = Join-Path $env:LAB02_REPORT_ROOT $env:LAB02_PARTICIPANT_ID
+New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
+Copy-Item `
+  labs\lab02_contract_rag\docs\participant_workbook.md `
+  (Join-Path $artifactDir "participant_workbook.md")
+```
+
+#### macOS o Linux
+
+```bash
+artifact_dir="${LAB02_REPORT_ROOT}/${LAB02_PARTICIPANT_ID}"
+mkdir -p "$artifact_dir"
+cp labs/lab02_contract_rag/docs/participant_workbook.md \
+  "$artifact_dir/participant_workbook.md"
+```
+
+Conserva abierta la terminal y el dashboard.
 
 | Minutos | Módulo | Trabajo práctico | Entregable observable |
 |---:|---|---|---|
