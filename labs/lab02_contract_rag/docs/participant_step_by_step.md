@@ -176,7 +176,7 @@ Conserva abierta la terminal y el dashboard.
 
 ### M0 y M1 — fuente de verdad antes de recuperar
 
-Lee `data/contract_v1.md` y `data/contract_v2.md`. Completa las secciones 1 y 2 del cuaderno. En particular, contrasta método, endpoint, campo de solicitud, estados, header de idempotencia, respuesta y error. No ejecutes OCI todavía.
+Lee `labs/lab02_contract_rag/data/contract_v1.md` y `labs/lab02_contract_rag/data/contract_v2.md`. Completa las secciones 1 y 2 del cuaderno. En particular, contrasta método, endpoint, campo de solicitud, estados, header de idempotencia, respuesta y error. No ejecutes OCI todavía.
 
 Preguntas para discutir:
 

@@ -18,7 +18,7 @@ Escribe un ejemplo de una respuesta que parezca razonable, pero mezcle v1 y v2. 
 
 ## 2. Comparación de contratos
 
-Completa la tabla leyendo `data/contract_v1.md` y `data/contract_v2.md`.
+Completa la tabla leyendo `labs/lab02_contract_rag/data/contract_v1.md` y `labs/lab02_contract_rag/data/contract_v2.md`.
 
 | Elemento | v1 | v2 | Cambio comprobado |
 |---|---|---|---|
