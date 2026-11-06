@@ -65,6 +65,14 @@ def render_result(result):
                 st.info("No hay una respuesta publicada del modelo para este resultado.")
             for limitation in result["limitations"]:
                 st.write(limitation)
+            if result["status"] == "error":
+                error_stage = result.get("error_stage")
+                if error_stage == "database_connect":
+                    st.info(
+                        "La ejecución se detuvo al adquirir la conexión ADB, antes de llamar a "
+                        "embeddings o chat. Cierra el dashboard, valida ADB con tu sesión privada "
+                        "y vuelve a iniciarlo."
+                    )
         st.divider()
         if comparison:
             assessment = comparison["assessment"]

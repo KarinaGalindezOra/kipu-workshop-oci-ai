@@ -393,7 +393,8 @@ def retrieve_section_coverage(
         return []
     cursor.execute(
         f"""
-        SELECT metadata_json
+        SELECT chunk_id, content_hash, embedding_model_id, embedding_dimension,
+               embedding_input_hash
         FROM {validated_table_name(table_name)}
         WHERE contract_version = :contract_version AND corpus_id = :corpus_id
           AND api_name = :api_name AND data_classification = 'synthetic'
@@ -408,27 +409,18 @@ def retrieve_section_coverage(
     )
     approved = {c.chunk_id: c for c in load_corpus()}
     evidence = []
-    for (raw,) in cursor:
-        raw = raw.read() if hasattr(raw, "read") else raw
-        chunk = ContractChunk(**json.loads(raw))
+    for row in cursor:
+        chunk_id, content_hash, model_id, dimension, input_hash = row
+        chunk = approved.get(str(chunk_id))
+        if chunk is None:
+            raise ValueError("Stored structural evidence is absent from the frozen manifest")
         if (
-            chunk.contract_version != contract_version
-            or chunk.corpus_id != corpus_id
-            or chunk.api_name != "disbursement"
-            or chunk.data_classification != "synthetic"
-            or chunk.embedding_model_id != settings.embedding_model_id
-            or chunk.embedding_dimension != settings.vector_dimension
-            or chunk.embedding_input_hash != hashlib.sha256(chunk.content.encode()).hexdigest()
+            content_hash != chunk.content_hash
+            or model_id != settings.embedding_model_id
+            or int(dimension) != settings.vector_dimension
+            or input_hash != chunk.embedding_input_hash
         ):
-            raise ValueError("Stored metadata conflicts with retrieval scope")
-        original = approved.get(chunk.chunk_id)
-        stored = asdict(chunk)
-        reference = asdict(original) if original else {}
-        for field in ("embedding", "embedding_model_id", "embedding_dimension", "loaded_at"):
-            stored.pop(field, None)
-            reference.pop(field, None)
-        if stored != reference:
-            raise ValueError("Stored evidence differs from the frozen source manifest")
+            raise ValueError("Stored structural evidence differs from the active embedding space")
         if chunk.chunk_id not in existing_chunk_ids and section_facet(chunk.section) in facets:
             evidence.append(
                 RetrievedEvidence(

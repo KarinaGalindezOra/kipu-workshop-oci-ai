@@ -6,6 +6,7 @@
 | El entorno virtual no está activo | Activa `.venv` y vuelve a ejecutar el comando. |
 | El dashboard no inicia | Confirma la instalación y la sesión privada. Si `8502` ya está ocupado por otro dashboard local, ciérralo o usa `--port 8503` y abre `http://127.0.0.1:8503`. |
 | La consulta informa que la calibración no coincide con el espacio de embeddings | No ejecutes la consulta. Después de una ingesta OCI exitosa, ejecuta `python labs/lab02_contract_rag/scripts/calibrate_participant.py --confirm-live-inference`. Este paso usa preguntas sintéticas de desarrollo y escribe una calibración privada compatible. |
+| La traza falla en `adb_connection_acquire` antes de embeddings o chat | No registres la ejecución como una respuesta del modelo. Cierra el dashboard para liberar su pool local, vuelve a cargar tu sesión privada y ejecuta `python labs/lab02_contract_rag/scripts/validate_environment.py --check-db`. Si el estado no es `passed`, informa únicamente el código seguro a la facilitación. |
 | Error de wallet o conexión ADB | Verifica localmente la ruta entregada. No compartas archivos wallet ni mensajes completos de error. |
 | `ORA-01017` | Vuelve a ingresar la contraseña asignada de ADB. No cambies schema ni tabla. |
 | `HTTP_401` de OCI | Sigue el procedimiento privado de reautenticación entregado por la facilitación. No copies tokens ni perfiles de otras personas. |

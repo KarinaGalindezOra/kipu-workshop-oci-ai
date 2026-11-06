@@ -14,6 +14,7 @@ from lab02_contract_rag.live_validation import (
     generate_grounded_answer,
     insert_chunks,
     retrieve_evidence,
+    retrieve_section_coverage,
 )
 
 
@@ -123,6 +124,57 @@ def test_weak_vector_neighbor_is_not_evidence(settings):
         )
         == []
     )
+
+
+def test_structural_coverage_uses_frozen_manifest_and_strict_embedding_fingerprint(settings):
+    endpoint = next(
+        chunk
+        for chunk in load_corpus()
+        if chunk.contract_version == "v2" and chunk.section == "Endpoint de estado de liquidación"
+    )
+    cursor = cursor_for(
+        [
+            (
+                endpoint.chunk_id,
+                endpoint.content_hash,
+                settings.embedding_model_id,
+                settings.vector_dimension,
+                endpoint.embedding_input_hash,
+            )
+        ]
+    )
+
+    items = retrieve_section_coverage(
+        cursor, settings.table_name, "v2", {"endpoint"}, set(), settings
+    )
+
+    assert [item.chunk.chunk_id for item in items] == [endpoint.chunk_id]
+    assert items[0].method == "structural_section_coverage"
+    statement = cursor.execute.call_args.args[0]
+    assert "metadata_json" not in statement
+    assert "data_classification = 'synthetic'" in statement
+
+
+def test_structural_coverage_rejects_different_embedding_fingerprint(settings):
+    endpoint = next(
+        chunk
+        for chunk in load_corpus()
+        if chunk.contract_version == "v2" and chunk.section == "Endpoint de estado de liquidación"
+    )
+    cursor = cursor_for(
+        [
+            (
+                endpoint.chunk_id,
+                "unexpected-hash",
+                settings.embedding_model_id,
+                settings.vector_dimension,
+                endpoint.embedding_input_hash,
+            )
+        ]
+    )
+
+    with pytest.raises(ValueError, match="embedding space"):
+        retrieve_section_coverage(cursor, settings.table_name, "v2", {"endpoint"}, set(), settings)
 
 
 def test_database_metadata_cannot_bypass_scope(settings):

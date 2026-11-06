@@ -240,7 +240,8 @@ def execute_live(
             error_stage=stage,
             answer="",
             limitations=[
-                "OCI execution failed. Check private setup, approvals and service health."
+                "La ejecución OCI falló. Revisa la configuración privada, las aprobaciones y "
+                "la disponibilidad del servicio."
             ],
         )
     result.update(
