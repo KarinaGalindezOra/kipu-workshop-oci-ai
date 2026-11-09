@@ -1,5 +1,15 @@
 # Architecture
 
+## Workshop 3: participant payment agent
+
+The current Workshop 3 is the [payment agent laboratory](../labs/lab03_payment_agent/README.md). One tenancy and one shared ADB support individual OCI identities, one runtime schema and a dedicated memory owner per participant. The authenticated database session determines identity. A participant identifier supplied in a prompt never changes that identity.
+
+Python retrieves approved procedural memory with KEYWORD and payment-contract vectors filtered by corpus, API and version. It then invokes Select AI Agent, which chooses three read-only operational tools. Independently recorded tool observations and literal contractual citations are validated before a case is proposed. Case and lesson persistence are separate application operations bound to explicit human confirmation; neither is a model tool. Persistent Agent Memory is not Select AI conversation history.
+
+Local embeddings use the participant's own OCI profile. Database inference uses the prepared database Resource Principal. The Streamlit dashboard binds to loopback and uses mTLS; passwords are entered locally. Administrative provisioning and facilitator instructions are maintained separately from this public participant distribution.
+
+The historical team-oriented notes below describe the earlier laboratories. They do not replace Workshop 3's individual schema/memory-owner isolation. The prior API-change workbench remains supplementary material.
+
 ## Purpose
 
 Deliver three hands-on OCI AI labs that can be validated in a personal Trial tenancy and later reproduced in the Khipu tenancy without changing application code.

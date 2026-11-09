@@ -1,5 +1,9 @@
 # Guía del participante Workshop Khipu OCI AI
 
+## Workshop 3: nuevo recorrido
+
+Para el agente de pagos con memoria, RAG y herramientas, sigue la [guía única del participante](../../labs/lab03_payment_agent/docs/participant_step_by_step.md). El laboratorio de cambio de API de esta página se conserva como material complementario.
+
 ## Propósito
 
 Estas guías conducen los tres laboratorios del Workshop Khipu OCI AI. Cada laboratorio tiene un objetivo concreto, pasos verificables, criterios de evidencia y una alternativa segura cuando un servicio compartido no está disponible.
@@ -12,7 +16,7 @@ La secuencia conserva el estilo progresivo del workshop de referencia: primero s
 | --- | --- | --- |
 | 20 de octubre | Economía de tokens y memoria de decisiones | Memoria procedural recuperada solo dentro del contexto del equipo y comparación real de tokens OCI. |
 | 21 de octubre | RAG de contratos v1 y v2 con evidencia | Respuesta basada en la versión correcta del contrato y acompañada de evidencia. |
-| 23 de octubre | Cambio seguro de API | Análisis de impacto, parche acotado y pruebas de regresión para una API sintética. |
+| Material complementario | Cambio seguro de API | Análisis de impacto, parche acotado y pruebas de regresión para una API sintética. |
 
 ## Estado de preparación del Trial técnico
 
@@ -20,7 +24,7 @@ La secuencia conserva el estilo progresivo del workshop de referencia: primero s
 | --- | --- | --- |
 | Lab 1 | El algoritmo local, el SDK directo, el ejercicio de memoria real y la comparación de inferencia están cubiertos por pruebas. La ejecución final requiere el prework de owner, usuarios de aplicación, grants de runtime y un modelo de chat aprobado por trial de equipo. | Cada participante recupera primero una decisión real desde ADB sin inferencia y luego realiza dos llamadas OCI Generative AI con datos sintéticos; el dashboard separa evidencia real de la simulación visual local. |
 | Lab 2 | El piloto técnico validó embeddings, almacenamiento vectorial, recuperación filtrada por versión y respuesta con evidencia. El runner repetible fue cubierto con pruebas locales. | El facilitador ejecuta una vez el runner en el Trial antes de la sesión; cada equipo usa un esquema preparado o la alternativa local. |
-| Lab 3 | Análisis, parche y pruebas FastAPI verificados localmente. | No requiere ADB ni modificación de recursos OCI. La asistencia de OCI Generative AI es opcional. |
+| Laboratorio complementario de API | Análisis, parche y pruebas FastAPI verificados localmente. | No requiere ADB ni modificación de recursos OCI. La asistencia de OCI Generative AI es opcional. |
 
 ## Antes de comenzar
 

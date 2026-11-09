@@ -1,0 +1,4 @@
+[
+  {"id":"payments-v1-idempotency","version":"v1","text":"The synthetic v1 contract does not define safe retry behavior. Escalate ambiguous repeat requests for human review."},
+  {"id":"payments-v2-idempotency","version":"v2","text":"A repeated idempotency key with a different payload must be rejected. Preserve the original request identifier and escalate for investigation. A repeated key with the same payload refers to the original request and must not create another payment."}
+]

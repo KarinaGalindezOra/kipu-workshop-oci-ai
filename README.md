@@ -2,6 +2,16 @@
 
 Este repositorio contiene los materiales públicos y reproducibles de los laboratorios de inteligencia artificial de Khipu sobre Oracle Cloud Infrastructure (OCI).
 
+## ¿Participarás en Workshop 3?
+
+**Empieza aquí:** [Guía única paso a paso del participante](labs/lab03_payment_agent/docs/participant_step_by_step.md).
+
+Agente de investigación de pagos sintéticos con Oracle AI Agent Memory, RAG contractual versionado, Select AI Agent y herramientas PL/SQL. La guía en español explica desde la descarga e instalación hasta la confirmación humana del caso y la recuperación de una memoria desde una sesión nueva. Incluye resultados esperados, solución de problemas y comandos para Windows y macOS/Linux.
+
+El recorrido dura **180 minutos**, después del prework. Recibirás tu asignación y wallet por un canal privado; no crees recursos OCI ni uses credenciales administrativas. El [cuaderno del participante](labs/lab03_payment_agent/docs/participant_workbook.md) permite registrar evidencia real.
+
+El repositorio está preparado para la prueba end to end con un participante. Las validaciones locales y el piloto técnico no sustituyen esa prueba ni acreditan por sí solos aislamiento o concurrencia de 15 sesiones.
+
 ## ¿Participarás en Workshop 2?
 
 **Empieza aquí:** [Guía única paso a paso del participante](labs/lab02_contract_rag/docs/participant_step_by_step.md).
@@ -14,9 +24,11 @@ Antes de la sesión, recibirás por un canal privado tu asignación individual d
 
 ## Laboratorios
 
-1. [Workshop 1: memoria de decisiones y aislamiento de contexto](docs/participant-guides/01-agent-memory.md)
+1. [Workshop 1: memoria de decisiones y aislamiento de contexto](docs/participant-guides/01-decision-memory.md)
 2. [Workshop 2: RAG contractual con evidencia verificable](labs/lab02_contract_rag/README.md)
-3. [Workshop 3: análisis de cambios de API](docs/participant-guides/03-api-change-analysis.md)
+3. [Workshop 3: agente de pagos con memoria, evidencia y herramientas](labs/lab03_payment_agent/README.md)
+
+Material complementario: [laboratorio anterior de cambio de API](labs/lab03_api_change/README.md).
 
 ## Contenido público
 
@@ -36,7 +48,7 @@ Si colaborarás en el código, utiliza Python 3.11.9:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev,lab01,lab01-gateway,lab02,lab03,ui]"
+python -m pip install -e ".[dev,lab01,lab01-gateway,lab02,lab03,lab03-agent,ui]"
 python -m pytest
 ```
 

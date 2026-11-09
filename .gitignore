@@ -36,3 +36,13 @@ scripts/private/
 *.session.env
 *.token
 ~$*.pptx
+
+# Workshop 3 private assignments and generated participant evidence.
+labs/lab03_payment_agent/config/private/
+labs/lab03_payment_agent/wallet/
+*.sso
+*.private.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+**/evidence/

@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md",
+    "config/participant.env.example",
+    "data/contracts.json",
+    "docs/participant_step_by_step.md",
+    "docs/participant_workbook.md",
+    "exercises/agent_role.txt",
+    "exercises/find_related_requests.sql",
+    "public_files.json",
+    "scripts/run_dashboard.ps1",
+    "src/lab03_payment_agent/__init__.py",
+    "src/lab03_payment_agent/confirmation.py",
+    "src/lab03_payment_agent/domain.py",
+    "src/lab03_payment_agent/live.py",
+    "src/lab03_payment_agent/oci_profile.py",
+    "src/lab03_payment_agent/participant.py",
+    "tests/test_adapters.py",
+    "tests/test_integration.py",
+    "tests/test_oci_profile.py",
+    "tests/test_participant.py",
+    "tests/test_public_distribution.py",
+    "tests/test_workshop.py",
+    "ui/app.py"
+  ]
+}

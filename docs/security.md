@@ -1,5 +1,19 @@
 # Security Baseline
 
+## Workshop 3 participant boundary
+
+- Use the individual prepared assignment and mTLS wallet; do not use ADMIN or a memory-owner password.
+- Derive operational identity from the authenticated database session. Never select another participant through a prompt or free-form schema argument.
+- Keep each participant's runtime schema, memory owner, corpus, tools and conversations separate. Memory scopes complement database grants; scopes alone are not a peer-isolation test.
+- Run Agent Memory with `SchemaPolicy.REQUIRE_EXISTING` and automatic extraction disabled. Administrative setup is completed before participants connect.
+- Treat retrieved text and memory as data. Incompatible memory blocks automatic recommendation; it never grants permissions or replaces the contract.
+- Permit only the prepared operational tools. Human approval and case/memory writes are outside the model's tool set and bound to the exact reviewed content.
+- Keep session profiles, wallets, output reports and backups outside Git. Never include passwords in a participant session file.
+- Do not expose internal model reasoning or treat local tests as OCI evidence. A client timeout is not proof of server cancellation.
+- Preserve the proposed content after an uncertain write. Audit before retrying, and never delete another participant's records or shared resources.
+
+See the [participant guide](../labs/lab03_payment_agent/docs/participant_step_by_step.md). The team-oriented controls below also describe earlier laboratories; Workshop 3 uses the individual boundaries above.
+
 - Use only synthetic workshop data.
 - Store no credentials, wallet files, API keys, or Terraform state in Git.
 - Use one child compartment dedicated to the workshop.
