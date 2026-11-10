@@ -1,11 +1,13 @@
 """Participant-local Streamlit workbench. No simulated cloud success path."""
 
+import re
 from pathlib import Path
 
 import streamlit as st
 from lab03_payment_agent.confirmation import memory_proposal, review, save
 from lab03_payment_agent.domain import Request, digest, investigate
 from lab03_payment_agent.live import LiveBackend, Settings, write_receipt, write_report
+from lab03_payment_agent.recovery import reviewed_stopped_runs
 
 st.set_page_config(page_title="Payment Investigation Agent", layout="wide")
 st.title("Payment Investigation Agent")
@@ -40,13 +42,49 @@ with st.sidebar:
             disconnect()
             settings = Settings.load(Path(session_path))
             candidate = LiveBackend(settings, db_password, wallet_password)
-            candidate.readiness()
+            candidate.readiness(reviewed_stopped_runs=reviewed_stopped_runs(settings))
             state.backend = candidate
             st.success("Individual database identity verified")
-        except Exception:
+        except Exception as error:
             if candidate:
                 candidate.close()
-            st.error("Connection failed. Check the private assignment and facilitator readiness.")
+            detail = error.args[0] if error.args else None
+            code = getattr(detail, "code", None)
+            driver_codes = sorted(set(re.findall(r"\b(?:DPY|DPI|ORA|TNS)-\d{3,5}\b", str(error))))
+            safe_code = ",".join(driver_codes) or (
+                str(code) if isinstance(code, int) and code else "unavailable"
+            )
+            readiness_reasons = {
+                "A native team run is still RUNNING; inspect server state before retry": (
+                    "Connection blocked by readiness: a previous agent execution is still "
+                    "marked RUNNING. The facilitator must review server activity before recovery. "
+                    "Do not change passwords or repeat the investigation."
+                ),
+                "A previous investigation is active; verify server execution before recovery": (
+                    "Connection blocked by readiness: a previous investigation lock remains. "
+                    "Ask the facilitator to verify server execution; do not remove the lock."
+                ),
+                "Tool compilation errors": (
+                    "Connection blocked by readiness: a workshop tool has compilation errors. "
+                    "Repair and verify the assigned exercise before investigating."
+                ),
+                "Agent team missing": (
+                    "Connection blocked by readiness: the assigned agent team is missing. "
+                    "Ask the facilitator to check bootstrap."
+                ),
+            }
+            readiness_reason = (
+                readiness_reasons.get(str(error)) if isinstance(error, ValueError) else None
+            )
+            if readiness_reason:
+                st.warning(readiness_reason)
+            st.error(
+                "Connection failed. Safe diagnostic: "
+                + type(error).__name__
+                + "; database_code="
+                + safe_code
+                + ". Check the private assignment and facilitator readiness."
+            )
         finally:
             db_password = wallet_password = None
     if st.button("Disconnect / start a new session"):

@@ -4,6 +4,21 @@ Construirás un agente que investiga pagos **sintéticos** usando Oracle AI Agen
 
 La sesión dura **180 minutos**. La instalación y los accesos se completan **antes**. Esta guía contiene el recorrido completo para Windows y una sección de comandos para macOS/Linux al final. No necesitas crear recursos OCI, políticas IAM, usuarios, almacenes de memoria ni perfiles de modelos.
 
+
+## 0. Qué estás construyendo y por qué
+
+El caso contiene dos solicitudes sintéticas con la misma clave de idempotencia y distinto contenido. Tu agente deberá investigar esa diferencia y justificar una recomendación. No ejecutará pagos ni reembolsos.
+
+| Pieza | Su función en la investigación |
+|---|---|
+| Contrato v2 | Define cómo tratar reintentos con contenido igual o diferente. |
+| Memoria procedural | Recupera un procedimiento aprobado; no reemplaza al contrato. |
+| Herramienta PL/SQL | Consulta hechos actuales, como claves y hashes de solicitudes. |
+| Agente | Selecciona herramientas y propone una respuesta con fuentes. |
+| Revisión humana | Decide por separado si se guarda el caso y si se aprueba una nueva lección. |
+
+Primero comprobarás las piezas por separado. Probar SQL desde la terminal todavía no ejecuta al agente. Después realizarás una investigación desde el dashboard y revisarás qué herramientas y fuentes usó. Una respuesta sin evidencia puede detener el recorrido: conserva el informe y no repitas llamadas pagadas sin revisar la causa.
+
 ## 1. Antes de comenzar: recibe tu asignación privada
 
 Debes recibir por el canal privado aprobado:
@@ -18,6 +33,8 @@ Debes recibir por el canal privado aprobado:
 | Contraseña del wallet | Se solicita por separado; puede ser distinta de la anterior. |
 | Confirmación de que tu red y tu asignación están listas | La ADB debe permitir tu conexión y tener tus objetos preparados. |
 | Autorización para las investigaciones de la sesión | Cada investigación puede consumir embeddings e inferencia de chat. |
+
+La contraseña OCI sirve para iniciar sesión en Oracle Cloud. **Database password** corresponde a tu usuario de base de datos y **Wallet password** protege los archivos mTLS; son credenciales distintas. El wallet no es una aplicación: viene en tu ZIP privado. Si el canal de entrega muestra una contraseña codificada en Base64, solicita o selecciona su valor **decodificado**; no pegues el texto codificado en el dashboard. Los participantes no necesitan acceso administrativo a Vault.
 
 **Si falta algo, detente y avisa al facilitador.** Descargar GitHub no crea una cuenta ni entrega un wallet. No uses credenciales administrativas, otra asignación o configuraciones de workshops anteriores. El corpus, la calibración, el owner de memoria y los objetos del agente deben estar preparados previamente.
 
@@ -453,7 +470,7 @@ No borres tablas, usuarios, memorias o recursos compartidos al terminar. La limp
 | Ya existe el archivo de prueba | Consérvalo y elige un nombre nuevo. |
 | El dashboard no conecta | Ejecuta readiness en terminal y comunica la clase/código seguros del error. No compartas configuraciones ni mensajes crudos del driver. |
 | La investigación devuelve error o timeout | Conserva evidencia, no apruebes un caso y solicita revisar la ejecución antes de otro intento pagado. |
-| Cita inválida o evidencia insuficiente | Revisa la versión y las fuentes. No desactives validación ni sustituyas la respuesta. |
+| Cita inválida o evidencia insuficiente | Revisa la versión, las fuentes y **Metrics**. `rag_candidate_count`, `rag_best_distance`, `rag_distance_threshold` y `rag_accepted_count` permiten distinguir falta de candidatos de rechazo por distancia. Solicita revisar la calibración; no aumentes el umbral ni repitas una investigación pagada por tu cuenta. |
 | Escritura de caso/memoria incierta | Conserva la propuesta exacta y solicita auditar su clave antes de reintentar. |
 | No aparece la memoria al reconectar | Comprueba que aprobaste y guardaste la lección por separado. Revisa identificador, versión y procedencia; solicita una auditoría acotada. |
 

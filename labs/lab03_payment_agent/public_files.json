@@ -15,11 +15,13 @@
     "src/lab03_payment_agent/live.py",
     "src/lab03_payment_agent/oci_profile.py",
     "src/lab03_payment_agent/participant.py",
+    "src/lab03_payment_agent/recovery.py",
     "tests/test_adapters.py",
     "tests/test_integration.py",
     "tests/test_oci_profile.py",
     "tests/test_participant.py",
     "tests/test_public_distribution.py",
+    "tests/test_recovery.py",
     "tests/test_workshop.py",
     "ui/app.py"
   ]

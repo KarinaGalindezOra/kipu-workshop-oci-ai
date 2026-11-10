@@ -191,7 +191,11 @@ def investigate(backend: Backend, request: Request) -> Result:
         result.citations = sources
         if not sources or not memories:
             result.status = "insufficient_evidence"
-            result.answer = "An approved procedure and contractual evidence are required."
+            result.answer = (
+                "No contractual evidence passed retrieval validation."
+                if memories and not sources
+                else "An approved procedure and contractual evidence are required."
+            )
             return result
         # This exercise accepts one explicit procedure. Unrecognized edits require review;
         # keyword presence alone cannot establish policy compatibility.
@@ -223,6 +227,9 @@ def investigate(backend: Backend, request: Request) -> Result:
             ]
         # SDK/driver errors can contain endpoints, credentials or SQL text.
         result.telemetry["error_type"] = type(exc).__name__
+        result.telemetry["driver_error_codes"] = sorted(
+            set(re.findall(r"\b(?:DPY|DPI|ORA|TNS)-\d{3,5}\b", str(exc)))
+        )
         code = getattr(exc.args[0], "code", None) if exc.args else None
         if isinstance(code, int):
             result.telemetry["database_error_code"] = code

@@ -163,7 +163,7 @@ class LiveBackend:
     def readiness(self, *, reviewed_stopped_runs: frozenset[str] = frozenset()) -> dict:
         with self.connection.cursor() as c:
             c.execute("select TEAM_EXEC_ID from USER_AI_AGENT_TEAM_HISTORY where state='RUNNING'")
-            if any(r[0] not in reviewed_stopped_runs for r in c.fetchall()):
+            if any(str(r[0]) not in reviewed_stopped_runs for r in c.fetchall()):
                 raise ValueError(
                     "A native team run is still RUNNING; inspect server state before retry"
                 )
@@ -254,6 +254,9 @@ class LiveBackend:
         return result
 
     def retrieve(self, request: Request) -> list[RetrievedEvidence]:
+        from .recovery import claim_recovery_investigation
+
+        claim_recovery_investigation(self.settings)
         vector = json.dumps(self.embed("payment idempotency " + request.question))
         with self.connection.cursor() as c:
             c.execute(
@@ -270,6 +273,9 @@ class LiveBackend:
                 dimension=len(json.loads(vector)),
             )
             rows = c.fetchall()
+        self.metrics["rag_candidate_count"] = len(rows)
+        self.metrics["rag_distance_threshold"] = self.settings.threshold
+        self.metrics["rag_best_distance"] = min((row[4] for row in rows), default=None)
         result = []
         manifest_path = Path(__file__).resolve().parents[2] / "data" / "contracts.json"
         approved = {c["id"]: c for c in json.loads(manifest_path.read_text())}
@@ -285,13 +291,18 @@ class LiveBackend:
                 ):
                     raise ValueError("Stored evidence changed")
                 result.append(RetrievedEvidence(item, distance, "vector", "cosine_distance"))
+        self.metrics["rag_accepted_count"] = len(result)
         return result
 
     def run(self, request: Request, context: dict, run_id: str) -> tuple[dict, list[dict]]:
+        import sys
         from contextlib import suppress
 
         import oracledb
 
+        from .recovery import reviewed_stopped_runs
+
+        self.readiness(reviewed_stopped_runs=reviewed_stopped_runs(self.settings))
         self.last_observations = []
         self.metrics["select_ai_runs"] = self.metrics.get("select_ai_runs", 0) + 1
         self.metrics["provider_inference_calls"] = None
@@ -312,13 +323,22 @@ class LiveBackend:
             with self.connection.cursor() as c:
                 conversation = c.callfunc("DBMS_CLOUD_AI.CREATE_CONVERSATION", str)
                 output = c.var(oracledb.DB_TYPE_CLOB)
-                c.execute(
-                    """begin :answer := DBMS_CLOUD_AI_AGENT.RUN_TEAM(
-                    team_name=>'WS3_TEAM', user_prompt=>:prompt, params=>:params); end;""",
-                    answer=output,
-                    prompt=prompt,
-                    params=json.dumps({"conversation_id": conversation}),
-                )
+                previous_timeout = self.connection.call_timeout
+                self.metrics["native_call_timeout_ms"] = 300000
+                self.metrics["native_call_completed"] = False
+                try:
+                    self.connection.call_timeout = 300000
+                    c.execute(
+                        """begin :answer := DBMS_CLOUD_AI_AGENT.RUN_TEAM(
+                        team_name=>'WS3_TEAM', user_prompt=>:prompt, params=>:params); end;""",
+                        answer=output,
+                        prompt=prompt,
+                        params=json.dumps({"conversation_id": conversation}),
+                    )
+                    self.metrics["native_call_completed"] = True
+                finally:
+                    with suppress(Exception):
+                        self.connection.call_timeout = previous_timeout
                 raw = read_lob(output.getvalue())
                 c.execute(
                     "select tool_name,payment_id,payload from WS3_TOOL_LOG where run_id=:r order by logged_at",
@@ -342,6 +362,7 @@ class LiveBackend:
                 raise
             return parsed, observations
         finally:
+            failure_in_flight = sys.exception() is not None
             # Tool traces survive a failed/timeout model call and remain reviewable.
             with suppress(Exception), self.connection.cursor() as c:
                 c.execute(
@@ -358,9 +379,14 @@ class LiveBackend:
                     for n, p, v in c.fetchall()
                 ]
             # If the connection was lost, readiness reports the stale lock for facilitator review.
-            with self.connection.cursor() as c:
-                c.execute("delete from WS3_ACTIVE where run_id=:r", r=run_id)
-            self.connection.commit()
+            try:
+                with self.connection.cursor() as c:
+                    c.execute("delete from WS3_ACTIVE where run_id=:r", r=run_id)
+                self.connection.commit()
+            except Exception:
+                self.metrics["active_lock_cleanup_failed"] = True
+                if not failure_in_flight:
+                    raise
 
     def put_once(self, key: str, kind: str, payload: dict) -> dict:
         encoded = json.dumps(payload, sort_keys=True)

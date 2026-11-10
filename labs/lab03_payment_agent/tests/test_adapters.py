@@ -164,3 +164,129 @@ def test_dashboard_disconnected_has_no_execution_controls():
     app.run()
     assert not app.exception
     assert not any(b.label == "Run investigation" for b in app.button)
+
+
+@pytest.mark.parametrize("distance,accepted", [(0.47710963509159976, False), (0.36, True)])
+def test_retrieval_reports_rejected_candidates_without_relaxing_threshold(distance, accepted):
+    import hashlib
+    import json
+
+    contract = json.loads(
+        (Path(__file__).resolve().parents[1] / "data/contracts.json").read_text()
+    )[1]
+    calls = []
+
+    class Cursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def execute(self, sql, **bindings):
+            calls.append((sql, bindings))
+
+        def fetchall(self):
+            return [
+                (
+                    contract["id"],
+                    "v2",
+                    contract["text"],
+                    hashlib.sha256(contract["text"].encode()).hexdigest(),
+                    distance,
+                )
+            ]
+
+    backend = object.__new__(LiveBackend)
+    backend.connection = SimpleNamespace(cursor=Cursor)
+    backend.settings = SimpleNamespace(threshold=0.470294170237632, embedding_model="model")
+    backend.metrics = {}
+    backend.embed = lambda text: [1.0, 0.0]
+    result = backend.retrieve(Request("Investigate payment idempotency.", "PAY-104", "v2"))
+    assert bool(result) is accepted
+    assert backend.metrics["rag_candidate_count"] == 1
+    assert backend.metrics["rag_accepted_count"] == int(accepted)
+    assert backend.metrics["rag_best_distance"] == distance
+    assert backend.metrics["rag_distance_threshold"] == 0.470294170237632
+    sql, bindings = calls[0]
+    assert bindings["version"] == "v2" and bindings["model"] == "model"
+    assert bindings["dimension"] == 2
+    assert "api_name='payments'" in sql and "corpus_id=:corpus" in sql
+
+
+@pytest.mark.parametrize("cleanup_fails", [False, True])
+def test_native_timeout_is_scoped_and_primary_error_survives_cleanup(cleanup_fails):
+    primary = RuntimeError("DPY-4024: timeout; private driver details")
+    observed_timeouts = []
+
+    class Cursor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def callfunc(self, *args):
+            return "conversation"
+
+        def var(self, *args):
+            return SimpleNamespace(getvalue=lambda: "{}")
+
+        def execute(self, sql, **bindings):
+            if "RUN_TEAM" in sql:
+                observed_timeouts.append(connection.call_timeout)
+                raise primary
+            if sql.startswith("delete") and cleanup_fails:
+                raise RuntimeError("Cleanup failed")
+
+        def fetchall(self):
+            return []
+
+    connection = SimpleNamespace(cursor=Cursor, commit=lambda: None, call_timeout=120000)
+    backend = object.__new__(LiveBackend)
+    backend.connection = connection
+    backend.settings = SimpleNamespace()
+    backend.readiness = lambda **kwargs: {}
+    backend.metrics = {}
+    with pytest.raises(RuntimeError) as caught:
+        backend.run(Request("Investigate payment idempotency.", "PAY-104", "v2"), {}, "run")
+    assert caught.value is primary
+    assert observed_timeouts == [300000]
+    assert connection.call_timeout == 120000
+    assert backend.metrics["native_call_completed"] is False
+    assert backend.metrics.get("active_lock_cleanup_failed", False) is cleanup_fails
+
+
+def test_failed_investigation_retains_only_safe_driver_codes():
+    from test_workshop import FakeBackend
+
+    backend = FakeBackend()
+    backend.fail = RuntimeError("DPY-4024: private connection information ORA-01013")
+    result = investigate(backend, Request("Investigate payment idempotency.", "PAY-104", "v2"))
+    assert result.status == "error"
+    assert result.telemetry["driver_error_codes"] == ["DPY-4024", "ORA-01013"]
+    assert "private connection information" not in str(result.as_dict())
+
+
+@pytest.mark.parametrize("known", [True, False])
+def test_dashboard_explains_only_allowlisted_readiness_failures(monkeypatch, known):
+    from streamlit.testing.v1 import AppTest
+
+    message = (
+        "A native team run is still RUNNING; inspect server state before retry"
+        if known
+        else "private connection configuration must never be displayed"
+    )
+
+    def fail_load(*args, **kwargs):
+        raise ValueError(message)
+
+    monkeypatch.setattr(Settings, "load", fail_load)
+    app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "ui/app.py")).run()
+    next(b for b in app.button if b.label == "Connect and check readiness").click().run()
+    assert not app.exception
+    assert len(app.warning) == int(known)
+    if known:
+        assert "marked RUNNING" in app.warning[0].value
+    rendered = " ".join(e.value for e in [*app.error, *app.warning])
+    assert "private connection configuration" not in rendered
