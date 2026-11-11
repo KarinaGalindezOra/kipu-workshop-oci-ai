@@ -50,7 +50,9 @@ Abre `http://127.0.0.1:8503`. Las contraseñas se solicitan localmente. No almac
 
 ## Estado y límites
 
-Un piloto con servicios reales completó las tres herramientas; su respuesta almacenada fue revalidada y un caso y una memoria aprobados se guardaron sin duplicados. La memoria se recuperó desde una sesión nueva. Eso no acredita por sí solo una nueva ejecución desde este dashboard, los negativos del agente, el aislamiento entre dos identidades ni 15 sesiones concurrentes. La prueba end to end del participante se realiza después de la publicación, con su asignación preparada y consumo autorizado.
+El piloto y una prueba individual con identidad separada ejecutaron herramientas reales en ADB. En la prueba individual, el participante completó la herramienta y las instrucciones, revisó la respuesta de una tarea nativa exitosa, aprobó el caso y la memoria por separado y recuperó la lección tras reconectar. La auditoría real verificó `already_saved` y un único registro por confirmación, sin nuevas escrituras ni inferencias.
+
+La respuesta final se recuperó y revalidó desde OCI después de corregir su presentación JSON; el informe original con error se conservó. Esto acredita el recorrido con recuperación técnica, no una nueva ejecución ininterrumpida después de la corrección. Permanecen pendientes esa ejecución normal, la matriz completa de negativos/fallos, la verificación completa de aislamiento entre dos identidades y hasta 15 sesiones concurrentes.
 
 Las pruebas locales no generan respuestas OCI ni se presentan como evidencia de ejecución en la nube. Los tokens no disponibles permanecen como null. Conserva tus reportes fuera de GitHub y deja pendiente cualquier prueba que no hayas ejecutado.
 
