@@ -76,8 +76,13 @@ def audit(backend, evidence_root, source_run):
         "stored_oci_revalidation",
     }:
         raise ValueError("A validated retained live response is required")
+    recorded = retained.get("telemetry", {})
+    original_metrics = recorded.get("original_execution", recorded)
+    request_data = original_metrics.get("request", {})
     request = Request(
-        "Investigate payment idempotency and prepare a recommendation.",
+        request_data.get(
+            "question", "Investigate payment idempotency and prepare a recommendation."
+        ),
         proposal["payment_id"],
         proposal["version"],
     )

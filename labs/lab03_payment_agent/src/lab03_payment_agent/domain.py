@@ -60,8 +60,13 @@ class Result:
     telemetry: dict = field(default_factory=lambda: {"tokens": None, "token_source": "unavailable"})
     execution_mode: str = "live"
 
+    memory_references: list[str] = field(default_factory=list)
+
     def as_dict(self) -> dict:
-        return asdict(self)
+        value = asdict(self)
+        if not self.memory_references:
+            value.pop("memory_references")
+        return value
 
 
 class Backend(Protocol):
@@ -72,11 +77,13 @@ class Backend(Protocol):
     def run(self, request: Request, context: dict, run_id: str) -> tuple[dict, list[dict]]: ...
 
 
-def validate_sources(items: list[RetrievedEvidence], version: str) -> list[dict]:
+def validate_sources(
+    items: list[RetrievedEvidence], version: str, corpus: str = CORPUS
+) -> list[dict]:
     for item in items:
         c = item.chunk
         if (c.corpus_id, c.api_name, c.contract_version, c.data_classification) != (
-            CORPUS,
+            corpus,
             "payments",
             version,
             "synthetic",
@@ -148,6 +155,16 @@ def apply_response(
             )
         ):
             raise ValueError("Unsupported claim")
+    if "memory_ids" in response:
+        references = response["memory_ids"]
+        available = {memory["identifier"] for memory in result.memories}
+        if (
+            not isinstance(references, list)
+            or any(not isinstance(item, str) or item not in available for item in references)
+            or len(references) != len(set(references))
+        ):
+            raise ValueError("Unverified memory reference")
+        result.memory_references = references
     result.status = "answered"
     # Do not publish free-form model narration or its hidden reasoning.
     result.answer = (
@@ -166,12 +183,15 @@ def apply_response(
     return result
 
 
-def investigate(backend: Backend, request: Request) -> Result:
+def investigate(backend: Backend, request: Request, observer=None) -> Result:
     """Accept only extractive claims and tool-derived, domain-bounded findings."""
     from time import perf_counter
 
     result = Result()
     started = perf_counter()
+    stages = {}
+    active_stage = None
+    phase = started
     try:
         request.validate()
     except ValueError:
@@ -185,9 +205,21 @@ def investigate(backend: Backend, request: Request) -> Result:
             result.status = "insufficient_evidence"
             result.answer = "The synthetic payment corpus does not support this topic."
             return result
+        result.telemetry["stage_latencies_ms"] = stages
+        active_stage = "memory"
+        if observer:
+            observer("memory")
+        phase = perf_counter()
         memories = backend.memories("payment idempotency")
+        stages["memory"] = round((perf_counter() - phase) * 1000)
         result.memories = [asdict(m) for m in memories]
-        sources = validate_sources(backend.retrieve(request), request.version)
+        active_stage = "retrieval"
+        if observer:
+            observer("retrieval")
+        phase = perf_counter()
+        corpus = getattr(getattr(backend, "settings", None), "corpus_id", CORPUS)
+        sources = validate_sources(backend.retrieve(request), request.version, corpus)
+        stages["retrieval"] = round((perf_counter() - phase) * 1000)
         result.citations = sources
         if not sources or not memories:
             result.status = "insufficient_evidence"
@@ -211,9 +243,22 @@ def investigate(backend: Backend, request: Request) -> Result:
             result.answer = "The approved memory applies to v2, not this contract."
             return result
         context = {"memories": result.memories, "sources": sources}
+        active_stage = "agent"
+        if observer:
+            observer("agent")
+        phase = perf_counter()
         response, observations = backend.run(request, context, result.run_id)
-        return apply_response(result, request, response, observations)
+        stages["agent"] = round((perf_counter() - phase) * 1000)
+        active_stage = "validation"
+        if observer:
+            observer("validation")
+        phase = perf_counter()
+        validated = apply_response(result, request, response, observations)
+        stages["validation"] = round((perf_counter() - phase) * 1000)
+        return validated
     except Exception as exc:
+        if active_stage:
+            stages[active_stage] = round((perf_counter() - phase) * 1000)
         partial = getattr(backend, "last_observations", [])
         if isinstance(partial, list):
             result.tools = [
@@ -244,15 +289,21 @@ def investigate(backend: Backend, request: Request) -> Result:
     return result
 
 
-def chunk(identifier: str, version: str, content: str) -> ContractChunk:
+def chunk(
+    identifier: str, version: str, content: str, *, corpus_id=CORPUS, metadata=None
+) -> ContractChunk:
+    metadata = metadata or {}
     return ContractChunk(
         chunk_id=identifier,
         contract_version=version,
         content=content,
         content_hash=hashlib.sha256(content.encode()).hexdigest(),
-        source_uri=f"synthetic://payments/{version}/idempotency",
-        section="Idempotency",
-        corpus_id=CORPUS,
+        source_uri=metadata.get("source_uri", f"synthetic://payments/{version}/idempotency"),
+        section=metadata.get("section", "Idempotency"),
+        corpus_id=corpus_id,
         api_name="payments",
-        source_title="Synthetic Payments Contract",
+        document_id=metadata.get("document_id", ""),
+        source_title=metadata.get("title", "Synthetic Payments Contract"),
+        line_start=metadata.get("line_start", 0),
+        line_end=metadata.get("line_end", 0),
     )

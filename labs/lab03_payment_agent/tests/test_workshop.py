@@ -80,11 +80,11 @@ class FakeBackend:
 
     def put_once(self, key, kind, payload):
         if key in self.saved:
-            return self.saved[key]
+            return {"write_key": key, "status": "already_saved"}
         self.saved[key] = copy.deepcopy(payload)
         if kind == "memory":
             self.records.append(Memory(**payload))
-        return payload
+        return {"write_key": key, "status": "saved"}
 
 
 @pytest.fixture

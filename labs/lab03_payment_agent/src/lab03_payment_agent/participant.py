@@ -83,7 +83,7 @@ def connected(settings: Settings, *, repair_exercise: bool = False):
                             "An investigation is active; do not replace its tool"
                         )
         else:
-            backend.readiness()
+            backend.readiness(require_team=False)
         yield backend
     finally:
         backend.close()

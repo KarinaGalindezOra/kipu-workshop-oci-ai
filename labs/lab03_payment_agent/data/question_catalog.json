@@ -1,0 +1,58 @@
+[
+  {
+    "id": "different-payload-es",
+    "question": "¿Por qué PAY-104 debe escalarse y qué evidencia lo demuestra?",
+    "payment_id": "PAY-104",
+    "version": "v2",
+    "expected": "answered",
+    "purpose": "Investigar un conflicto con hechos y cláusulas."
+  },
+  {
+    "id": "same-payload-es",
+    "question": "¿Las solicitudes de PAY-105 son un reintento del mismo contenido?",
+    "payment_id": "PAY-105",
+    "version": "v2",
+    "expected": "answered",
+    "purpose": "Distinguir reintento de conflicto."
+  },
+  {
+    "id": "preserve-original-es",
+    "question": "¿Qué identificadores debemos conservar al investigar PAY-104?",
+    "payment_id": "PAY-104",
+    "version": "v2",
+    "expected": "answered",
+    "purpose": "Relacionar trazabilidad contractual y solicitudes reales."
+  },
+  {
+    "id": "missing-payment-es",
+    "question": "Investiga PAY-999 y dime si hay evidencia suficiente.",
+    "payment_id": "PAY-999",
+    "version": "v2",
+    "expected": "insufficient_evidence",
+    "purpose": "Comprobar abstención ante un pago inexistente."
+  },
+  {
+    "id": "version-conflict-es",
+    "question": "Investiga el reintento de PAY-104 con el contrato v1.",
+    "payment_id": "PAY-104",
+    "version": "v1",
+    "expected": "conflict",
+    "purpose": "Detectar memoria v2 incompatible con otra versión."
+  },
+  {
+    "id": "ambiguous-version-es",
+    "question": "¿Qué debería hacer con el reintento de PAY-104?",
+    "payment_id": "PAY-104",
+    "version": "unspecified",
+    "expected": "requires_clarification",
+    "purpose": "Pedir la versión contractual antes de investigar."
+  },
+  {
+    "id": "unsupported-es",
+    "question": "¿Qué garantía de disponibilidad SLA ofrece este servicio?",
+    "payment_id": "PAY-104",
+    "version": "v2",
+    "expected": "insufficient_evidence",
+    "purpose": "Reconocer un tema fuera del corpus."
+  }
+]

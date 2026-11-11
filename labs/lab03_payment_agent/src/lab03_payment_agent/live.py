@@ -32,6 +32,9 @@ class Settings:
     expected_user: str
     profile: str = "DEFAULT"
     chat_api_format: str = "COHERE"
+    corpus_id: str = CORPUS
+    manifest_name: str = "contracts.json"
+    agent_team: str = "WS3_TEAM"
 
     @classmethod
     def load(cls, path: Path, *, require_calibration: bool = True) -> Settings:
@@ -56,6 +59,14 @@ class Settings:
         api_format = values.get("OCI_CHAT_API_FORMAT", "COHERE")
         if api_format not in {"COHERE", "GENERIC"}:
             raise ValueError("OCI_CHAT_API_FORMAT must be COHERE or GENERIC")
+        manifest = values.get("LAB03_CORPUS_MANIFEST", "contracts.json")
+        corpus = values.get("LAB03_CORPUS_ID", CORPUS)
+        team = values.get("LAB03_AGENT_TEAM", "WS3_TEAM")
+        if (manifest, corpus) not in {
+            ("contracts.json", CORPUS),
+            ("research_contracts.json", "synthetic-payments-research-03"),
+        } or team not in {"WS3_TEAM", "WS3_LEARN_TEAM"}:
+            raise ValueError("Use an approved manifest/corpus pair and assigned workshop team")
         return cls(
             p,
             user,
@@ -71,6 +82,9 @@ class Settings:
             required("OCI_EXPECTED_USER_OCID"),
             required("OCI_CONFIG_PROFILE"),
             api_format,
+            corpus,
+            manifest,
+            team,
         )
 
 
@@ -126,7 +140,9 @@ class LiveBackend:
         with suppress(Exception):
             self.pool.close(force=True)
 
-    def readiness(self, *, reviewed_stopped_runs: frozenset[str] = frozenset()) -> dict:
+    def readiness(
+        self, *, reviewed_stopped_runs: frozenset[str] = frozenset(), require_team: bool = True
+    ) -> dict:
         with self.connection.cursor() as c:
             c.execute("select TEAM_EXEC_ID from USER_AI_AGENT_TEAM_HISTORY where state='RUNNING'")
             if any(str(r[0]) not in reviewed_stopped_runs for r in c.fetchall()):
@@ -146,15 +162,42 @@ class LiveBackend:
             )
             if c.fetchone()[0]:
                 raise ValueError("Tool compilation errors")
-            c.execute("select count(*) from user_ai_agent_teams where agent_team_name='WS3_TEAM'")
-            if not c.fetchone()[0]:
+            c.execute(
+                "select count(*) from user_ai_agent_teams where agent_team_name=:team",
+                team=getattr(self.settings, "agent_team", "WS3_TEAM"),
+            )
+            agent_ready = bool(c.fetchone()[0])
+            if require_team and not agent_ready:
                 raise ValueError("Agent team missing")
         return {
             "identity_verified": True,
             "schema_ready": True,
+            "agent_ready": agent_ready,
             "mode": "live",
             "paid_inference_executed": False,
         }
+
+    def corpus_inventory(self):
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                "select contract_version,count(*) from WS3_CHUNKS "
+                "where corpus_id=:corpus and api_name='payments' and embedding_model=:model "
+                "group by contract_version order by contract_version",
+                corpus=self.settings.corpus_id,
+                model=self.settings.embedding_model,
+            )
+            return [
+                {"version": version, "indexed_chunks": count}
+                for version, count in cursor.fetchall()
+            ]
+
+    def agent_inventory(self):
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                "select agent_team_name,status from USER_AI_AGENT_TEAMS "
+                "where agent_team_name in ('WS3_TEAM','WS3_LEARN_TEAM') order by agent_team_name"
+            )
+            return [{"team": name, "status": status} for name, status in cursor.fetchall()]
 
     def embed(self, text: str, *, input_type: str = "SEARCH_QUERY") -> list[float]:
         from .recovery import ensure_paid_execution_allowed
@@ -236,7 +279,7 @@ class LiveBackend:
                        and embedding_dimension=:dimension
                        order by distance fetch first 3 rows only""",
                 v=vector,
-                corpus=CORPUS,
+                corpus=getattr(self.settings, "corpus_id", CORPUS),
                 version=request.version,
                 model=self.settings.embedding_model,
                 dimension=len(json.loads(vector)),
@@ -246,12 +289,31 @@ class LiveBackend:
         self.metrics["rag_distance_threshold"] = self.settings.threshold
         self.metrics["rag_best_distance"] = min((row[4] for row in rows), default=None)
         result = []
-        manifest_path = Path(__file__).resolve().parents[2] / "data" / "contracts.json"
-        approved = {c["id"]: c for c in json.loads(manifest_path.read_text())}
+        manifest_path = (
+            Path(__file__).resolve().parents[2]
+            / "data"
+            / getattr(self.settings, "manifest_name", "contracts.json")
+        )
+        approved = {c["id"]: c for c in json.loads(manifest_path.read_text(encoding="utf-8"))}
+        trace = []
         for identifier, version, content, content_hash, distance in rows:
+            trace.append(
+                {
+                    "chunk_id": identifier,
+                    "version": version,
+                    "distance": distance,
+                    "accepted": distance <= self.settings.threshold,
+                }
+            )
             if distance <= self.settings.threshold:
-                item = chunk(identifier, version, read_lob(content))
                 canonical = approved.get(identifier)
+                item = chunk(
+                    identifier,
+                    version,
+                    read_lob(content),
+                    corpus_id=getattr(self.settings, "corpus_id", CORPUS),
+                    metadata=canonical,
+                )
                 if (
                     item.content_hash != content_hash
                     or not canonical
@@ -260,6 +322,7 @@ class LiveBackend:
                 ):
                     raise ValueError("Stored evidence changed")
                 result.append(RetrievedEvidence(item, distance, "vector", "cosine_distance"))
+        self.metrics["retrieval_candidates"] = trace
         self.metrics["rag_accepted_count"] = len(result)
         return result
 
@@ -274,6 +337,7 @@ class LiveBackend:
         ensure_paid_execution_allowed(self.settings)
         self.readiness(reviewed_stopped_runs=reviewed_stopped_runs(self.settings))
         self.last_observations = []
+        self.metrics["request"] = request.__dict__.copy()
         self.metrics["select_ai_runs"] = self.metrics.get("select_ai_runs", 0) + 1
         self.metrics["provider_inference_calls"] = None
 
@@ -300,7 +364,8 @@ class LiveBackend:
                     self.connection.call_timeout = 300000
                     c.execute(
                         """begin :answer := DBMS_CLOUD_AI_AGENT.RUN_TEAM(
-                        team_name=>'WS3_TEAM', user_prompt=>:prompt, params=>:params); end;""",
+                        team_name=>:team, user_prompt=>:prompt, params=>:params); end;""",
+                        team=getattr(self.settings, "agent_team", "WS3_TEAM"),
                         answer=output,
                         prompt=prompt,
                         params=json.dumps({"conversation_id": conversation}),
@@ -327,6 +392,7 @@ class LiveBackend:
             try:
                 parsed = parse_final_response(raw)
                 self.metrics["native_response_format"] = type(parsed).__name__
+                self.metrics["memory_references_reported"] = "memory_ids" in parsed
             except json.JSONDecodeError:
                 self.metrics["native_response_format"] = "non_json"
                 raise

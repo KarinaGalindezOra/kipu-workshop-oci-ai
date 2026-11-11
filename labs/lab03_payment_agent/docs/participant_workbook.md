@@ -15,6 +15,16 @@ Guarda tu copia fuera del repositorio y completa solo observaciones reales. No i
 - Diferencia entre el contrato v1 y v2:
 - Por qué una regla procedural no demuestra el estado actual de un pago:
 
+## Mi agente construido
+
+- Objetivo que definí:
+- Instrucciones que escribí:
+- Por qué necesita las tres herramientas:
+- Diferencia entre función PL/SQL y herramienta registrada:
+- Seis objetos previstos / efectivamente registrados:
+- Equipo comprobado en ADB y recibo privado:
+- Definición local o registro real (indicar cuál):
+
 ## Mi herramienta e instrucciones
 
 - Prueba directa PAY-104: número de solicitudes, comparación de claves y hashes:
@@ -24,6 +34,14 @@ Guarda tu copia fuera del repositorio y completa solo observaciones reales. No i
 - Diferencia entre una prueba directa y una ejecución del agente:
 
 ## Investigación real
+
+- Mi pregunta exacta en español:
+- Por qué esa pregunta puede responderse con este corpus:
+- Corpus y versión configurados:
+- Candidatos, distancias y umbral observados:
+- Memorias recuperadas / memorias citadas explícitamente:
+- Qué comparación faltaría para demostrar una mejora causada por memoria:
+
 
 | Campo | Mi observación |
 |---|---|

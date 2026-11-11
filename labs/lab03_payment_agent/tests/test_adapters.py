@@ -133,6 +133,9 @@ def test_dashboard_gates_writes_and_invalidates_changed_input(tmp_path):
     app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "ui" / "app.py"))
     app.session_state["backend"] = backend
     app.session_state["result"] = result
+    app.session_state["query_text"] = (
+        "Investigate payment idempotency and prepare a recommendation."
+    )
     app.session_state["request_hash"] = digest(
         Request(
             "Investigate payment idempotency and prepare a recommendation.", "PAY-104", "v2"
@@ -144,7 +147,7 @@ def test_dashboard_gates_writes_and_invalidates_changed_input(tmp_path):
         str(tmp_path)
     ).run()
     buttons = {b.label: b for b in app.button}
-    assert buttons["Ejecutar investigación"].disabled
+    assert buttons["Enviar consulta al agente"].disabled
     assert buttons["Registrar caso"].disabled
     next(c for c in app.checkbox if c.label.startswith("He revisado")).check().run()
     next(b for b in app.button if b.label == "Registrar caso").click().run()
@@ -152,7 +155,7 @@ def test_dashboard_gates_writes_and_invalidates_changed_input(tmp_path):
     assert len(backend.saved) == 1
     assert (tmp_path / backend.identity / result.run_id / "case_confirmation.json").exists()
     assert any(b.label == "Guardar memoria aprobada" and b.disabled for b in app.button)
-    app.selectbox[0].select("PAY-105").run()
+    next(item for item in app.selectbox if item.label == "Pago sintético").select("PAY-105").run()
     assert not any(b.label == "Registrar caso" for b in app.button)
     assert any("Cambiaste los datos de entrada" in w.value for w in app.warning)
 
@@ -163,7 +166,8 @@ def test_dashboard_disconnected_has_no_execution_controls():
     app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "ui" / "app.py"))
     app.run()
     assert not app.exception
-    assert not any(b.label == "Ejecutar investigación" for b in app.button)
+    assert next(b for b in app.button if b.label == "Enviar consulta al agente").disabled
+    assert len(app.tabs) == 5
 
 
 @pytest.mark.parametrize("distance,accepted", [(0.47710963509159976, False), (0.36, True)])
@@ -283,7 +287,7 @@ def test_dashboard_explains_only_allowlisted_readiness_failures(monkeypatch, kno
 
     monkeypatch.setattr(Settings, "load", fail_load)
     app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "ui/app.py")).run()
-    next(b for b in app.button if b.label == "Conectar y verificar preparación").click().run()
+    next(b for b in app.button if b.label == "Conectar y verificar preparaci\u00f3n").click().run()
     assert not app.exception
     assert len(app.warning) == int(known)
     if known:

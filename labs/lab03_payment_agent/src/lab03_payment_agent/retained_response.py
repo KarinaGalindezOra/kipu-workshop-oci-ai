@@ -64,13 +64,23 @@ def recover(backend, request, evidence_root: Path, source_run: str):
         manifest = {
             item["id"]: item
             for item in json.loads(
-                (Path(__file__).resolve().parents[2] / "data/contracts.json").read_text()
+                (
+                    Path(__file__).resolve().parents[2]
+                    / "data"
+                    / getattr(backend.settings, "manifest_name", "contracts.json")
+                ).read_text()
             )
         }
         items = []
         for citation in original["citations"]:
             canonical = manifest[citation["chunk_id"]]
-            contract = chunk(canonical["id"], canonical["version"], canonical["text"])
+            contract = chunk(
+                canonical["id"],
+                canonical["version"],
+                canonical["text"],
+                corpus_id=getattr(backend.settings, "corpus_id", CORPUS),
+                metadata=canonical,
+            )
             cursor.execute(
                 "select content,content_hash,corpus_id,api_name,contract_version "
                 "from WS3_CHUNKS where chunk_id=:i and embedding_model=:m",
@@ -84,7 +94,7 @@ def recover(backend, request, evidence_root: Path, source_run: str):
             if (text, *row[1:]) != (
                 contract.content,
                 contract.content_hash,
-                CORPUS,
+                getattr(backend.settings, "corpus_id", CORPUS),
                 "payments",
                 request.version,
             ) or citation["rank_value"] > backend.settings.threshold:
@@ -94,7 +104,10 @@ def recover(backend, request, evidence_root: Path, source_run: str):
                     contract, citation["rank_value"], citation["method"], citation["score_type"]
                 )
             )
-    if validate_sources(items, request.version) != original["citations"]:
+    if (
+        validate_sources(items, request.version, getattr(backend.settings, "corpus_id", CORPUS))
+        != original["citations"]
+    ):
         raise ValueError("Retained citations differ from the canonical scoped contract")
     current = [asdict(memory) for memory in backend.memories("payment idempotency")]
     if not original["memories"] or any(

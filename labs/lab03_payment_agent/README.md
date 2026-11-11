@@ -22,6 +22,16 @@ flowchart LR
 
 Python recupera memoria y evidencia antes de invocar al agente. El modelo selecciona las herramientas de consulta; no puede registrar un caso, aprobar una memoria ni ejecutar un pago. La integración con Agent Memory es explícita y la extracción automática está deshabilitada.
 
+## Qué aprenderás a construir
+
+El dashboard tiene cinco áreas: **Construir mi agente → Consultar → Evidencia RAG → Memoria → Evaluar**. El participante define objetivo e instrucciones y registra tres herramientas, un agente, una tarea y un equipo mediante `DBMS_CLOUD_AI_AGENT`. Después hace preguntas libres en español dentro del caso de idempotencia; puede inspeccionar SQL observado, candidatos RAG, citas, procedencia de memoria y métricas medidas.
+
+La biblioteca ampliada contiene 12 cláusulas, en dos documentos con secciones y líneas verificables. Se prepara en un corpus separado; las dos cláusulas del recorrido anterior permanecen intactas. Explorar documentos localmente no equivale a recuperar vectores en ADB. La asignación nueva exige corpus indexado, calibración y equipo del participante antes de habilitar consultas pagadas.
+
+Las métricas muestran duración, fases cuando están registradas, fuentes, herramientas, memorias y embeddings. Tokens o llamadas internas ausentes se muestran como no disponibles. La memoria recuperada se diferencia de la que el modelo cita; ninguna de ambas demuestra por sí sola una mejora causal.
+
+Referencias técnicas: [paquete Select AI Agent](https://docs.oracle.com/en/cloud/paas/autonomous-database/serverless/adbsb/dbms-cloud-ai-agent-package.html), [vistas de objetos nativos](https://docs.oracle.com/en/cloud/paas/autonomous-database/serverless/adbsb/dbms-cloud-ai-agent-views.html).
+
 ## Qué contiene este laboratorio público
 
 - Código de la integración, dashboard y validación de evidencia.
@@ -49,6 +59,9 @@ python -m streamlit run labs/lab03_payment_agent/ui/app.py --server.address 127.
 Abre `http://127.0.0.1:8503`. Las contraseñas se solicitan localmente. No almacenes secretos en `.env`, código o sesión. Cada investigación exige aprobación de consumo; un timeout local no garantiza cancelación del lado del servidor.
 
 ## Estado y límites
+
+**La nueva experiencia está implementada y comprobada localmente; su constructor, corpus ampliado y consultas en español aún requieren un piloto OCI autorizado.** No se ha migrado una asignación privada existente ni ejecutado nuevas inferencias para publicar este cambio. El informe anterior puede inspeccionarse sin conexión; está etiquetado como lectura histórica y no habilita confirmaciones.
+
 
 El piloto y una prueba individual con identidad separada ejecutaron herramientas reales en ADB. En la prueba individual, el participante completó la herramienta y las instrucciones, revisó la respuesta de una tarea nativa exitosa, aprobó el caso y la memoria por separado y recuperó la lección tras reconectar. La auditoría real verificó `already_saved` y un único registro por confirmación, sin nuevas escrituras ni inferencias.
 
