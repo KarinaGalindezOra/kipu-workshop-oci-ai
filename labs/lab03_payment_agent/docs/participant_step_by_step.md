@@ -345,7 +345,7 @@ Ahora sí construiste un agente nativo ejecutable. Todavía no lo has invocado. 
 ## 12. Minutos 80–110: pregunta y observa una investigación real
 
 1. Abre **Consultar**. Selecciona PAY-104 y contrato v2.
-2. Escribe: **¿Por qué PAY-104 debe escalarse y qué evidencia lo demuestra?** Puedes reformularla sobre el mismo caso; el texto escrito se envía como pregunta, no se sustituye por una pregunta fija en inglés.
+2. Escribe: **Investiga las solicitudes de PAY-104: compara sus claves de idempotencia y hashes del payload, y determina qué hacer con la solicitud original según el contrato v2.** Puedes reformularla sobre el mismo caso; el texto escrito se envía como pregunta, no se sustituye por una pregunta fija en inglés.
 3. Verifica que la sesión OCI siga vigente. Si no, renueva según el paso 6.
 4. Confirma con el facilitador que este intento está autorizado. Marca la casilla de consumo y pulsa **Enviar consulta al agente** una sola vez.
 5. Observa las cuatro fases: memoria, RAG, agente/herramientas y validación. La ejecución puede tardar varios minutos. No recargues ni abras otro proceso para repetirla.

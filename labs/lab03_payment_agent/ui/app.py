@@ -262,7 +262,7 @@ with query_tab:
     )
     question = st.text_area(
         "Tu consulta",
-        value="¿Por qué PAY-104 debe escalarse y qué evidencia lo demuestra?",
+        value="Investiga las solicitudes de PAY-104: compara sus claves de idempotencia y hashes del payload, y determina qué hacer con la solicitud original según el contrato v2.",
         key="query_text",
     )
     left, right = st.columns(2)
