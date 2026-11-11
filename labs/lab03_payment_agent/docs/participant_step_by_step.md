@@ -396,6 +396,21 @@ Después del caso, aparece **Approve a reusable procedural memory**.
 
 Esa recuperación desde un SDK y una conexión nuevos demuestra persistencia en ADB. Ver todavía la respuesta anterior en pantalla no la demuestra. La recuperación genera un recibo local y no llama a un modelo. Guardar el caso no guarda automáticamente una lección; la extracción automática de memorias está deshabilitada.
 
+### 14.1 Verifica que las confirmaciones no se dupliquen
+
+Después de guardar el caso y la memoria, puedes auditar la ejecución con la pregunta predeterminada del ejercicio. No requiere renovar OCI ni abrir una investigación nueva: usa tu conexión de base de datos y verifica la tarea completada, las fuentes y las confirmaciones ya existentes. No permite crear registros faltantes ni modificar los guardados.
+
+En PowerShell, desde la raíz del repositorio, define de nuevo las rutas de los pasos anteriores si abriste otra ventana. Introduce el identificador de tu ejecución cuando se solicite; lo encontrarás en la evidencia JSON como `run_id` o en la memoria como `source_run`.
+
+```powershell
+$WorkshopRun = Read-Host "Completed investigation run ID"
+.\.venv\Scripts\python.exe -m lab03_payment_agent.confirmation_audit --session-file "$WorkshopSession" --evidence-root "$WorkshopEvidence" --run-id "$WorkshopRun" --output "$WorkshopEvidence\confirmation-audit-$WorkshopRun.json"
+```
+
+Ingresa las contraseñas decodificadas de base de datos y wallet. El resultado debe indicar `already_saved` para caso y memoria, `completed_record_count=1` para cada confirmación, `approved_memory_record_count=1`, cero nuevas escrituras de caso/memoria y `passed=true`. Esto es una comprobación real de la base de datos, distinta de las pruebas locales con dobles.
+
+Si falla, conserva la evidencia y solicita revisión. No borres registros ni cambies las claves de confirmación para forzar el resultado. Si el archivo de salida ya existe, elige otro nombre; los informes existentes no se sobrescriben.
+
 ## 15. Minutos 155–175: casos negativos y evaluación
 
 Coordina las investigaciones pagadas restantes con el facilitador; no ejecutes todas las filas sin autorización. Cada investigación nueva necesita su propia casilla de aprobación, incluso cuando el dato debería rechazarse antes de invocar al agente.

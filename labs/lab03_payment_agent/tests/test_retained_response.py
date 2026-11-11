@@ -59,7 +59,7 @@ def test_offline_report_cannot_be_recovered_as_real_execution(tmp_path):
         )
     )
     backend = SimpleNamespace(identity="WS3_P002", settings=SimpleNamespace(db_user="WS3_P002"))
-    with pytest.raises(ValueError, match="authentic live failure"):
+    with pytest.raises(ValueError, match="authentic live evidence"):
         recover(
             backend, Request("Investigate payment idempotency.", "PAY-104", "v2"), tmp_path, run
         )

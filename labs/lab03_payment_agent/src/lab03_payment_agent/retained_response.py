@@ -26,12 +26,12 @@ def recover(backend, request, evidence_root: Path, source_run: str):
     if (
         original.get("run_id") != run
         or original.get("execution_mode") != "live"
-        or original.get("status") != "error"
+        or original.get("status") not in {"error", "answered"}
         or metrics.get("select_ai_runs") != 1
         or metrics.get("native_call_completed") is not True
         or backend.identity != backend.settings.db_user
     ):
-        raise ValueError("A completed native call and an authentic live failure are required")
+        raise ValueError("A completed native call and authentic live evidence are required")
     with backend.connection.cursor() as cursor:
         cursor.execute(
             "select result from USER_AI_AGENT_TASK_HISTORY where state='SUCCEEDED' "
