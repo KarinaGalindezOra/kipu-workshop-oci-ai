@@ -34,7 +34,7 @@ Debes recibir por el canal privado aprobado:
 | Confirmación de que tu red y tu asignación están listas | La ADB debe permitir tu conexión y tener tus objetos preparados. |
 | Autorización para las investigaciones de la sesión | Cada investigación puede consumir embeddings e inferencia de chat. |
 
-La contraseña OCI sirve para iniciar sesión en Oracle Cloud. **Database password** corresponde a tu usuario de base de datos y **Wallet password** protege los archivos mTLS; son credenciales distintas. El wallet no es una aplicación: viene en tu ZIP privado. Si el canal de entrega muestra una contraseña codificada en Base64, solicita o selecciona su valor **decodificado**; no pegues el texto codificado en el dashboard. Los participantes no necesitan acceso administrativo a Vault.
+La contraseña OCI sirve para iniciar sesión en Oracle Cloud. **Contraseña de la base de datos** corresponde a tu usuario de base de datos y **Contraseña del wallet** protege los archivos mTLS; son credenciales distintas. El wallet no es una aplicación: viene en tu ZIP privado. Si el canal de entrega muestra una contraseña codificada en Base64, solicita o selecciona su valor **decodificado**; no pegues el texto codificado en el dashboard. Los participantes no necesitan acceso administrativo a Vault.
 
 **Si falta algo, detente y avisa al facilitador.** Descargar GitHub no crea una cuenta ni entrega un wallet. No uses credenciales administrativas, otra asignación o configuraciones de workshops anteriores. El corpus, la calibración, el owner de memoria y los objetos del agente deben estar preparados previamente.
 
@@ -211,8 +211,8 @@ python -m lab03_payment_agent.participant readiness --session-file "$WorkshopSes
 
 La terminal solicita dos contraseñas:
 
-1. `Database password:`: la de tu usuario individual de aplicación.
-2. `Wallet password:`: la del wallet.
+1. `Contraseña de la base de datos:`: la de tu usuario individual de aplicación.
+2. `Contraseña del wallet:`: la del wallet.
 
 Los caracteres pueden no verse mientras escribes. Ingresa o pega la contraseña una vez y presiona Enter. Debes obtener:
 
@@ -237,10 +237,10 @@ Deja la terminal abierta. Si no se abre el navegador, visita [http://127.0.0.1:8
 En la barra lateral izquierda:
 
 1. Expándela si está contraída.
-2. En **Private session file**, pega la ruta absoluta de `$WorkshopSession`, no su contenido. Si necesitas ver solo la ruta, usa `Write-Output $WorkshopSession` en una terminal donde esté definida la variable.
-3. En **Private evidence directory**, introduce tu carpeta privada de evidencia.
-4. Completa **Database password** y **Wallet password**.
-5. Selecciona **Connect and check readiness** una vez y espera **Individual database identity verified**.
+2. En **Archivo privado de sesión**, pega la ruta absoluta de `$WorkshopSession`, no su contenido. Si necesitas ver solo la ruta, usa `Write-Output $WorkshopSession` en una terminal donde esté definida la variable.
+3. En **Carpeta privada de evidencias**, introduce tu carpeta privada de evidencia.
+4. Completa **Contraseña de la base de datos** y **Contraseña del wallet**.
+5. Selecciona **Conectar y verificar preparación** una vez y espera **Identidad individual de base de datos verificada**.
 
 Si el puerto está ocupado, detén ese comando con Ctrl+C, repítelo con `--server.port 8504` y abre `http://127.0.0.1:8504`. No inicies varios dashboards con la misma asignación.
 
@@ -260,13 +260,13 @@ Guarda una copia privada del [cuaderno del participante](participant_workbook.md
 
 ## 10. Minutos 15–40: recupera memoria y lee el contrato
 
-1. Selecciona **Recover approved memories (no inference)**.
+1. Selecciona **Recuperar memorias aprobadas (sin inferencia)**.
 2. Busca `seed-idempotency`, versión `v2`, con `source_run` igual a `seed`.
 3. Lee el procedimiento y explica qué recomienda cuando cambian los hashes del payload. Esa memoria es una regla aprobada de enseñanza, no un evento de pago.
 4. Abre `labs/lab03_payment_agent/data/contracts.json` en tu editor y localiza `v1` y `v2`.
 5. Identifica cómo distingue v2 una solicitud repetida con payload igual de una con payload diferente.
 
-Abrir un archivo del repositorio es una lectura local. La recuperación vectorial real se ejecuta durante la investigación; después deberás inspeccionar **Contract citations**. Leer el JSON local no acredita recuperación en OCI.
+Abrir un archivo del repositorio es una lectura local. La recuperación vectorial real se ejecuta durante la investigación; después deberás inspeccionar **Citas del contrato**. Leer el JSON local no acredita recuperación en OCI.
 
 ## 11. Minutos 40–80: completa una herramienta y las instrucciones
 
@@ -347,19 +347,19 @@ Debes obtener `ASSIGNED_AGENT_ROLE_UPDATED_AND_VERIFIED; NO_INFERENCE_CALLS`. So
 
 1. Verifica la vigencia de tu sesión CLI y renueva si corresponde, como en el paso 6.
 2. Vuelve al dashboard. Comprueba que está conectado y que no hay una investigación anterior activa.
-3. Conserva la pregunta predeterminada de **Synthetic question**: `Investigate payment idempotency and prepare a recommendation.`
-4. Selecciona **Synthetic payment** = `PAY-104` y **Contract version** = `v2`.
+3. Conserva la pregunta predeterminada de **Pregunta sobre el caso sintético**: `Investiga la idempotencia del pago y prepara una recomendación.` El ejemplo se muestra en español y conserva internamente la solicitud calibrada original en inglés; puedes inspeccionarla en **Ver la pregunta que se envía al agente**.
+4. Selecciona **Pago sintético** = `PAY-104` y **Versión del contrato** = `v2`.
 5. Lee la casilla de autorización de embeddings e inferencia. Márcala solo si esta ejecución está dentro del consumo autorizado.
-6. Selecciona **Run investigation** **una vez**. Espera; no hagas doble clic, recargues la página ni abras otra ejecución paralela.
+6. Selecciona **Ejecutar investigación** **una vez**. Espera; no hagas doble clic, recargues la página ni abras otra ejecución paralela.
 
 El resultado esperado es `answered`, con hallazgo `ESCALATE`. Inspecciona las cuatro pestañas:
 
 | Pestaña | Qué debes verificar |
 |---|---|
-| Contract citations | Corpus `synthetic-payments-03`, API `payments`, versión `v2`, extracto literal, identificador de evidencia y hash. |
-| Procedures | Regla procedural aprobada, versión e identificador con procedencia. |
-| Tool observations | `get_payment`, `get_payment_events` y `find_related_requests`, todos para PAY-104 y la ejecución actual; las dos solicitudes comparten clave y difieren en hash. |
-| Metrics | Latencia medida y contadores disponibles. Tokens null significa no disponibles, no consumo cero. |
+| Citas del contrato | Corpus `synthetic-payments-03`, API `payments`, versión `v2`, extracto literal, identificador de evidencia y hash. |
+| Procedimientos | Regla procedural aprobada, versión e identificador con procedencia. |
+| Resultados de herramientas | `get_payment`, `get_payment_events` y `find_related_requests`, todos para PAY-104 y la ejecución actual; las dos solicitudes comparten clave y difieren en hash. |
+| Métricas | Latencia medida y contadores disponibles. Tokens null significa no disponibles, no consumo cero. |
 
 Lee la respuesta **real** aceptada y contrasta cada cita con su extracto. Una explicación plausible sin observaciones o referencias verificables no pasa. No se publica el razonamiento interno del modelo.
 
@@ -370,10 +370,10 @@ La casilla de costo se reinicia en cada ejecución. Una investigación puede inv
 **Human review** aparece únicamente si una investigación validada produjo una propuesta. Lee todos sus campos: ejecución, pago, versión, hallazgo y solicitudes.
 
 1. Contrasta la propuesta con las observaciones que acabas de revisar.
-2. Marca **I reviewed and approve this exact case.**
-3. Selecciona **Register case** una vez.
+2. Marca **He revisado y apruebo este caso exacto.**
+3. Selecciona **Registrar caso** una vez.
 4. Verifica el recibo: `saved`, o `already_saved` si ya se había registrado ese mismo contenido.
-5. Sin cambiar la propuesta, repite **Register case**. Debe devolver `already_saved`, sin crear otro caso.
+5. Sin cambiar la propuesta, repite **Registrar caso**. Debe devolver `already_saved`, sin crear otro caso.
 
 Solo se registra un caso sintético de investigación. No se ejecuta un pago, un rechazo operativo real ni un reembolso. Si el resultado de la escritura es incierto, conserva la propuesta exacta y pide una auditoría; no cambies campos para generar otra clave.
 
@@ -385,13 +385,13 @@ Después del caso, aparece **Approve a reusable procedural memory**.
 
 1. Lee la propuesta completa: `identifier`, `content`, `version`, `source_run` y aprobación.
 2. Verifica que describe un procedimiento reutilizable, no un hecho operativo sin comprobar. La procedencia debe apuntar a la ejecución del caso.
-3. Marca **I approve this procedure and its provenance.** Es una aprobación distinta de la del caso.
-4. Selecciona **Save approved memory** y revisa el recibo.
+3. Marca **Apruebo este procedimiento y su procedencia.** Es una aprobación distinta de la del caso.
+4. Selecciona **Guardar memoria aprobada** y revisa el recibo.
 5. Repite la misma confirmación una vez; debes obtener `already_saved`.
 6. Anota el identificador y `source_run` en tu cuaderno privado.
-7. Selecciona **Disconnect / start a new session**. La respuesta anterior debe desaparecer.
-8. Introduce de nuevo ambas contraseñas y selecciona **Connect and check readiness**.
-9. Selecciona **Recover approved memories (no inference)**.
+7. Selecciona **Desconectar / iniciar una sesión nueva**. La respuesta anterior debe desaparecer.
+8. Introduce de nuevo ambas contraseñas y selecciona **Conectar y verificar preparación**.
+9. Selecciona **Recuperar memorias aprobadas (sin inferencia)**.
 10. Localiza `payment-idempotency-approved`, versión `v2`, aprobada, con el mismo contenido y `source_run`. La regla semilla también puede aparecer.
 
 Esa recuperación desde un SDK y una conexión nuevos demuestra persistencia en ADB. Ver todavía la respuesta anterior en pantalla no la demuestra. La recuperación genera un recibo local y no llama a un modelo. Guardar el caso no guarda automáticamente una lección; la extracción automática de memorias está deshabilitada.
@@ -432,10 +432,10 @@ Los tres recibos solo aparecen si realizaste la acción correspondiente.
 
 1. Abre tu carpeta privada de evidencia en el Explorador; esos archivos no se buscan en GitHub.
 2. Lee `evidence.md` y abre `evidence.json` localmente para inspeccionar citas, herramientas, propuesta y telemetría.
-3. Si falló la exportación automática, usa **Download evidence JSON** y guarda el archivo privadamente. Anota el fallo para revisión.
+3. Si falló la exportación automática, usa **Descargar evidencia JSON** y guarda el archivo privadamente. Anota el fallo para revisión.
 4. Completa el cuaderno con los resultados reales y la lista siguiente.
 5. Entrega evidencia solo por el canal privado autorizado. No publiques archivos de sesión, wallets, perfiles CLI, contraseñas ni reportes generados.
-6. Selecciona **Disconnect / start a new session**.
+6. Selecciona **Desconectar / iniciar una sesión nueva**.
 7. En la terminal de Streamlit, presiona Ctrl+C una vez y espera a que termine. Cierra la pestaña del navegador.
 
 ### Lista de comprobación del participante
@@ -470,9 +470,11 @@ No borres tablas, usuarios, memorias o recursos compartidos al terminar. La limp
 | Ya existe el archivo de prueba | Consérvalo y elige un nombre nuevo. |
 | El dashboard no conecta | Ejecuta readiness en terminal y comunica la clase/código seguros del error. No compartas configuraciones ni mensajes crudos del driver. |
 | La investigación devuelve error o timeout | Conserva evidencia, no apruebes un caso y solicita revisar la ejecución antes de otro intento pagado. |
-| Cita inválida o evidencia insuficiente | Revisa la versión, las fuentes y **Metrics**. `rag_candidate_count`, `rag_best_distance`, `rag_distance_threshold` y `rag_accepted_count` permiten distinguir falta de candidatos de rechazo por distancia. Solicita revisar la calibración; no aumentes el umbral ni repitas una investigación pagada por tu cuenta. |
+| Cita inválida o evidencia insuficiente | Revisa la versión, las fuentes y **Métricas**. `rag_candidate_count`, `rag_best_distance`, `rag_distance_threshold` y `rag_accepted_count` permiten distinguir falta de candidatos de rechazo por distancia. Solicita revisar la calibración; no aumentes el umbral ni repitas una investigación pagada por tu cuenta. |
 | Escritura de caso/memoria incierta | Conserva la propuesta exacta y solicita auditar su clave antes de reintentar. |
 | No aparece la memoria al reconectar | Comprueba que aprobaste y guardaste la lección por separado. Revisa identificador, versión y procedencia; solicita una auditoría acotada. |
+
+Si el facilitador confirma que una tarea nativa terminó correctamente pero falló la presentación de su respuesta, abre **Recuperar una respuesta completada sin otra ejecución pagada**, introduce el identificador indicado en **Identificador de la ejecución completada** y pulsa **Recuperar respuesta completada (sin inferencia)**. Esta operación exige el informe original, la tarea exitosa para la misma solicitud, las trazas reales y las fuentes verificables. Conserva el informe con error y genera evidencia separada con modo `stored_oci_revalidation`; no es una nueva investigación ni una simulación. No uses **Ejecutar investigación** como alternativa a esta recuperación.
 
 Para solicitar ayuda, indica el paso de la guía, la clase/código seguros y el identificador sintético de ejecución si existe. Nunca adjuntes contraseñas, wallets, perfiles OCI, tokens o archivos privados de sesión.
 

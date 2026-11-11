@@ -140,21 +140,21 @@ def test_dashboard_gates_writes_and_invalidates_changed_input(tmp_path):
     )
     app.run()
     assert not app.exception
-    next(i for i in app.text_input if i.label == "Private evidence directory").set_value(
+    next(i for i in app.text_input if i.label == "Carpeta privada de evidencias").set_value(
         str(tmp_path)
     ).run()
     buttons = {b.label: b for b in app.button}
-    assert buttons["Run investigation"].disabled
-    assert buttons["Register case"].disabled
-    next(c for c in app.checkbox if c.label.startswith("I reviewed")).check().run()
-    next(b for b in app.button if b.label == "Register case").click().run()
+    assert buttons["Ejecutar investigación"].disabled
+    assert buttons["Registrar caso"].disabled
+    next(c for c in app.checkbox if c.label.startswith("He revisado")).check().run()
+    next(b for b in app.button if b.label == "Registrar caso").click().run()
     assert not app.exception
     assert len(backend.saved) == 1
     assert (tmp_path / backend.identity / result.run_id / "case_confirmation.json").exists()
-    assert any(b.label == "Save approved memory" and b.disabled for b in app.button)
+    assert any(b.label == "Guardar memoria aprobada" and b.disabled for b in app.button)
     app.selectbox[0].select("PAY-105").run()
-    assert not any(b.label == "Register case" for b in app.button)
-    assert any("Inputs changed" in w.value for w in app.warning)
+    assert not any(b.label == "Registrar caso" for b in app.button)
+    assert any("Cambiaste los datos de entrada" in w.value for w in app.warning)
 
 
 def test_dashboard_disconnected_has_no_execution_controls():
@@ -163,7 +163,7 @@ def test_dashboard_disconnected_has_no_execution_controls():
     app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "ui" / "app.py"))
     app.run()
     assert not app.exception
-    assert not any(b.label == "Run investigation" for b in app.button)
+    assert not any(b.label == "Ejecutar investigación" for b in app.button)
 
 
 @pytest.mark.parametrize("distance,accepted", [(0.47710963509159976, False), (0.36, True)])
@@ -283,10 +283,10 @@ def test_dashboard_explains_only_allowlisted_readiness_failures(monkeypatch, kno
 
     monkeypatch.setattr(Settings, "load", fail_load)
     app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "ui/app.py")).run()
-    next(b for b in app.button if b.label == "Connect and check readiness").click().run()
+    next(b for b in app.button if b.label == "Conectar y verificar preparación").click().run()
     assert not app.exception
     assert len(app.warning) == int(known)
     if known:
-        assert "marked RUNNING" in app.warning[0].value
+        assert "marcada como RUNNING" in app.warning[0].value
     rendered = " ".join(e.value for e in [*app.error, *app.warning])
     assert "private connection configuration" not in rendered

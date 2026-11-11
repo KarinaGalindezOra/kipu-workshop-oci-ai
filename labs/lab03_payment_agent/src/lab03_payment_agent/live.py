@@ -13,6 +13,7 @@ from lab02_contract_rag.private_session import load_participant_session
 
 from .domain import CORPUS, Memory, Request, chunk
 from .oci_profile import profile_user
+from .response_format import parse_final_response
 
 
 @dataclass(frozen=True)
@@ -75,41 +76,6 @@ class Settings:
 
 def read_lob(value):
     return value.read() if hasattr(value, "read") else value
-
-
-def parse_final_response(raw: str) -> dict:
-    """Accept JSON presentation markers and a scalar citation alias without repairing content."""
-    if not isinstance(raw, str) or len(raw) > 20000:
-        raise ValueError("Invalid final response size or type")
-    value = raw.strip()
-    marker = re.match(r"^```(?:json)?[ \t]*\r?\n", value)
-    if marker:
-        value = value[marker.end() :].strip()
-        if value.endswith("```"):
-            value = value[:-3].strip()
-
-    def unique_object(pairs):
-        result = {}
-        for key, item in pairs:
-            if key in result:
-                raise ValueError("Duplicate final response key")
-            result[key] = item
-        return result
-
-    result = json.loads(value, object_pairs_hook=unique_object)
-    if not isinstance(result, dict):
-        raise ValueError("Final response must be an object")
-    claims = result.get("claims", [])
-    if not isinstance(claims, list):
-        raise ValueError("Claims must be an array")
-    for claim in claims:
-        if not isinstance(claim, dict):
-            raise ValueError("Each claim must be an object")
-        if "evidence_id" in claim:
-            if "evidence_ids" in claim or not isinstance(claim["evidence_id"], str):
-                raise ValueError("Ambiguous citation representation")
-            claim["evidence_ids"] = [claim.pop("evidence_id")]
-    return result
 
 
 class LiveBackend:
@@ -191,6 +157,9 @@ class LiveBackend:
         }
 
     def embed(self, text: str, *, input_type: str = "SEARCH_QUERY") -> list[float]:
+        from .recovery import ensure_paid_execution_allowed
+
+        ensure_paid_execution_allowed(self.settings)
         import oci
 
         config = oci.config.from_file(profile_name=self.settings.profile)
@@ -300,8 +269,9 @@ class LiveBackend:
 
         import oracledb
 
-        from .recovery import reviewed_stopped_runs
+        from .recovery import ensure_paid_execution_allowed, reviewed_stopped_runs
 
+        ensure_paid_execution_allowed(self.settings)
         self.readiness(reviewed_stopped_runs=reviewed_stopped_runs(self.settings))
         self.last_observations = []
         self.metrics["select_ai_runs"] = self.metrics.get("select_ai_runs", 0) + 1

@@ -75,9 +75,16 @@ def reviewed_stopped_runs(settings):
     return frozenset(loaded[1]["reviewed_stopped_runs"]) if loaded else frozenset()
 
 
+def ensure_paid_execution_allowed(settings):
+    loaded = load_review(settings)
+    if loaded and loaded[1].get("paid_execution_allowed") is False:
+        raise ValueError("Recovery review is read-only; no new paid execution is authorized")
+    return loaded
+
+
 def claim_recovery_investigation(settings):
     """Consume the recovery's single paid-attempt slot before embedding, including failures."""
-    loaded = load_review(settings)
+    loaded = ensure_paid_execution_allowed(settings)
     if loaded:
         path, review = loaded
         marker = path.parent / (review["review_id"] + ".attempt-used")

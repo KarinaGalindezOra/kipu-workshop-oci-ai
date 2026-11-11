@@ -87,3 +87,30 @@ def test_invalid_or_unverified_reviews_fail_closed(reviewed, invalid):
     with pytest.raises(ValueError):
         claim_recovery_investigation(settings)
     assert not list(path.parent.glob("*.attempt-used"))
+
+
+def test_readonly_review_cannot_claim_a_paid_attempt(reviewed):
+    settings, path, review = reviewed
+    review["paid_execution_allowed"] = False
+    path.write_text(json.dumps(review))
+    assert reviewed_stopped_runs(settings) == frozenset({"one-stopped-native-run"})
+    with pytest.raises(ValueError, match="read-only"):
+        claim_recovery_investigation(settings)
+    assert not list(path.parent.glob("*.attempt-used"))
+
+
+@pytest.mark.parametrize("operation", ["embed", "run"])
+def test_readonly_review_blocks_direct_provider_entry_points(reviewed, operation):
+    from lab03_payment_agent.domain import Request
+    from lab03_payment_agent.live import LiveBackend
+
+    settings, path, review = reviewed
+    review["paid_execution_allowed"] = False
+    path.write_text(json.dumps(review))
+    backend = object.__new__(LiveBackend)
+    backend.settings = settings
+    with pytest.raises(ValueError, match="read-only"):
+        if operation == "embed":
+            backend.embed("payment idempotency")
+        else:
+            backend.run(Request("Investigate payment idempotency.", "PAY-104", "v2"), {}, "run")
