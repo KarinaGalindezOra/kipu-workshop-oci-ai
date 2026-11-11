@@ -33,7 +33,19 @@ def disconnect():
     backend = state.pop("backend", None)
     if backend:
         backend.close()
-    for key in ("result", "request_hash", "case_saved", "current_memories", "registered_team"):
+    for key in (
+        "result",
+        "inspection_result",
+        "request_hash",
+        "case_saved",
+        "current_memories",
+        "registered_team",
+        "builder_receipt",
+        "agent_inventory",
+        "corpus_inventory",
+        "agent_ready",
+        "corpus_ready",
+    ):
         state.pop(key, None)
 
 

@@ -132,6 +132,11 @@ def test_loading_retained_report_shows_recorded_metrics_without_confirmations():
     assert not {"Registrar caso", "Guardar memoria aprobada"}.intersection(
         b.label for b in app.button
     )
+    next(
+        button for button in app.button if button.label == "Desconectar / iniciar una sesión nueva"
+    ).click().run()
+    assert not app.exception
+    assert len(app.metric) == 0
 
 
 @pytest.mark.parametrize(
