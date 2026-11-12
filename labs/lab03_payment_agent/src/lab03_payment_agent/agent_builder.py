@@ -135,7 +135,7 @@ def register(backend, blueprint, approved_fingerprint):
     views = {
         "TOOL": ("USER_AI_AGENT_TOOLS", "TOOL_NAME"),
         "AGENT": ("USER_AI_AGENTS", "AGENT_NAME"),
-        "TASK": ("USER_AI_AGENT_TASK", "TASK_NAME"),
+        "TASK": ("USER_AI_AGENT_TASKS", "TASK_NAME"),
         "TEAM": ("USER_AI_AGENT_TEAMS", "AGENT_TEAM_NAME"),
     }
     with backend.connection.cursor() as cursor:

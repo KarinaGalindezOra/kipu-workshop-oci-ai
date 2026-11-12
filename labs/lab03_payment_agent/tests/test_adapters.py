@@ -294,3 +294,35 @@ def test_dashboard_explains_only_allowlisted_readiness_failures(monkeypatch, kno
         assert "marcada como RUNNING" in app.warning[0].value
     rendered = " ".join(e.value for e in [*app.error, *app.warning])
     assert "private connection configuration" not in rendered
+
+
+def test_builder_failure_shows_only_safe_database_code(monkeypatch):
+    import lab03_payment_agent.agent_builder as builder
+    from streamlit.testing.v1 import AppTest
+    from test_workshop import FakeBackend
+
+    monkeypatch.delenv("LAB03_RECOVERY_REVIEW_FILE", raising=False)
+    backend = FakeBackend()
+    backend.settings = SimpleNamespace(
+        db_user=backend.identity,
+        manifest_name="research_contracts.json",
+        corpus_id="synthetic-payments-research-03",
+        agent_team="WS3_LEARN_TEAM",
+    )
+
+    def fail(*args):
+        raise RuntimeError("ORA-00942: private-credential-sentinel")
+
+    monkeypatch.setattr(builder, "register", fail)
+    app = AppTest.from_file(str(Path(__file__).parents[1] / "ui/app.py"))
+    app.session_state["backend"] = backend
+    app.run()
+    next(b for b in app.button if b.label == "Generar definición revisable").click().run()
+    next(
+        c for c in app.checkbox if c.label.startswith("He revisado y autorizo crear")
+    ).check().run()
+    next(b for b in app.button if b.label == "Registrar mi agente en ADB").click().run()
+    assert not app.exception
+    visible = "\n".join(item.value for item in [*app.caption, *app.error])
+    assert "ORA-00942" in visible
+    assert "private-credential-sentinel" not in visible

@@ -1,6 +1,7 @@
 """Builder safety and native registration boundaries without OCI access."""
 
 import json
+import re
 from types import SimpleNamespace
 
 import pytest
@@ -27,6 +28,18 @@ def fake_backend(monkeypatch, existing=False, fail_at=None):
             pass
 
         def execute(self, sql, **bindings):
+            available_views = {
+                "USER_CLOUD_AI_PROFILES",
+                "USER_AI_AGENT_TOOLS",
+                "USER_AI_AGENTS",
+                "USER_AI_AGENT_TASKS",
+                "USER_AI_AGENT_TEAMS",
+            }
+            referenced = re.findall(r"\bfrom\s+([A-Z_]+)", sql, re.IGNORECASE)
+            if any(view.upper() not in available_views for view in referenced):
+                raise RuntimeError(
+                    "ORA-00942: view is not available in the verified database contract"
+                )
             self.sql, self.bindings = sql, bindings
             calls.append((sql, bindings))
             if "CREATE_" in sql:

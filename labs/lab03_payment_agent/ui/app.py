@@ -231,7 +231,13 @@ with builder_tab:
                 st.error(
                     "El registro no terminó. Conserva la definición y solicita revisar los objetos antes de repetir; no se eliminará nada automáticamente."
                 )
-                st.caption("Clase segura: " + type(error).__name__)
+                codes = sorted(set(re.findall(r"\b(?:ORA|DPY|DPI|TNS)-\d{3,5}\b", str(error))))
+                st.caption(
+                    "Clase segura: "
+                    + type(error).__name__
+                    + "; código: "
+                    + (",".join(codes) or "no disponible")
+                )
         if state.get("builder_receipt"):
             st.json(state.builder_receipt)
     if backend and st.button("Inspeccionar equipos registrados (sin inferencia)"):
