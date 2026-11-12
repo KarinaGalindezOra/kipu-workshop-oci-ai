@@ -10,7 +10,7 @@ Agente de investigación de pagos sintéticos con Oracle AI Agent Memory, RAG co
 
 El recorrido dura **180 minutos**, después del prework. Recibirás tu asignación y wallet por un canal privado; no crees recursos OCI ni uses credenciales administrativas. El [cuaderno del participante](labs/lab03_payment_agent/docs/participant_workbook.md) permite registrar evidencia real.
 
-El dashboard permite diseñar el agente, consultar en español, inspeccionar el RAG y evaluar métricas. La nueva edición de construcción y corpus ampliado requiere un piloto OCI autorizado. El recorrido anterior fue validado con un participante y recuperación técnica; no acredita la nueva edición ni concurrencia de 15 sesiones.
+El dashboard permite diseñar el agente, consultar en español, inspeccionar el RAG y evaluar métricas. El recorrido principal fue validado con una participante en OCI: construcción nativa, investigación en vivo, aprobaciones humanas, recuperación de memoria tras reconectar y auditoría de confirmaciones sin duplicados. Permanecen pendientes la matriz completa de negativos/fallos, aislamiento entre identidades, concurrencia de 15 sesiones y ensayo de instalación desde cero. Consulta el [estado y límites del laboratorio](labs/lab03_payment_agent/README.md#estado-y-límites).
 
 ## ¿Participarás en Workshop 2?
 

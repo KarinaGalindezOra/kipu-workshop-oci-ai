@@ -60,12 +60,13 @@ Abre `http://127.0.0.1:8503`. Las contraseñas se solicitan localmente. No almac
 
 ## Estado y límites
 
-**La nueva experiencia está implementada y comprobada localmente; su constructor, corpus ampliado y consultas en español aún requieren un piloto OCI autorizado.** No se ha migrado una asignación privada existente ni ejecutado nuevas inferencias para publicar este cambio. El informe anterior puede inspeccionarse sin conexión; está etiquetado como lectura histórica y no habilita confirmaciones.
+**El recorrido principal de la nueva edición fue validado con una participante y servicios OCI reales.** En un esquema limpio, la participante diseñó y registró los seis objetos nativos desde el dashboard, investigó PAY-104/v2 en español, inspeccionó herramientas, RAG y métricas, aprobó el caso y la memoria por separado y recuperó la lección tras desconectar y reconectar.
 
+La investigación terminó normalmente en modo live, sin recuperación de una respuesta fallida: 58,63 segundos, tres herramientas observadas, tres cláusulas recuperadas, una memoria recuperada y citada, y un embedding de consulta. Son mediciones de una ejecución, no una garantía de latencia ni precisión. Tokens y llamadas internas al proveedor no estuvieron disponibles.
 
-El piloto y una prueba individual con identidad separada ejecutaron herramientas reales en ADB. En la prueba individual, el participante completó la herramienta y las instrucciones, revisó la respuesta de una tarea nativa exitosa, aprobó el caso y la memoria por separado y recuperó la lección tras reconectar. La auditoría real verificó `already_saved` y un único registro por confirmación, sin nuevas escrituras ni inferencias.
+Una auditoría posterior verificó `already_saved`, un único registro completado por confirmación y una sola memoria aprobada con la procedencia correcta, sin nuevas escrituras, embeddings ni ejecuciones del agente. La evidencia detallada y las credenciales permanecen privadas. Los ensayos anteriores con recuperación técnica se conservan como antecedentes separados.
 
-La respuesta final se recuperó y revalidó desde OCI después de corregir su presentación JSON; el informe original con error se conservó. Esto acredita el recorrido con recuperación técnica, no una nueva ejecución ininterrumpida después de la corrección. Permanecen pendientes esa ejecución normal, la matriz completa de negativos/fallos, la verificación completa de aislamiento entre dos identidades y hasta 15 sesiones concurrentes.
+El ensayo actual comenzó desde un dashboard preparado y usó funciones PL/SQL previamente instaladas. Permanecen pendientes la matriz completa de negativos/fallos, el aislamiento operativo y de memoria entre dos identidades reales, hasta 15 sesiones simultáneas y una repetición del prework por un participante desde una instalación nueva. Esta validación del caso principal no acredita esos puntos.
 
 Las pruebas locales no generan respuestas OCI ni se presentan como evidencia de ejecución en la nube. Los tokens no disponibles permanecen como null. Conserva tus reportes fuera de GitHub y deja pendiente cualquier prueba que no hayas ejecutado.
 
