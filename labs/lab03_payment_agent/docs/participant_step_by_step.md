@@ -5,6 +5,12 @@ Construirás un agente que investiga pagos **sintéticos** usando Oracle AI Agen
 La sesión dura **180 minutos**. La instalación y los accesos se completan **antes**. Esta guía contiene el recorrido completo para Windows y una sección de comandos para macOS/Linux al final. No necesitas crear recursos OCI, políticas IAM, usuarios, almacenes de memoria ni perfiles de modelos.
 
 
+## Continuar desde el dashboard conectado
+
+Si ya ves **Identidad individual de base de datos verificada** y el facilitador confirmó que las herramientas PL/SQL están preparadas, continúa en [11.2: Define y registra el agente nativo](#112-define-y-registra-el-agente-nativo). Allí están los textos para completar los campos y los botones que debes pulsar. La actividad SQL de 11.1 se realiza si forma parte del recorrido acordado para tu sesión.
+
+La instalación y la conexión de los pasos 1–8 no se repiten durante este recorrido. Construye y verifica el agente antes de enviar la consulta del paso 12.
+
 ## 0. Qué estás construyendo y por qué
 
 El caso contiene dos solicitudes sintéticas con la misma clave de idempotencia y distinto contenido. Tu agente deberá investigar esa diferencia y justificar una recomendación. No ejecutará pagos ni reembolsos.
@@ -330,10 +336,16 @@ Cada comando solicita las dos contraseñas. PAY-104 debe mostrar dos solicitudes
 
 Vuelve al navegador y abre **Construir mi agente**:
 
-1. Escribe tu objetivo: qué investigará y qué debe entregar.
-2. Completa las instrucciones: consultar hechos antes de concluir, respetar contrato vigente, reconocer evidencia insuficiente y mantener revisión humana.
-3. Conserva las tres herramientas: `get_payment`, `get_payment_events`, `find_related_requests`. Esta tarea las necesita; no admite SQL arbitrario.
-4. Pulsa **Generar definición revisable**. Esto solo genera una definición local.
+1. En el campo **Objetivo de mi agente**, sustituye el texto inicial por:
+
+   > Investigar reintentos de pagos sintéticos y recomendar una acción respaldada por el contrato vigente y los hechos consultados.
+
+2. En **Instrucciones que debe respetar**, sustituye el texto inicial por:
+
+   > Consulta el pago, sus eventos y las solicitudes relacionadas. Compara claves de idempotencia y hashes del payload. Cita el contrato seleccionado. Si falta evidencia, indícalo. La memoria no sustituye al contrato. No ejecutes pagos ni reembolsos. El registro de casos y la aprobación de memorias requieren revisión humana.
+
+3. En **Herramientas disponibles**, conserva seleccionadas `get_payment`, `get_payment_events` y `find_related_requests`. Esta tarea necesita las tres; no admite SQL arbitrario.
+4. Pulsa **Generar definición revisable**. Debe aparecer una tabla con **seis objetos**: tres herramientas, un agente, una tarea y un equipo. En este punto solo generaste el diseño local: todavía no creaste esos objetos en ADB ni ejecutaste el modelo.
 5. Abre **Inspeccionar instrucciones y SQL que construyen el agente**. Identifica seis llamadas `CREATE_*` de `DBMS_CLOUD_AI_AGENT`: tres herramientas, un agente, una tarea y un equipo.
 6. Distingue la función PL/SQL que acabas de completar de la herramienta registrada que permite al agente llamarla. Revisa también las restricciones fijas de la tarea.
 7. Descarga la definición SQL si quieres conservarla. No la ejecutes también por terminal: usa un único mecanismo de registro.
