@@ -66,7 +66,9 @@ La investigación terminó normalmente en modo live, sin recuperación de una re
 
 Una auditoría posterior verificó `already_saved`, un único registro completado por confirmación y una sola memoria aprobada con la procedencia correcta, sin nuevas escrituras, embeddings ni ejecuciones del agente. La evidencia detallada y las credenciales permanecen privadas. Los ensayos anteriores con recuperación técnica se conservan como antecedentes separados.
 
-El ensayo actual comenzó desde un dashboard preparado y usó funciones PL/SQL previamente instaladas. Permanecen pendientes la matriz completa de negativos/fallos, el aislamiento operativo y de memoria entre dos identidades reales, hasta 15 sesiones simultáneas y una repetición del prework por un participante desde una instalación nueva. Esta validación del caso principal no acredita esos puntos.
+El 18 de noviembre de 2026 también pasaron siete escenarios reales: reintento con payload idéntico, solicitud única, pago inexistente comprobado por herramienta, conflicto entre contrato v1 y memoria v2, versión ausente, SLA fuera del corpus y rechazo RAG de una pregunta amplia. El lote completó cinco embeddings y tres investigaciones, sin reintentos ni nuevas confirmaciones de casos o memorias. Las investigaciones válidas citaron la memoria aprobada en el ensayo previo. Los fallos de timeout, conexión, límite OCI 429 y pago incorrecto se comprobaron con dobles locales; no se provocaron caídas de OCI.
+
+El ensayo actual comenzó desde un dashboard preparado y usó funciones PL/SQL previamente instaladas. Permanecen pendientes el aislamiento operativo y de memoria entre dos identidades reales, hasta 15 sesiones simultáneas y una repetición del prework por un participante desde una instalación nueva. Las validaciones individuales no acreditan esos puntos.
 
 Las pruebas locales no generan respuestas OCI ni se presentan como evidencia de ejecución en la nube. Los tokens no disponibles permanecen como null. Conserva tus reportes fuera de GitHub y deja pendiente cualquier prueba que no hayas ejecutado.
 

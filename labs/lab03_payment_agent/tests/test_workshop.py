@@ -254,3 +254,43 @@ def test_report_has_no_internal_reasoning(tmp_path, request_data):
     directory = write_report(result, tmp_path, "WS3_P001")
     assert "offline_test" in (directory / "evidence.json").read_text()
     assert (directory / "evidence.md").exists()
+
+
+@pytest.mark.parametrize("failure_kind", ["timeout", "connection_loss", "rate_limit"])
+def test_provider_faults_preserve_evidence_without_retry_or_secret_leak(failure_kind):
+    import json
+
+    from oci.exceptions import ServiceError
+
+    private_marker = "synthetic-private-error-marker"
+    failures = {
+        "timeout": TimeoutError(private_marker),
+        "connection_loss": ConnectionError(private_marker),
+        "rate_limit": ServiceError(429, "TooManyRequests", {}, private_marker),
+    }
+    backend = FakeBackend()
+    backend.fail = failures[failure_kind]
+    result = investigate(backend, Request("Investigate payment idempotency.", "PAY-104", "v2"))
+    result.execution_mode = "offline_test"
+    assert result.status == "error" and result.proposal is None
+    assert backend.calls == 1
+    assert result.memories and result.citations
+    assert result.tools == []
+    assert result.telemetry["error_type"] == type(failures[failure_kind]).__name__
+    assert private_marker not in json.dumps(result.as_dict())
+
+
+def test_wrong_payment_in_tool_result_is_rejected_without_retry():
+    backend = FakeBackend()
+    original = backend.run
+
+    def wrong_payment(request, context, run_id):
+        response, tools = original(request, context, run_id)
+        tools[0]["payment_id"] = "PAY-999"
+        return response, tools
+
+    backend.run = wrong_payment
+    result = investigate(backend, Request("Investigate payment idempotency.", "PAY-104", "v2"))
+    result.execution_mode = "offline_test"
+    assert result.status == "error" and result.proposal is None
+    assert backend.calls == 1
